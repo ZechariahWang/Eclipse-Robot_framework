@@ -50,8 +50,8 @@ void Eclipse::MatchMovement::dt_Control(){
 
     int32_t left = (rightXjoystick + leftYjoystick) * (12000.0 / 127);
     int32_t right = (leftYjoystick - rightXjoystick) * (12000.0 / 127);
-    utility::leftvoltagereq(left);
-    utility::rightvoltagereq(right);
+    utility::engage_left_motors(left);
+    utility::engage_right_motors(right);
 }
 
 /**
@@ -73,8 +73,8 @@ void Eclipse::MatchMovement::exponential_curve_accelerator(){
     double forwardVoltage = forward_val * (12000.0 / 127);
     double left =  forwardVoltage + turnVoltage;
     double right = forwardVoltage - turnVoltage;
-    utility::leftvoltagereq(left);
-    utility::rightvoltagereq(right);
+    utility::engage_left_motors(left);
+    utility::engage_right_motors(right);
 
 }
 

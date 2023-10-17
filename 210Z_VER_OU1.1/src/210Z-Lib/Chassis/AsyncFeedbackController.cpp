@@ -312,31 +312,45 @@ void Eclipse::FeedbackControl::move_to_point(
   }
 }
 
+bool canReverse;
+int minError = 5;
+
 void boomerang(double target_x, double target_y, double target_theta, double max_linear_speed, double max_rotation_speed, double d_lead, double kp_linear, double kp_angular) {
     while (true) {
-        // odom_task_new();
-        double h = utility::getDistanceError(target_x, target_y); 
-        double at = target_theta * M_PI / 180;
-        double carrot_point_x = target_x - h * std::cos(at) * d_lead;
-        double carrot_point_y = target_y - h * std::sin(at) * d_lead;
+      odom.update_odom();
 
-        double global_linear_error = utility::getDistanceError(target_x, target_y);
-        double angular_error = utility::getAngleError(carrot_point_x, carrot_point_y, false);
-        double linear_error = global_linear_error;
+      double h = utility::getDistanceError(target_x, target_y);
+      double at = target_theta * M_PI / 180.0;
+      double carrotPoint_x = target_x - h * cos(at) * d_lead;
+      double carrotPoint_y = target_y - h * sin(at) * d_lead;
+  
+      // get current error
+      double lin_error = utility::getDistanceError(target_x, target_y);
+      double ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, false);
 
-        double linear_speed = linear_error * kp_linear;
-        double angular_speed = angular_error * kp_angular;
+      // calculate linear speed
+      double lin_speed;
+      lin_speed = lin_error * 1.2;
+      double ang_speed = ang_error * 60;
 
+      // cap linear speed
+      if (lin_speed > max_linear_speed)
+        lin_speed = max_linear_speed;
+ 
 
-        utility::leftvoltagereq((linear_speed - angular_speed) * (12000.0 / 127));
-        utility::rightvoltagereq((linear_speed + angular_speed) * (12000.0 / 127));
+      // add speeds together zech has autism
+      double left_speed = lin_speed - ang_speed;
+      double right_speed = lin_speed + ang_speed;
 
-        if (fabs(linear_error) < 3){
-          utility::stop();
-          break;
-        }
+      utility::engage_left_motors(left_speed * (12000.0 / 127));
+      utility::engage_right_motors(right_speed * (12000.0 / 127));
 
-        pros::delay(10);
+      if (fabs(lin_error) < minError){
+        utility::motor_deactivation();
+        break;
+      }
+
+      pros::delay(10);
     }
 }
 
@@ -510,7 +524,7 @@ void new_boomerang(float x, float y, float theta, float lead) {
         double h = std::sqrt(pow(x - global_robot_x, 2) + pow(y - global_robot_y, 2));
         if (h < 7.5) close = true;
 
-        // calculate the carrot point
+        // calculate the POOP point
 
         double carrot_x = x - h * std::cos(math.deg_to_rad(theta)) * lead;
         double carrot_y = y - h * std::sin(math.deg_to_rad(theta)) * lead;

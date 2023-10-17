@@ -85,47 +85,45 @@ double tpi = 1;
 double middle_tpi = 1;
  
 void Eclipse::Odometry::update_odom() {
-  while (true){
-    double right_pos = -getRotationDistanceTraveled();
-    double middle_pos = 0;
+  double right_pos = -getRotationDistanceTraveled();
+  double middle_pos = 0;
 
-    double delta_right = (right_pos - prev_right_pos) / tpi;
-    double delta_middle = (middle_pos - prev_middle_pos) / middle_tpi;
+  double delta_right = (right_pos - prev_right_pos) / tpi;
+  double delta_middle = (middle_pos - prev_middle_pos) / middle_tpi;
   
-    double delta_angle;
-    heading = -imu_sensor.get_rotation() * M_PI / 180.0;
-    delta_angle = heading - prev_heading;
+  double delta_angle;
+  heading = -imu_sensor.get_rotation() * M_PI / 180.0;
+  delta_angle = heading - prev_heading;
   
-    prev_right_pos = right_pos;
-    prev_middle_pos = middle_pos;
-    prev_heading = heading;
+  prev_right_pos = right_pos;
+  prev_middle_pos = middle_pos;
+  prev_heading = heading;
   
-    double local_x;
-    double local_y;
+  double local_x;
+  double local_y;
   
-    if (delta_angle) {
-      double i = sin(delta_angle / 2.0) * 2.0;
-      local_x = (delta_right / delta_angle - 3) * i;
-      local_y = (delta_middle / delta_angle + 1.2) * i;
-    } else {
-      local_x = delta_right;
-      local_y = delta_middle;
-    }
-  
-    double p = heading - delta_angle / 2.0; 
-    odom_pos.x += cos(p) * local_x - sin(p) * local_y;
-    odom_pos.y += cos(p) * local_y + sin(p) * local_x;
-
-    utility::set_x(odom_pos.x);
-    utility::set_y(odom_pos.y);
-
-    data_displayer.output_sensor_data(); 
-    data_displayer.display_data();
-    data_displayer.output_misc_data();
-
-    pros::delay(10);
-
+  if (delta_angle) {
+    double i = sin(delta_angle / 2.0) * 2.0;
+    local_x = (delta_right / delta_angle - 3) * i;
+    local_y = (delta_middle / delta_angle + 1.2) * i;
+  } else {
+    local_x = delta_right;
+    local_y = delta_middle;
   }
+  
+  double p = heading - delta_angle / 2.0; 
+  odom_pos.x += cos(p) * local_x - sin(p) * local_y;
+  odom_pos.y += cos(p) * local_y + sin(p) * local_x;
+
+  utility::set_x(odom_pos.x);
+  utility::set_y(odom_pos.y);
+
+  data_displayer.output_sensor_data(); 
+  data_displayer.display_data();
+  data_displayer.output_misc_data();
+
+  pros::delay(10);
+
 }
 
 void Eclipse::Odometry::init_odom(){

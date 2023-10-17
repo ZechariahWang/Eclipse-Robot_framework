@@ -1,4 +1,5 @@
 #include "AssetDirectoryConfig.hpp"
+#include "Globals.hpp"
 
 using namespace Eclipse;
 
@@ -6,9 +7,7 @@ std::vector<pros::Motor> chassis_left_motors;
 std::vector<pros::Motor> chassis_right_motors;
 
 AssetConfig::AssetConfig(std::vector<int> left_chassis_ports,
-                         std::vector<int> right_chassis_ports,
-                        bool left_reversed,
-                        bool right_reversed) {
+                         std::vector<int> right_chassis_ports) {
                             
     config.front_left_port = left_chassis_ports.at(0);
     config.middle_left_port = left_chassis_ports.at(1);
@@ -27,8 +26,8 @@ AssetConfig::AssetConfig(std::vector<int> left_chassis_ports,
        chassis_right_motors.push_back(temp);
     }
 
-    config.left_reversed = left_reversed;
-    config.right_reversed = right_reversed;
-    
+    config.left_reversed = true;
+    config.right_reversed = false;
+
 }
 

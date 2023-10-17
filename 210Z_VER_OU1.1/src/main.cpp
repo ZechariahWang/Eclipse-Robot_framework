@@ -19,17 +19,25 @@
 
 using namespace Eclipse;
 
-constexpr     u_int64_t time_dt           = 100000; // Time until initialize phase ends. Effectively infinite.
-constexpr     u_int16_t delayAmount    = 10; // Dont overload the CPU during OP control
-char          buffer[100];
+constexpr u_int64_t time_dt = 100000; // Time until initialize phase ends. Effectively infinite.
+constexpr u_int16_t delayAmount = 10; // Dont overload the CPU during OP control
+char buffer[100];
 
+// Chassis drivetrain config. If you want to config sensors, and misc subsystems go to globals.cpp
 AssetConfig config(
-	{19, 9, 7}, // Left Motor Ports
-	{16, 40, 5},  // Right Motor Ports
-	false, // left motors reversed?
-	true // right motors reversed?
+	{19, 9, 7}, // Left Motor Ports (negative value means ports are reversed)
+	{-16, -40, -5} // Right Motor Ports (negative value means port is reversed)
 );
 
+pros::ADIEncoder vertical_auxiliary_sensor('d', 'f', true); // vertical tracking wheel
+pros::Rotation horizontal_rotation_sensor(8); // horizontal tracking wheel
+pros::Imu imu_sensor(20); // IMU sensor
+
+
+// Game specific subsystems. Header declaration is in globals.hpp
+pros::ADIAnalogIn cata_sensor('h');
+pros::Motor cata_motor(3, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS);
+pros::Motor intake_motor(12, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS);
 
 lv_obj_t *sensor_button_home; lv_obj_t *auton_button_home; lv_obj_t *misc_button_home; lv_obj_t *game_button_home; lv_obj_t *welcomeDisplay; lv_obj_t *home_welcome_text; lv_obj_t *home_page = lv_page_create(lv_scr_act(), NULL);
 lv_obj_t *odom_readings_sensor; lv_obj_t *dt_readings_sensor; lv_obj_t *sensor1_readings_sensor; lv_obj_t *sensor2_readings_sensor; lv_obj_t *sensor3_readings_sensor; lv_obj_t *sensor4_readings_sensor; lv_obj_t *return_button_sensor;
@@ -557,8 +565,6 @@ void initialize() { // Init function control
 	hide_autonPage();
 	hide_gamePage();
 	hide_miscPage();
-
-	GPS_ENABLED = false; // DETERMINES WHETHER OR NOT USING GPS SENSOR
  
 	//-- Reset sensors and auton selector init //--
 	pros::delay(3000);
@@ -653,11 +659,7 @@ void autonomous(){  // Autonomous function control
 
 
 	// mtp.move_to_point(20, -20, 60, 60, 10, 80, false);
-	boomerang(20, 20, 90, 2000, 2000, 0.8, 5, 10);
-
-
-	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(33, 60, false);
+	boomerang(40, 40, 180, 2000, 2000, 0.9, 5, 10);
 
 	// raw_motor(600);
 
@@ -709,8 +711,8 @@ void opcontrol(){ // Driver control function
 	char buffer[300]; 
 	while (true){
 		op_mov.x_drive_dt_Control();
-		utility::engage_left_motors(2000);
-		utility::engage_right_motors(2000);
+	//	op_mov.exponential_curve_accelerator();
+		odom.update_odom();
 
 		pros::delay(delayAmount); // Dont hog CPU ;)
 	}

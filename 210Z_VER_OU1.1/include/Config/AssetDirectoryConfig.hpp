@@ -8,9 +8,7 @@ class AssetConfig{
     public:
         AssetConfig();
         AssetConfig(std::vector<int> left_chassis_ports,
-                    std::vector<int> right_chassis_ports,
-                    bool left_reversed,
-                    bool right_reversed);
+                    std::vector<int> right_chassis_ports);
 
         int8_t front_left_port;
         int8_t middle_left_port;

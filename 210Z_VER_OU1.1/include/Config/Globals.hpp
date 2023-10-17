@@ -3,7 +3,6 @@
 #pragma once
 #include "main.h"
 
-extern bool GPS_ENABLED;
 extern pros::Controller controller;
 extern pros::Motor dt_front_left;
 extern pros::Motor dt_front_right;
@@ -15,8 +14,7 @@ extern pros::Motor dt_rear_right;
 extern pros::ADIEncoder vertical_auxiliary_sensor;
 extern pros::Rotation horizontal_rotation_sensor;
 extern pros::Imu imu_sensor;
-extern pros::Gps gps_sensor;
-extern pros::c::gps_status_s_t gps_data;
+
 
 extern pros::MotorGroup left_side_motors;
 extern pros::MotorGroup right_side_motors;

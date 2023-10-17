@@ -4,7 +4,7 @@
 extern double global_robot_x;
 extern double global_robot_y;
 extern double heading;
-
+ 
 int current_robot_heading();
 
 namespace Eclipse{
