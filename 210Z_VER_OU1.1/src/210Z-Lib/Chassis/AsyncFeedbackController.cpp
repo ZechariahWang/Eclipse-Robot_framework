@@ -269,6 +269,8 @@ void mimic_move_to_point(double target_x,
  * @param kp_angular angular proportional value
  */
 
+// TODO work on reverse movement
+int ct = 0;
 void Eclipse::FeedbackControl::move_to_point(
                    double target_x,
                    double target_y,
@@ -280,44 +282,45 @@ void Eclipse::FeedbackControl::move_to_point(
 
   while (true){
 
+    odom.update_odom();
 
     double angular_error = utility::getAngleError(target_x, target_y, false);
     double linear_error = utility::getDistanceError(target_x, target_y);
 
+    if (backwards == true){
+      angular_error = utility::getAngleError(target_x, target_y, true);
+      linear_error = -linear_error;
+    }
     double linear_speed = linear_error * kp_linear;
     double angular_speed = angular_error * kp_angular;
 
-    if (linear_speed > max_linear_speed) {
-      linear_speed = max_linear_speed;
-    }
-    if (linear_speed < -max_linear_speed){
-      linear_speed = -max_linear_speed;
-    }
-    if (angular_speed > max_rotation_speed){
-      angular_speed = max_rotation_speed;
-    }
-    if (angular_speed < -max_rotation_speed){
-      angular_speed = -max_rotation_speed;
+    if (ct < 20){
+      linear_speed = 0;
     }
 
-    utility::leftvoltagereq((linear_speed - angular_speed) * (12000.0 / 127));
-    utility::rightvoltagereq((linear_speed + angular_speed) * (12000.0 / 127));
+    std::cout << "angular error: " << angular_error << std::endl;
 
+    utility::engage_left_motors((linear_speed - angular_speed) * (12000.0 / 127));
+    utility::engage_right_motors((linear_speed + angular_speed) * (12000.0 / 127));
+    ct++;
+  
     if (fabs(linear_error) < 3){
-      utility::stop();
+      utility::motor_deactivation();
       break;
     }
+
 
     pros::delay(10);
   }
 }
 
 bool canReverse;
-int minError = 5;
+int minError = 10;
 
-void boomerang(double target_x, double target_y, double target_theta, double max_linear_speed, double max_rotation_speed, double d_lead, double kp_linear, double kp_angular) {
+void boomerang(double target_x, double target_y, double target_theta, double max_linear_speed, double max_rotation_speed, double d_lead, double kp_linear, double kp_angular, bool reverse) {
     while (true) {
       odom.update_odom();
+      bool noPose = (target_theta > 360);
 
       double h = utility::getDistanceError(target_x, target_y);
       double at = target_theta * M_PI / 180.0;
@@ -328,6 +331,11 @@ void boomerang(double target_x, double target_y, double target_theta, double max
       double lin_error = utility::getDistanceError(target_x, target_y);
       double ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, false);
 
+      if (reverse == true){
+        lin_error = -lin_error;
+        ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, true);
+      }
+
       // calculate linear speed
       double lin_speed;
       lin_speed = lin_error * 1.2;
@@ -336,7 +344,6 @@ void boomerang(double target_x, double target_y, double target_theta, double max
       // cap linear speed
       if (lin_speed > max_linear_speed)
         lin_speed = max_linear_speed;
- 
 
       // add speeds together zech has autism
       double left_speed = lin_speed - ang_speed;
@@ -345,7 +352,7 @@ void boomerang(double target_x, double target_y, double target_theta, double max
       utility::engage_left_motors(left_speed * (12000.0 / 127));
       utility::engage_right_motors(right_speed * (12000.0 / 127));
 
-      if (fabs(lin_error) < minError){
+      if (fabs(lin_error) < minError && fabs(ang_error) < 3){
         utility::motor_deactivation();
         break;
       }

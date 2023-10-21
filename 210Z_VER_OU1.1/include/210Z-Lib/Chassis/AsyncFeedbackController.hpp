@@ -13,7 +13,7 @@ namespace Eclipse{
             double t_local_averageposition; double t_local_averageHeading; double t_local_FailSafeCounter; int t_local_threshholdcounter;
 
             FeedbackControl();
-            void set_constants(double t_kp, double r_kp, double f_tt, double t);
+            void set_constants(double t_kp, double r_kp, double f_tt, double t); 
             void reset_mtp_constants();
             void reset_swing_alterables();
             void TurnToPoint(int targetX, int targetY);
@@ -26,7 +26,7 @@ namespace Eclipse{
 
 }
 
-void boomerang(double target_x, double target_y, double target_theta, double max_linear_speed, double max_rotation_speed, double d_lead, double kp_linear, double kp_angular);
+void boomerang(double target_x, double target_y, double target_theta, double max_linear_speed, double max_rotation_speed, double d_lead, double kp_linear, double kp_angular, bool reverse);
 void mimic_move_to_point(double target_x,
                     double target_y,
                     double max_linear_speed,
