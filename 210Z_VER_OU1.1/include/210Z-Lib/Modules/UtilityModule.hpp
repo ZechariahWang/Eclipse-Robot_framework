@@ -25,5 +25,6 @@ namespace Eclipse{
         void engage_right_motors(double voltage);
         void motor_deactivation();
         void restart_all_chassis_motors(bool imu_reset);
+        double get_encoder_position();
     }
 }

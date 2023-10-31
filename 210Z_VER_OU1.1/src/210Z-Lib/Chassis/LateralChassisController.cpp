@@ -350,7 +350,6 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
     }
     utility::leftvoltagereq((l_output * (12000.0 / 127)) + headingAssist);
     utility::rightvoltagereq((r_output * (12000.0 / 127)) - headingAssist);
-    std::cout << (avgPos) / 2 << ", " << std::endl;
     if (fabs(mov_t.t_error) < mov_t.t_error_thresh){ mov_t.t_iterator++; } else { mov_t.t_iterator = 0;}
     if (fabs(mov_t.t_iterator) > mov_t.t_tol){
       utility::stop();

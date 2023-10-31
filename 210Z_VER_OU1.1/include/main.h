@@ -81,15 +81,16 @@ void opcontrol(void);
 #include "210Z-Lib/Modules/AsyncPathTrackingAlgorithmsModule.hpp"
 #include "210Z-Lib/Modules/LinearKalmanFilterModule.hpp"
 #include "210Z-Lib/Modules/PIDcontrollerModule.hpp"
+#include "210Z-Lib/Modules/LinearMotionProfile.hpp"
+#include "210Z-Lib/Modules/BezierCurvePathGen.hpp"
 
 // Driver
 #include "210Z-Lib/OperationSystems/CoreOpSystems.hpp"
 
-// Subsystems
+// Chassis
 #include "210Z-Lib/Chassis/AsyncFeedbackController.hpp"
 #include "210Z-Lib/Chassis/AbsolutePositioningSystemController.hpp"
 #include "210Z-Lib/Chassis/LateralChassisController.hpp"
-#include "210Z-Lib/Chassis/InitializeUI.hpp"
 
 // Scripts
 #include "Scripts/AutonSelectorFile.hpp"
@@ -97,12 +98,14 @@ void opcontrol(void);
 // lvgl Display
 #include "pros/apix.h"
 #include "display/lvgl.h"
+#include "210Z-Lib/Chassis/InitializeUI.hpp"
 
 // Misc
 #pragma once
 #include "Config/Globals.hpp"
 #include "Config/AssetDirectoryConfig.hpp"
 #include "SpecifyGameOpLogic/SecondaryOpSystems.hpp"
+
 /**
  * You can add C++-only headers here
  */

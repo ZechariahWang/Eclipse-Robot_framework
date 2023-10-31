@@ -321,12 +321,19 @@ void boomerang(double target_x, double target_y, double target_theta, double max
     while (true) {
       odom.update_odom();
       bool noPose = (target_theta > 360);
+      double carrotPoint_x = 0;
+      double carrotPoint_y = 0;
 
-      double h = utility::getDistanceError(target_x, target_y);
-      double at = target_theta * M_PI / 180.0;
-      double carrotPoint_x = target_x - h * cos(at) * d_lead;
-      double carrotPoint_y = target_y - h * sin(at) * d_lead;
-  
+      if (noPose == false){
+        double h = utility::getDistanceError(target_x, target_y);
+        double at = target_theta * M_PI / 180.0;
+        carrotPoint_x = target_x - h * cos(at) * d_lead;
+        carrotPoint_y = target_y - h * sin(at) * d_lead;
+      } else {
+        carrotPoint_x = target_x;
+        carrotPoint_y = target_y;
+      }
+
       // get current error
       double lin_error = utility::getDistanceError(target_x, target_y);
       double ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, false);
@@ -352,7 +359,7 @@ void boomerang(double target_x, double target_y, double target_theta, double max
       utility::engage_left_motors(left_speed * (12000.0 / 127));
       utility::engage_right_motors(right_speed * (12000.0 / 127));
 
-      if (fabs(lin_error) < minError && fabs(ang_error) < 3){
+      if (fabs(lin_error) < minError){
         utility::motor_deactivation();
         break;
       }

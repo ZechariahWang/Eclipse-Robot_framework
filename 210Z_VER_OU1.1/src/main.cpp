@@ -660,9 +660,16 @@ void autonomous(){  // Autonomous function control
 
 	//mtp.move_to_point(20, -20, 60, 60, 1.5, 80, false);
 
-	boomerang(40, -40, 0, 2000, 2000, 0.9, 1, 90, true);
+	// boomerang(40, 40, 90, 2000, 2000, 0.6, 0.6, 90, false);
+	boomerang(0, 40, 890, 2000, 2000, 0.7, 0.9, 60, false);
+	boomerang(40, 40, 890, 2000, 2000, 0.7, 0.9, 60, false);
+	boomerang(40, 0, 890, 2000, 2000, 0.7, 0.9, 60, false);
+	boomerang(0, 40, 90, 2000, 2000, 0.8, 0.9, 0, false);
 	// boomerang(-10, 0, 180, 2000, 2000, 0.6, 1, 90);
 	// boomerang(40, -40, -90, 2000, 2000, 0.6, 1, 90);
+
+	// trapezoidal_reset_values();
+	// trapezoidal_calculate_initial_kinematic_values(200, 50, 20);
 
 
 	// raw_motor(600);
