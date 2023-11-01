@@ -23,6 +23,8 @@ namespace Eclipse{
         bool is_reversed(int value);
         void engage_left_motors(double voltage);
         void engage_right_motors(double voltage);
+        void engage_velocity_left_motors(double velocity);
+        void engage_velocity_right_motors(double velocity);
         void motor_deactivation();
         void restart_all_chassis_motors(bool imu_reset);
         double get_encoder_position();

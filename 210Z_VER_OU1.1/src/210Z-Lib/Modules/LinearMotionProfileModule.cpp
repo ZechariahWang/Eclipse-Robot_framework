@@ -112,55 +112,48 @@ void trapezoidal_calculate_motion_profile(){
     }
 }
 
-double calculate_trapezoidal_velocity(int distance, int accelDistance, int maxDistance, int initialVel, int maxVel, int acceleration){
+double calculate_trapezoidal_velocity(int distance, int accelDistance, int maxDistance, int initialVel, int maxVel, int acceleration, int deacceleration){
     double velocity;
-
-    // First part of trapezoid (accelerating)
     if (distance < accelDistance) {
         velocity = sqrt(initialVel * initialVel + 2 * acceleration * distance);
     }
-    // Middle part of trapezoid (steady velocity)
     else if (distance < maxDistance - accelDistance) {
         velocity = maxVel;
     }
-    // End of trapezoid (decelerating)
     else {
-        velocity = sqrt(initialVel * initialVel - 2 * acceleration * (distance - maxDistance));
+        velocity = double((maxVel * maxVel)) / (2 * distance);
+        std::cout << "am deaccelerating" << std::endl;
     }
 
     return velocity;
 }
 
-void trapezoidal_driver() {
-    // Define your profile parameters
+void trapezoidal_driver(double target_pos) {
     int initialPosition = 0; // Initial position
-    int targetPosition = 1000; // Target position
-    int maxVelocity = 100; // Maximum velocity
+    int targetPosition = target_pos; // Target position
+    int maxVelocity = 40; // Maximum velocity
     int maxAcceleration = 10; // Maximum acceleration
-    int accelerationDistance = (maxVelocity * maxVelocity - 0) / (2 * maxAcceleration);
+    int maxDeAcceleration = 20;
+    int accelerationDistance = (maxVelocity * maxVelocity) / (2 * maxAcceleration);
 
     int currentPosition = initialPosition;
     int currentTime = 0;
     int dt = 10; // Time step in milliseconds
 
+    utility::restart_all_chassis_motors(false);
+
     while (currentPosition < targetPosition) {
-        // Calculate velocity based on the trapezoidal profile
-        int currentVelocity = calculate_trapezoidal_velocity(currentPosition - initialPosition, accelerationDistance, targetPosition - initialPosition, 0, maxVelocity, maxAcceleration);
+        int currentVelocity = calculate_trapezoidal_velocity(currentPosition, accelerationDistance, targetPosition, 20, maxVelocity, maxAcceleration, maxDeAcceleration);
 
-        // Use the currentVelocity to control your motors or other actions
-        // For example, set motor velocity: motorSet(MOTOR_PORT, currentVelocity);
-
-        // Update position based on velocity
-        currentPosition = 
+        utility::engage_left_motors(currentVelocity * (12000.0 / 127));
+        utility::engage_right_motors(currentVelocity * (12000.0 / 127));
+        currentPosition = utility::get_encoder_position();
 
         // Increment time
         currentTime += dt;
-
         pros::delay(dt);
     }
 
+    std::cout << "stopped" << std::endl;
     utility::motor_deactivation();
-
-    // Ensure the motors stop when the profile is complete
-    // For example, stop the motor: motorStop(MOTOR_PORT);
 }

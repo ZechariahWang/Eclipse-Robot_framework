@@ -81,8 +81,8 @@ void opcontrol(void);
 #include "210Z-Lib/Modules/AsyncPathTrackingAlgorithmsModule.hpp"
 #include "210Z-Lib/Modules/LinearKalmanFilterModule.hpp"
 #include "210Z-Lib/Modules/PIDcontrollerModule.hpp"
-#include "210Z-Lib/Modules/LinearMotionProfile.hpp"
-#include "210Z-Lib/Modules/BezierCurvePathGen.hpp"
+#include "210Z-Lib/Modules/LinearMotionProfileModule.hpp"
+#include "210Z-Lib/Modules/BezierCurvePathGenModule.hpp"
 
 // Driver
 #include "210Z-Lib/OperationSystems/CoreOpSystems.hpp"

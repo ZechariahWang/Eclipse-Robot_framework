@@ -6,3 +6,4 @@ void trapezoidal_calculate_motion_profile();
 
 
 double calculate_trapezoidal_velocity();
+void trapezoidal_driver(double target_pos);
