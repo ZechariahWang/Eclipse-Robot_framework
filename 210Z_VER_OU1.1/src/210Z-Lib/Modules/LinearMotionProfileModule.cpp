@@ -131,7 +131,7 @@ double calculate_trapezoidal_velocity(int distance, int accelDistance, int maxDi
 void trapezoidal_driver(double target_pos) {
     int initialPosition = 0; // Initial position
     int targetPosition = target_pos; // Target position
-    int maxVelocity = 40; // Maximum velocity
+    int maxVelocity = 70; // Maximum velocity
     int maxAcceleration = 10; // Maximum acceleration
     int maxDeAcceleration = 20;
     int accelerationDistance = (maxVelocity * maxVelocity) / (2 * maxAcceleration);

@@ -314,15 +314,25 @@ void Eclipse::FeedbackControl::move_to_point(
   }
 }
 
-bool canReverse;
-int minError = 10;
-
 void boomerang(double target_x, double target_y, double target_theta, double max_linear_speed, double max_rotation_speed, double d_lead, double kp_linear, double kp_angular, bool reverse) {
+    bool settling = false;
+    double settling_error = 7.5;
+    double minError = 5;
+    double minRotationError = 0.052;
+    double prev_lin_error = 100;
+    double prev_lin_speed;
+    if (reverse){ target_theta += 180; }
     while (true) {
       odom.update_odom();
       bool noPose = (target_theta > 360);
       double carrotPoint_x = 0;
       double carrotPoint_y = 0;
+
+      if (fabs(utility::getDistanceError(target_x, target_y)) < settling_error && settling == false){
+        std::cout << "i am settling" << std::endl;
+        settling = true;
+        max_linear_speed = fmax(fabs(prev_lin_speed), 30);
+      }
 
       if (noPose == false){
         double h = utility::getDistanceError(target_x, target_y);
@@ -334,9 +344,19 @@ void boomerang(double target_x, double target_y, double target_theta, double max
         carrotPoint_y = target_y;
       }
 
+      if (settling){
+        carrotPoint_x = target_x;
+        carrotPoint_y = target_y;
+      }
+
       // get current error
       double lin_error = utility::getDistanceError(target_x, target_y);
       double ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, false);
+      double global_ang_error = utility::getAngleError(target_x, target_y, false);
+
+      if (settling){
+        ang_error = utility::getAngleError(target_x, target_y, false);
+      }
 
       if (reverse == true){
         lin_error = -lin_error;
@@ -345,16 +365,39 @@ void boomerang(double target_x, double target_y, double target_theta, double max
 
       // calculate linear speed
       double lin_speed;
-      lin_speed = lin_error * 1.2;
-      double ang_speed = ang_error * 60;
+      lin_speed = lin_error * kp_linear;
+      double ang_speed = ang_error * kp_angular;
+
+      double over_turn = fabs(lin_speed) + fabs(ang_speed) - max_linear_speed;
+      if (over_turn > 0){
+        if (lin_speed > 0) {
+          lin_speed -= over_turn;
+        }
+        else {
+          lin_speed += over_turn;
+        }
+      }
 
       // cap linear speed
-      if (lin_speed > max_linear_speed)
+      if ((lin_speed * (12000.0 / 127)) > max_linear_speed * (12000.0 / 127)) {
         lin_speed = max_linear_speed;
+      }
+      else if (lin_speed * (12000.0 / 127) < -max_linear_speed * 12000.0 / 127){
+        lin_speed = -max_linear_speed;
+      }
+      if ((ang_speed * (12000.0 / 127)) > max_rotation_speed * (12000.0 / 127)) {
+        ang_speed = max_rotation_speed;
+      }
+      else if (ang_speed * (12000.0 / 127) < -max_rotation_speed * 12000.0 / 127){
+        ang_speed = -max_rotation_speed;
+      }
 
       // add speeds together zech has autism
       double left_speed = lin_speed - ang_speed;
       double right_speed = lin_speed + ang_speed;
+
+      prev_lin_error = lin_error;
+      prev_lin_speed = lin_speed;
 
       utility::engage_left_motors(left_speed * (12000.0 / 127));
       utility::engage_right_motors(right_speed * (12000.0 / 127));
