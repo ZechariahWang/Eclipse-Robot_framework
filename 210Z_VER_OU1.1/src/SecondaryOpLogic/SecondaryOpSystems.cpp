@@ -5,9 +5,21 @@ const uint64_t LINE_SENSOR_VAL = 4096; // max value to be considered an object
 const uint64_t LINE_SENSOR_THRESHHOLD = 1000; // min value to notdetect anything
 
 void power_intake(){
-    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){ intake_motor.move_voltage(-12000); }
-    else if ((controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2))){ intake_motor.move_voltage(12000); }
+    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){ intake_motor.move_voltage(12000); }
+    else if ((controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2))){ intake_motor.move_voltage(-12000); } // intake
     else{ intake_motor.move_voltage(0); }
+}
+
+bool wings_extended = false;
+void extend_wings() {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {  wings_extended = !wings_extended; }
+    wings.set_value(wings_extended);
+}
+
+bool blocker_extended = false;
+void extend_blocker() {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {  blocker_extended = !blocker_extended; }
+    blocker.set_value(blocker_extended);
 }
 
 static bool cata_initiated = 1;
@@ -53,11 +65,10 @@ void activate_cata(){
     }
 }
 
+
+bool cata_toggled = false;
 void raw_cata(){
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
-        cata_motor.move_voltage(-12000);
-    }
-    else{
-        cata_motor.move_voltage(0);
-    }
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) { cata_toggled = !cata_toggled; }
+    if (cata_toggled) { cata_motor.move_voltage(-12000); cata_motor_secondary.move_voltage(-12000); }
+    else { cata_motor.move_voltage(0); cata_motor_secondary.move_voltage(0); }
 }

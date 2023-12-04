@@ -54,7 +54,7 @@ namespace Eclipse{
             bool init;
         public:
             double t_kp; double t_ki; double t_kd; double t_h_kp; double t_error; double t_prev_error; double t_integral; double t_derivative; double t_error_thresh; double t_iterator; double t_tol; double t_failsafe; double t_maxSpeed;
-            double wheelDiameter= 0; double ratio= 0; double cartridge= 0; double circumfrance= 0; double ticks_per_rev= 0; double ticks_per_inches= 0;
+            double wheelDiameter= 0; double ratio= 0; double cartridge= 0; double circumference = 0; double ticks_per_rev= 0; double ticks_per_inches= 0;
 
             /**
              * @brief PID class constructors

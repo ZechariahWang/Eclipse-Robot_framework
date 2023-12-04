@@ -40,6 +40,8 @@ class CurvePoint{
         double followDistance;
         double slowDownTurnRadians;
         double slowDownTurnAmount;
+
+        bool passed;
         
         CurvePoint(double x, double y, double moveSpeed, double turnSpeed, double followDistance, double slowDownTurnRadians, double slowDownTurnAmount);
         CurvePoint(const CurvePoint &thisPoint);
@@ -54,4 +56,4 @@ class CurvePoint{
 
 };
 
-void FollowCurve(std::vector<CurvePoint> allPoints, double followAngle, double move_speed, double turn_speed);
+void FollowCurve(std::vector<CurvePoint> allPoints, double followAngle, double lkp, double akp, bool reverse);

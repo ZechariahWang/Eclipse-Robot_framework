@@ -10,20 +10,20 @@
 
 using namespace Eclipse;
 
-int32_t Eclipse::Math::rad_to_deg(const double angle) { // convert radians to degrees
+double Eclipse::Math::rad_to_deg(const double angle) { // convert radians to degrees
     return angle * 180 / M_PI;
 }
 
-int32_t Eclipse::Math::deg_to_rad(const double angle){ // convert degree values to radians
+double Eclipse::Math::deg_to_rad(const double angle){ // convert degree values to radians
     return angle * M_PI / 180;
 }
 
-double Eclipse::Math::get_linear_distance_error(std::pair<double, double> start_point, std::pair<double, double> end_point){ // simple pythag
-    return std::sqrt(pow(end_point.first - start_point.first, 2) + pow(end_point.second - start_point.second, 2));
+double Eclipse::Math::get_linear_distance_error(double start_x, double start_y, double end_x, double end_y){ // simple pythag
+    return std::sqrt(pow(end_x - start_x, 2) + pow(end_y - start_y, 2));
 }
 
-double Eclipse::Math::get_abs_target_angle(std::pair<double, double> start_point, std::pair<double, double> end_point){ // get the absolute target value needed to reach target heading NOT WRAPPED  
-    double abs_target_angle = atan2f((end_point.second - start_point.second), (end_point.first - start_point.first)) * 180 / M_PI;
+double Eclipse::Math::get_abs_target_angle(double start_x, double start_y, double end_x, double end_y){ // get the absolute target value needed to reach target heading NOT WRAPPED  
+    double abs_target_angle = atan2f((end_y - start_y), (end_x - start_x)) * 180 / M_PI;
     if (abs_target_angle < 0) { abs_target_angle += 360; }
     return abs_target_angle;
 }

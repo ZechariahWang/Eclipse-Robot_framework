@@ -7,11 +7,14 @@
  */
 
 #include "main.h"
+#include "pros/motors.h"
 
 /**
  * @brief external Eclipse::utility namespace for common motor voltage requests and distance triangulations 
  * 
  */
+
+using namespace Eclipse;
 
 int Eclipse::utility::sgn(double num){ return (num < 0) ? -1 : ((num > 0) ? 1 : 0); }
   
@@ -145,6 +148,15 @@ void Eclipse::utility::motor_deactivation(){
   }
 }
 
+void Eclipse::utility::set_chassis_to_brake(){
+  for (auto i : chassis_left_motors) {
+    i.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+  }
+  for (auto i : chassis_right_motors) {
+    i.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+  }
+}
+
 void Eclipse::utility::restart_all_chassis_motors(bool imu_reset){
   for (auto i : chassis_left_motors) {
     i.set_zero_position(0);
@@ -152,6 +164,7 @@ void Eclipse::utility::restart_all_chassis_motors(bool imu_reset){
   for (auto i : chassis_right_motors) {
     i.set_zero_position(0);
   }
+  
   if (imu_reset){ imu_sensor.tare_rotation(); }
 }
 
@@ -167,9 +180,17 @@ double Eclipse::utility::get_encoder_position() {
   return (left_pos + right_pos) / 2;
 }
 
+double Eclipse::utility::get_curvature(double reference_x, double reference_y, double reference_theta, double other_x, double other_y, double other_theta){
+  double side = utility::sgn(std::sin(reference_theta) * (other_x - reference_x) - std::cos(reference_theta) * (other_y - reference_y));
+  double a = -std::tan(reference_theta);
+  double c = std::tan(reference_theta) * reference_x - reference_y;
+  double x = std::fabs(a * other_x + other_y + c) / std::sqrt((a * a) + 1);
+  double d = std::hypot(other_x - reference_x, other_y - reference_y);
+  return side * ((2 * x) / (d * d));
+}
 
-
-
-
-void Eclipse::FeedbackControl::overRideCoordinatePos(double new_gx, double new_gy){ Eclipse::utility::set_x(new_gx); Eclipse::utility::set_y(new_gy); }
+void Eclipse::FeedbackControl::overRideCoordinatePos(double new_gx, double new_gy){
+   utility::set_x(new_gx); 
+   utility::set_y(new_gy);
+}
 

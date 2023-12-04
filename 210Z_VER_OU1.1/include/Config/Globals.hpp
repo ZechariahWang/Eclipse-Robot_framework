@@ -21,7 +21,11 @@ extern pros::MotorGroup right_side_motors;
 
 extern pros::ADIAnalogIn cata_sensor;
 extern pros::Motor cata_motor;
+extern pros::Motor cata_motor_secondary;
 extern pros::Motor intake_motor;
+
+extern pros::ADIDigitalOut wings;
+extern pros::ADIDigitalOut blocker;
 
 extern Eclipse::KalmanFilter kal;
 extern Eclipse::TranslationPID mov_t;

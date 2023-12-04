@@ -317,29 +317,30 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
                                          double maxSpeed, 
                                          bool slew_enabled){
 
-  utility::fullreset(0, false); mov_t.reset_t_alterables();
+  utility::restart_all_chassis_motors(false); mov_t.reset_t_alterables();
   double TARGET_THETA = current_robot_heading(); double POSITION_TARGET = target; bool is_backwards = false; int8_t cd = 0;
   mov_t.t_maxSpeed = maxSpeed;
-  mov_t.circumfrance = mov_t.wheelDiameter * M_PI;
+  mov_t.circumference = mov_t.wheelDiameter * M_PI;
   mov_t.ticks_per_rev = (50.0 * (3600.0 / mov_t.cartridge) * mov_t.ratio);
-  mov_t.ticks_per_inches = (mov_t.ticks_per_rev / mov_t.circumfrance);
+  mov_t.ticks_per_inches = (mov_t.ticks_per_rev / mov_t.circumference);
   target *= mov_t.ticks_per_inches;
-  double init_left_pos = dt_front_left.get_position(); double init_right_pos = dt_front_right.get_position();
+  double init_left_pos = utility::get_encoder_position();
   kal.update_lateral_components();
   while (true){
-    double avgPos = (dt_front_left.get_position() + dt_front_right.get_position()) / 2;
+    //odom.update_odom();
+    double avgPos = utility::get_encoder_position();
     kal.lateral_prediction_step();
     double filtered_position = kal.lateral_update_filter_step(avgPos); // filter out robot pos with linear kalman filter
     double avg_voltage_req = mov_t.compute_t(filtered_position, target); // compute proportional integral derivative controller on filtered pos
     double headingAssist = mov_t.find_min_angle(TARGET_THETA, current_robot_heading()) * mov_t.t_h_kp; // apply a heading assist to keep robot moving straight
     // initial timer of 100 ms to keep robot from oscillating
-    cd++; if (cd <= 20){ utility::leftvoltagereq(0); utility::rightvoltagereq(0); continue;}
+    cd++; if (cd <= 20){ utility::engage_left_motors(0); utility::engage_right_motors(0); continue;}
     if (target < 0) { is_backwards = true; } else { is_backwards = false; }
     double l_output = 0; double r_output = 0;
     if (slew_enabled){
       double c = mov_t.wheelDiameter * M_PI;
       double tpr = (50.0 * (3600.0 / mov_t.cartridge) * mov_t.ratio);
-      slew.initialize_slew(true, maxSpeed, target, ((dt_front_left.get_position() + dt_front_right.get_position()) / 2), ((init_left_pos + init_right_pos) / 2), is_backwards, tpr / c);
+      slew.initialize_slew(true, maxSpeed, target, (utility::get_encoder_position()), init_left_pos, is_backwards, tpr / c);
       double slew_output = slew.calculate_slew(filtered_position);
       double l_output = utility::clamp(avg_voltage_req, -slew_output, slew_output);
       double r_output = utility::clamp(avg_voltage_req, -slew_output, slew_output);
@@ -348,16 +349,16 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
       l_output = avg_voltage_req;
       r_output = avg_voltage_req;
     }
-    utility::leftvoltagereq((l_output * (12000.0 / 127)) + headingAssist);
-    utility::rightvoltagereq((r_output * (12000.0 / 127)) - headingAssist);
+    utility::engage_left_motors((l_output * (12000.0 / 127)) + headingAssist);
+    utility::engage_right_motors((r_output * (12000.0 / 127)) - headingAssist);
     if (fabs(mov_t.t_error) < mov_t.t_error_thresh){ mov_t.t_iterator++; } else { mov_t.t_iterator = 0;}
     if (fabs(mov_t.t_iterator) > mov_t.t_tol){
-      utility::stop();
+      utility::motor_deactivation();
       break;
     }
     if (fabs(mov_t.t_error - mov_t.t_prev_error) < 0.3) mov_t.t_failsafe++;
     if (mov_t.t_failsafe > 30000){
-      utility::stop();
+      utility::motor_deactivation();
       break;
     }
     pros::delay(10);
@@ -374,23 +375,24 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
 void Eclipse::RotationPID::set_rotation_pid(double t_theta,
                                    double maxSpeed){
 
-  utility::fullreset(0, false);
+  utility::restart_all_chassis_motors(false);
   rot_r.reset_r_alterables();
   rot_r.r_maxSpeed = maxSpeed;
   while (true){
+    //odom.update_odom();
     double currentPos = current_robot_heading();
     double vol = rot_r.compute_r(currentPos, t_theta);
 
-    utility::leftvoltagereq(vol * (12000.0 / 127));
-    utility::rightvoltagereq(-vol * (12000.0 / 127));
+    utility::engage_left_motors(vol * (12000.0 / 127));
+    utility::engage_right_motors(-vol * (12000.0 / 127));
     if (fabs(rot_r.r_error) < 3) { rot_r.r_iterator++; } else { rot_r.r_iterator = 0;}
     if (fabs(rot_r.r_iterator) >= 10){
-      utility::stop();
+      utility::motor_deactivation();
       break;
     }
     if (fabs(rot_r.r_error - rot_r.r_prev_error) < 0.3) {rot_r.r_failsafe++;}
     if (rot_r.r_failsafe > 100000){
-      utility::stop();
+      utility::motor_deactivation();
       break;
     }
     pros::delay(10);
@@ -411,7 +413,7 @@ void Eclipse::CurvePID::set_curve_pid(double t_theta,
                              double curveDamper,
                              bool backwards){
 
-  utility::fullreset(0, false);
+  utility::restart_all_chassis_motors(false);
   cur_c.reset_c_alterables();
   cur_c.c_maxSpeed = maxSpeed;
   cur_c.c_rightTurn = false;
@@ -421,29 +423,29 @@ void Eclipse::CurvePID::set_curve_pid(double t_theta,
 
     if (cur_c.c_error > 0){ cur_c.c_rightTurn = true; } else { cur_c.c_rightTurn = false;}
     if (cur_c.c_rightTurn == true && backwards == false){
-      utility::leftvoltagereq(vol * (12000.0 / 127));
-      utility::rightvoltagereq(vol * (12000.0 / 127) * curveDamper);
+      utility::engage_left_motors(vol * (12000.0 / 127));
+      utility::engage_right_motors(vol * (12000.0 / 127) * curveDamper);
     }
     else if (cur_c.c_rightTurn == false && backwards == false){
-      utility::leftvoltagereq(fabs(vol) * (12000.0 / 127) * curveDamper);
-      utility::rightvoltagereq(fabs(vol) * (12000.0 / 127));
+      utility::engage_left_motors(fabs(vol) * (12000.0 / 127) * curveDamper);
+      utility::engage_right_motors(fabs(vol) * (12000.0 / 127));
     }
     if (cur_c.c_rightTurn == true && backwards == true){
-      utility::leftvoltagereq(-vol * (12000.0 / 127) * curveDamper);
-      utility::rightvoltagereq(-vol * (12000.0 / 127));
+      utility::engage_left_motors(-vol * (12000.0 / 127) * curveDamper);
+      utility::engage_right_motors(-vol * (12000.0 / 127));
     }
     else if (cur_c.c_rightTurn == false && backwards == true){
-      utility::leftvoltagereq(vol * (12000.0 / 127));
-      utility::rightvoltagereq(vol * (12000.0 / 127) * curveDamper);
+      utility::engage_left_motors(vol * (12000.0 / 127));
+      utility::engage_right_motors(vol * (12000.0 / 127) * curveDamper);
     }
     if (fabs(cur_c.c_error) < cur_c.c_error_thresh) { cur_c.c_iterator++; } else { cur_c.c_iterator = 0;}
     if (fabs(cur_c.c_iterator) >= cur_c.c_tol){
-      utility::stop();
+      utility::motor_deactivation();
       break;
     }
     if (fabs(cur_c.c_error - cur_c.c_prev_error) < 0.3) {cur_c.c_failsafe++;}
     if (cur_c.c_failsafe > 100000){
-      utility::stop();
+      utility::motor_deactivation();
       break;
     }
     pros::delay(10);
@@ -464,7 +466,7 @@ void Eclipse::ArcPID::set_arc_pid(double t_x,
                          double maxSpeed, 
                          double arcDamper){
                           
-  utility::fullreset(0, false);
+  utility::restart_all_chassis_motors(false);
   arc_a.reset_a_alterables();
   arc_a.a_maxSpeed = maxSpeed;
   arc_a.a_rightTurn = false;
@@ -474,21 +476,21 @@ void Eclipse::ArcPID::set_arc_pid(double t_x,
 
     if (arc_a.a_error >= 0){ arc_a.a_rightTurn = true; } else { arc_a.a_rightTurn = false;}
     if (arc_a.a_rightTurn){
-      utility::leftvoltagereq(vol * (12000.0 / 127));
-      utility::rightvoltagereq(vol * (12000.0 / 127) * arcDamper);
+      utility::engage_left_motors(vol * (12000.0 / 127));
+      utility::engage_right_motors(vol * (12000.0 / 127) * arcDamper);
     }
     else if (arc_a.a_rightTurn == false){
-      utility::leftvoltagereq(fabs(vol) * (12000.0 / 127) * arcDamper);
-      utility::rightvoltagereq(fabs(vol) * (12000.0 / 127));
+      utility::engage_left_motors(fabs(vol) * (12000.0 / 127) * arcDamper);
+      utility::engage_right_motors(fabs(vol) * (12000.0 / 127));
     }
     if (fabs(arc_a.a_error) < arc_a.a_error_thresh) { arc_a.a_iterator++; } else { arc_a.a_iterator = 0;}
     if (fabs(arc_a.a_iterator) >= arc_a.a_tol){
-      utility::stop();
+      utility::motor_deactivation();
       break;
     }
     if (fabs(arc_a.a_error - arc_a.a_prev_error) < 0.3) {arc_a.a_failsafe++;}
     if (arc_a.a_failsafe > 100000){
-      utility::stop();
+      utility::motor_deactivation();
       break;
     }
     pros::delay(10);

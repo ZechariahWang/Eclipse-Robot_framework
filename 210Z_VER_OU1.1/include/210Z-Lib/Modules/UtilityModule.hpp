@@ -28,5 +28,8 @@ namespace Eclipse{
         void motor_deactivation();
         void restart_all_chassis_motors(bool imu_reset);
         double get_encoder_position();
+        void set_chassis_to_brake();
+        double get_curvature(double reference_x, double reference_y, double reference_theta, double other_x, double other_y, double other_theta);
+        void overRideCoordinatePos(double new_gx, double new_gy);
     }
 }

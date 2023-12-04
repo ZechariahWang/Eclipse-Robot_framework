@@ -49,6 +49,16 @@ Eclipse::FeedbackControl::FeedbackControl(){
   mtp.t_local_threshholdcounter   = 0;
 }
 
+void Eclipse::FeedbackControl::set_mtp_constants(double lkp, double lkd, double akp, double akd, double max_linear_speed, double max_angular_speed) {
+  mtp.lkp = lkp;
+  mtp.lkd = lkd;
+  mtp.akp = akp;
+  mtp.akd = akd;
+  mtp.mtp_max_linear_speed = max_linear_speed;
+  mtp.mtp_max_angular_speed = max_angular_speed;
+ }
+
+
 /**
  * @brief MTP Algorithm. Move to a desired coordinate position while facing a desired angle. Can only be used with mecanum drives
  * 
@@ -107,7 +117,7 @@ void Eclipse::FeedbackControl::simultaneous_mov_executor(double targetX,
     double speedFL; double speedBL;
     double speedFR; double speedBR;
 
-    if(fabs(driveError) < 5 && fabs(turnError) < 3){ utility::stop(); break; }
+    if(fabs(driveError) < 5 && fabs(turnError) < 3){ utility::motor_deactivation(); break; }
     else{
       speedFL = velDrive + velStrafe + turnOutput; speedBL = velDrive - velStrafe + turnOutput;
       speedFR = velDrive - velStrafe - turnOutput; speedBR = velDrive + velStrafe - turnOutput;
@@ -166,17 +176,17 @@ void Eclipse::FeedbackControl::move_to_reference_pose(const double targetX,
     int16_t right_voltage = linearVel - turnVel;
     int16_t linError_f = sqrt(pow(targetX - global_robot_x, 2) + pow(targetY - global_robot_y, 2));
 
-    utility::leftvoltagereq(left_volage * (12000.0) / 127);
-    utility::rightvoltagereq(right_voltage * (12000.0 / 127));
+    utility::engage_left_motors(left_volage * (12000.0) / 127);
+    utility::engage_right_motors(right_voltage * (12000.0 / 127));
 
     if (fabs(sqrt(pow(targetX - global_robot_x, 2) + pow(targetY - global_robot_y, 2))) < mtp.target_final_tol)
     { 
-      utility::stop();
+      utility::motor_deactivation();
       break;
     }
     else {mtp.iterator = 0;}
     if (mtp.iterator > 10) {
-      utility::stop();
+      utility::motor_deactivation();
       break;
     }
     pros::delay(10);
@@ -191,25 +201,32 @@ void Eclipse::FeedbackControl::move_to_reference_pose(const double targetX,
  */
 
 void Eclipse::FeedbackControl::TurnToPoint(const int targetX, const int targetY){
-  double counter = 0;
+  int ct = 0;
+  double prev_linear_error = 0;
+  double prev_angular_error = 0;
+  double threshold = 3;
   while (true){
-    double angular_error = utility::get_angular_error(targetX, targetY);
-    double angular_speed = angular_error * 5;
+    odom.update_odom();
 
-    utility::leftvoltagereq(angular_speed * (12000.0 / 127) * 5);
-    utility::rightvoltagereq(-angular_speed * (12000.0 / 127) * 5);
-    std::cout << "in ttp loop" << std::endl;
+    double angular_error = utility::getAngleError(targetX, targetY, false);
+    double angular_derivative = angular_error - prev_angular_error;
+    double ang_speed = (angular_error * mtp.akp) + (angular_derivative * mtp.akd);
+    if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) { ang_speed = mtp.mtp_max_angular_speed; }
+    else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){ ang_speed = -mtp.mtp_max_angular_speed; }
 
-    if (fabs(angular_error) < 3){
-      counter++;
+    utility::engage_left_motors((-ang_speed) * (12000.0 / 127));
+    utility::engage_right_motors((ang_speed) * (12000.0 / 127));
+    ct++;
+  
+    if (fabs(angular_error * (180 / M_PI)) < threshold){
+      utility::motor_deactivation();
+      ct = 0;
+      break;
     }
-    if (counter >= 10){
-      utility::stop();
-      counter = 0;
-      return;
-    }
+
     pros::delay(10);
   }
+
 }
 
 /**
@@ -223,39 +240,27 @@ void Eclipse::FeedbackControl::TurnToPoint(const int targetX, const int targetY)
  * @param kp_angular angular proportional value
  */
 
-void mimic_move_to_point(double target_x,
-                   double target_y,
-                   double max_linear_speed,
-                   double max_rotation_speed, 
-                   double kp_linear, 
-                   double kp_angular){
+void mimic_move_to_point(double target_x, double target_y, bool reverse){
+    odom.update_odom();
 
-    double angular_error = utility::get_angular_error(target_x, target_y);
-    double linear_error = utility::get_distance_error(target_x, target_y);
+    double angular_error = utility::getAngleError(target_x, target_y, false);
+    double linear_error = utility::getDistanceError(target_x, target_y);
 
-    double linear_speed = linear_error * kp_linear;
-    double angular_speed = angular_error * kp_angular;
-
-    if (linear_speed > max_linear_speed) {
-      linear_speed = max_linear_speed;
-    }
-    if (linear_speed < -max_linear_speed){
-      linear_speed = -max_linear_speed;
-    }
-    if (angular_speed > max_rotation_speed){
-      angular_speed = max_rotation_speed;
-    }
-    if (angular_speed < -max_rotation_speed){
-      angular_speed = -max_rotation_speed;
+    if (reverse == true){
+      angular_error = utility::getAngleError(target_x, target_y, true);
+      linear_error = -linear_error;
     }
 
-    if (fabs(linear_error) < 7){
-      utility::stop();
-      return;
-    }
+    double lin_speed = (linear_error * mtp.lkp);
+    double ang_speed = (angular_error * mtp.akp);
 
-    utility::leftvoltagereq((linear_speed + angular_speed) * (12000.0 / 127));
-    utility::rightvoltagereq((linear_speed - angular_speed) * (12000.0 / 127));
+    if ((lin_speed * (12000.0 / 127)) > mtp.mtp_max_linear_speed * (12000.0 / 127)) { lin_speed = mtp.mtp_max_linear_speed; }
+    else if (lin_speed * (12000.0 / 127) < -mtp.mtp_max_linear_speed * 12000.0 / 127){ lin_speed = -mtp.mtp_max_linear_speed; }
+    if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) { ang_speed = mtp.mtp_max_angular_speed; }
+    else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){ ang_speed = -mtp.mtp_max_angular_speed; }
+
+    utility::engage_left_motors((lin_speed - ang_speed) * (12000.0 / 127));
+    utility::engage_right_motors((lin_speed + ang_speed) * (12000.0 / 127));
 }
 
 /**
@@ -267,21 +272,16 @@ void mimic_move_to_point(double target_x,
  * @param max_rotation_speed max speed robot can move while doing rotational movements
  * @param kp_linear linear proportional value
  * @param kp_angular angular proportional value
+ * 
  */
 
 // TODO work on reverse movement
-int ct = 0;
-void Eclipse::FeedbackControl::move_to_point(
-                   double target_x,
-                   double target_y,
-                   double max_linear_speed,
-                   double max_rotation_speed, 
-                   double kp_linear, 
-                   double kp_angular,
-                   bool backwards){
-
+void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, bool backwards){
+  int ct = 0;
+  double prev_linear_error = 0;
+  double prev_angular_error = 0;
+  double threshold = 7.5;
   while (true){
-
     odom.update_odom();
 
     double angular_error = utility::getAngleError(target_x, target_y, false);
@@ -291,36 +291,42 @@ void Eclipse::FeedbackControl::move_to_point(
       angular_error = utility::getAngleError(target_x, target_y, true);
       linear_error = -linear_error;
     }
-    double linear_speed = linear_error * kp_linear;
-    double angular_speed = angular_error * kp_angular;
 
-    if (ct < 20){
-      linear_speed = 0;
-    }
+    double linear_derivative = linear_error - prev_linear_error;
+    double angular_derivative = angular_error - prev_angular_error;
 
-    std::cout << "angular error: " << angular_error << std::endl;
+    double lin_speed = (linear_error * mtp.lkp) + (linear_derivative * mtp.lkd);
+    double ang_speed = (angular_error * mtp.akp) + (angular_derivative * mtp.akd);
 
-    utility::engage_left_motors((linear_speed - angular_speed) * (12000.0 / 127));
-    utility::engage_right_motors((linear_speed + angular_speed) * (12000.0 / 127));
+    if ((lin_speed * (12000.0 / 127)) > mtp.mtp_max_linear_speed * (12000.0 / 127)) { lin_speed = mtp.mtp_max_linear_speed; }
+    else if (lin_speed * (12000.0 / 127) < -mtp.mtp_max_linear_speed * 12000.0 / 127){ lin_speed = -mtp.mtp_max_linear_speed; }
+    if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) { ang_speed = mtp.mtp_max_angular_speed; }
+    else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){ ang_speed = -mtp.mtp_max_angular_speed; }
+    //if (ct < 40){ lin_speed = 0; }
+
+    utility::engage_left_motors((lin_speed - ang_speed) * (12000.0 / 127));
+    utility::engage_right_motors((lin_speed + ang_speed) * (12000.0 / 127));
     ct++;
   
-    if (fabs(linear_error) < 3){
+    if (fabs(linear_error) < threshold){
       utility::motor_deactivation();
+      ct = 0;
       break;
     }
-
 
     pros::delay(10);
   }
 }
 
-void boomerang(double target_x, double target_y, double target_theta, double max_linear_speed, double max_rotation_speed, double d_lead, double kp_linear, double kp_angular, bool reverse) {
+void Eclipse::FeedbackControl::boomerang(double target_x, double target_y, double target_theta, double d_lead, bool reverse) {
     bool settling = false;
     double settling_error = 7.5;
-    double minError = 5;
+    double minError = 3;
     double minRotationError = 0.052;
     double prev_lin_error = 100;
     double prev_lin_speed;
+    double prev_angular_error = 100;
+    double prev_angular_speed;
     if (reverse){ target_theta += 180; }
     while (true) {
       odom.update_odom();
@@ -331,7 +337,7 @@ void boomerang(double target_x, double target_y, double target_theta, double max
       if (fabs(utility::getDistanceError(target_x, target_y)) < settling_error && settling == false){
         std::cout << "i am settling" << std::endl;
         settling = true;
-        max_linear_speed = fmax(fabs(prev_lin_speed), 30);
+        mtp.mtp_max_angular_speed = fmax(fabs(prev_angular_speed), 30);
       }
 
       if (noPose == false){
@@ -363,12 +369,14 @@ void boomerang(double target_x, double target_y, double target_theta, double max
         ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, true);
       }
 
-      // calculate linear speed
-      double lin_speed;
-      lin_speed = lin_error * kp_linear;
-      double ang_speed = ang_error * kp_angular;
+      double linear_derivative = (lin_error - prev_lin_error);
+      double angular_derivative = (ang_error - prev_angular_error);
 
-      double over_turn = fabs(lin_speed) + fabs(ang_speed) - max_linear_speed;
+      // calculate linear speed
+      double lin_speed = (lin_error * mtp.lkp) + (linear_derivative * mtp.lkd);
+      double ang_speed = (ang_error * mtp.akp) + (angular_derivative * mtp.akd);
+
+      double over_turn = fabs(lin_speed) + fabs(ang_speed) - mtp.mtp_max_linear_speed;
       if (over_turn > 0){
         if (lin_speed > 0) {
           lin_speed -= over_turn;
@@ -379,17 +387,17 @@ void boomerang(double target_x, double target_y, double target_theta, double max
       }
 
       // cap linear speed
-      if ((lin_speed * (12000.0 / 127)) > max_linear_speed * (12000.0 / 127)) {
-        lin_speed = max_linear_speed;
+      if ((lin_speed * (12000.0 / 127)) > mtp.mtp_max_linear_speed * (12000.0 / 127)) {
+        lin_speed = mtp.mtp_max_linear_speed;
       }
-      else if (lin_speed * (12000.0 / 127) < -max_linear_speed * 12000.0 / 127){
-        lin_speed = -max_linear_speed;
+      else if (lin_speed * (12000.0 / 127) < -mtp.mtp_max_linear_speed * 12000.0 / 127){
+        lin_speed = -mtp.mtp_max_linear_speed;
       }
-      if ((ang_speed * (12000.0 / 127)) > max_rotation_speed * (12000.0 / 127)) {
-        ang_speed = max_rotation_speed;
+      if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) {
+        ang_speed = mtp.mtp_max_angular_speed;
       }
-      else if (ang_speed * (12000.0 / 127) < -max_rotation_speed * 12000.0 / 127){
-        ang_speed = -max_rotation_speed;
+      else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){
+        ang_speed = -mtp.mtp_max_angular_speed;
       }
 
       // add speeds together zech has autism
@@ -398,6 +406,8 @@ void boomerang(double target_x, double target_y, double target_theta, double max
 
       prev_lin_error = lin_error;
       prev_lin_speed = lin_speed;
+      prev_angular_error = ang_error;
+      prev_lin_speed = ang_speed;
 
       utility::engage_left_motors(left_speed * (12000.0 / 127));
       utility::engage_right_motors(right_speed * (12000.0 / 127));
@@ -432,7 +442,7 @@ void eclipse_trajectory_algorithm(std::vector<std::pair<double, double>> path, d
     std::cout << "x: " << point.first << ", y: " << point.second << std::endl;
 
     if (i == path.size() - 1){
-      mtp.move_to_point(point.first, point.second, max_linear_speed, max_rotation_speed, kp_linear, kp_angular, false);
+      // move
       return;
     }
 
@@ -453,8 +463,8 @@ void eclipse_trajectory_algorithm(std::vector<std::pair<double, double>> path, d
         angular_speed = -max_rotation_speed;
       }
 
-      utility::leftvoltagereq((linear_speed + angular_speed) * (12000.0 / 127));
-      utility::rightvoltagereq((linear_speed - angular_speed) * (12000.0 / 127));
+      utility::engage_left_motors((linear_speed + angular_speed) * (12000.0 / 127));
+      utility::engage_right_motors((linear_speed - angular_speed) * (12000.0 / 127));
 
       data_displayer.output_game_data(); // Display robot stats and info
       data_displayer.display_data();
@@ -553,12 +563,12 @@ void boomerang_in_radians(float x, float y, float theta, bool forwards, float le
         float rightPower = linearPower - angularPower;
 
         // move the motors
-        utility::leftvoltagereq(leftPower);
-        utility::rightvoltagereq(rightPower);
+        utility::engage_left_motors(leftPower);
+        utility::engage_right_motors(rightPower);
 
         if (fabs(h) < 3){
-          utility::leftvoltagereq(0);
-          utility::rightvoltagereq(0);
+          utility::engage_left_motors(0);
+          utility::engage_right_motors(0);
           return;
         }
 
@@ -590,10 +600,8 @@ void new_boomerang(float x, float y, float theta, float lead) {
           carrot_y = y;
         }
 
-        mimic_move_to_point(carrot_x, carrot_y, 900, 900, 3, 1.5);
-
         if (fabs(h) < 5){
-          utility::stop();
+          utility::motor_deactivation();
           return;
         }
     }
