@@ -11,7 +11,7 @@
 using namespace Eclipse;
 
 /**
- * @brief setting constructors and default vals
+ * @brief setting constructors and default vals 
  * 
  */
 
@@ -23,7 +23,6 @@ CurvePoint::CurvePoint(double x, double y, double moveSpeed, double turnSpeed, d
     this->followDistance = followDistance;
     this->slowDownTurnRadians = slowDownTurnRadians;
     this->slowDownTurnAmount = slowDownTurnAmount;
-    std::cout <<"ASSIGNED: " << this->moveSpeed << " turn speed: " << this->turnSpeed << std::endl;
 }
 
 CurvePoint::CurvePoint(const CurvePoint &thisPoint){ // Assigns values to the class
@@ -118,7 +117,7 @@ CurvePoint getFollowPointPath(std::vector<CurvePoint> pathPoints, Point robotLoc
     for (int i = 0; i < pathPoints.size() - 1; i++){ 
         CurvePoint startLine = pathPoints.at(i);
         CurvePoint endLine = pathPoints.at(i + 1);
-        intersections = LineCircleIntersection(robotLocation, pathPoints.at(i).getFollowDistance(), startLine.toPoint(), endLine.toPoint());
+        intersections = LineCircleIntersection(robotLocation, followRadius, startLine.toPoint(), endLine.toPoint());
         if (intersections.size() == 1){ followMe.setPoint(intersections.at(0)); }
         else if (intersections.size() == 2){
             Point one = intersections.at(0);
@@ -142,8 +141,8 @@ void FollowCurve(std::vector<CurvePoint> allPoints, double followAngle, double l
     robotPosition.setX(utility::get_x());
     robotPosition.setY(utility::get_y());
 
-    CurvePoint followMe = getFollowPointPath(allPoints, robotPosition, allPoints.at(0).getFollowDistance());
-    mtp.set_mtp_constants(5, 35, 30, 0, 20, 20);
+    CurvePoint followMe = getFollowPointPath(allPoints, robotPosition, 15);
+    mtp.set_mtp_constants(5, 35, 50, 0, 60, 60);
     mimic_move_to_point(followMe.getX(), followMe.getY(), reverse);
 }
 

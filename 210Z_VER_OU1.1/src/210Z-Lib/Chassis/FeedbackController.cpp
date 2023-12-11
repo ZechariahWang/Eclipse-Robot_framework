@@ -281,6 +281,12 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
   double prev_linear_error = 0;
   double prev_angular_error = 0;
   double threshold = 7.5;
+
+  int overRideTimer = 0;
+  int distanceThreshold = 1;
+  int timer = 2000;
+  double prev_x = 0;
+  double prev_y = 0;
   while (true){
     odom.update_odom();
 
@@ -313,6 +319,17 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
       ct = 0;
       break;
     }
+
+    if (utility::get_x() - prev_x < 1 && utility::get_y() - prev_y < 1) { overRideTimer++; }
+    if (overRideTimer > 2000.0) {
+			std::cout << "in breakout" << std::endl;
+      utility::motor_deactivation();
+			break;
+    }
+  
+
+    prev_x = utility::get_x();
+	  prev_y = utility::get_y();
 
     pros::delay(10);
   }
@@ -606,9 +623,5 @@ void new_boomerang(float x, float y, float theta, float lead) {
         }
     }
   }
-
-
-
-
 
 

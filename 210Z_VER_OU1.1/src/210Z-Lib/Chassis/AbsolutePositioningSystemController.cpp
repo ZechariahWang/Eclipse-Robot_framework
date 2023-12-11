@@ -124,8 +124,6 @@ void Eclipse::Odometry::update_odom() {
   data_displayer.display_data();
   data_displayer.output_misc_data();
 
-  pros::delay(10);
-
 }
 
 void Eclipse::Odometry::init_odom(){

@@ -327,7 +327,7 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
   double init_left_pos = utility::get_encoder_position();
   kal.update_lateral_components();
   while (true){
-    //odom.update_odom();
+    odom.update_odom();
     double avgPos = utility::get_encoder_position();
     kal.lateral_prediction_step();
     double filtered_position = kal.lateral_update_filter_step(avgPos); // filter out robot pos with linear kalman filter
@@ -356,8 +356,8 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
       utility::motor_deactivation();
       break;
     }
-    if (fabs(mov_t.t_error - mov_t.t_prev_error) < 0.3) mov_t.t_failsafe++;
-    if (mov_t.t_failsafe > 30000){
+    if (fabs(mov_t.t_error - mov_t.t_prev_error) < 5) mov_t.t_failsafe++;
+    if (mov_t.t_failsafe > 3000){
       utility::motor_deactivation();
       break;
     }
@@ -390,8 +390,8 @@ void Eclipse::RotationPID::set_rotation_pid(double t_theta,
       utility::motor_deactivation();
       break;
     }
-    if (fabs(rot_r.r_error - rot_r.r_prev_error) < 0.3) {rot_r.r_failsafe++;}
-    if (rot_r.r_failsafe > 100000){
+    if (fabs(rot_r.r_error - rot_r.r_prev_error) < 3) {rot_r.r_failsafe++;}
+    if (rot_r.r_failsafe > 3000){
       utility::motor_deactivation();
       break;
     }

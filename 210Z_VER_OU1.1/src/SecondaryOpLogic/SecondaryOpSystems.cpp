@@ -72,3 +72,9 @@ void raw_cata(){
     if (cata_toggled) { cata_motor.move_voltage(-12000); cata_motor_secondary.move_voltage(-12000); }
     else { cata_motor.move_voltage(0); cata_motor_secondary.move_voltage(0); }
 }
+
+bool climb_extended = false;
+void extend_climber() {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {  climb_extended = !climb_extended; }
+    climber.set_value(climb_extended);
+}
