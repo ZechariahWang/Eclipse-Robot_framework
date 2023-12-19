@@ -23,7 +23,7 @@ double get_distance_error_new(double d_target_x, double d_target_y){
 
 void Eclipse::Metrics::display_data(){
 	char buffer[300];
-	sprintf(buffer, SYMBOL_GPS " X: %.2f Y: %.2f Theta: %f", utility::get_x(), utility::get_y(), heading);
+	sprintf(buffer, SYMBOL_GPS " X: %.2f Y: %.2f Theta: %f", utility::get_x(), utility::get_y(), imu_sensor.get_rotation());
 	lv_label_set_text(odom_readings_sensor, buffer);
 	sprintf(buffer, SYMBOL_WARNING " FL: %.2f BL: %.2f FR: %.2f BR: %.2f", dt_front_left.get_temperature(), dt_rear_left.get_temperature(), dt_front_right.get_temperature(), dt_rear_right.get_temperature());
 	lv_label_set_text(dt_readings_sensor, buffer);
@@ -39,7 +39,7 @@ void Eclipse::Metrics::display_data(){
 
 void Eclipse::Metrics::output_sensor_data(){
     char buffer[300];
-	sprintf(buffer, SYMBOL_GPS " X: %.2f Y: %.2f Theta: %f", utility::get_x(), utility::get_y(), heading);
+	sprintf(buffer, SYMBOL_GPS " X: %.2f Y: %.2f Theta: %f", utility::get_x(), utility::get_y(), imu_sensor.get_rotation());
 	lv_label_set_text(odom_readings_sensor, buffer);
 	sprintf(buffer, SYMBOL_WARNING " FL: %.2f BL: %.2f FR: %.2f BR: %.2f", dt_front_left.get_temperature(), dt_rear_left.get_temperature(), dt_front_right.get_temperature(), dt_rear_right.get_temperature());
 	lv_label_set_text(dt_readings_sensor, buffer);

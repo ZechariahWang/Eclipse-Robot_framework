@@ -122,7 +122,6 @@ double calculate_trapezoidal_velocity(int distance, int accelDistance, int maxDi
     }
     else {
         velocity = double((maxVel * maxVel)) / (2 * distance);
-        std::cout << "am deaccelerating" << std::endl;
     }
 
     return velocity;
@@ -154,6 +153,5 @@ void trapezoidal_driver(double target_pos) {
         pros::delay(dt);
     }
 
-    std::cout << "stopped" << std::endl;
     utility::motor_deactivation();
 }

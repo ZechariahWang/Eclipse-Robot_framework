@@ -69,12 +69,30 @@ void activate_cata(){
 bool cata_toggled = false;
 void raw_cata(){
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) { cata_toggled = !cata_toggled; }
-    if (cata_toggled) { cata_motor.move_voltage(-12000); cata_motor_secondary.move_voltage(-12000); }
+    if (cata_toggled) { cata_motor.move_voltage(-10000); cata_motor_secondary.move_voltage(-10000); }
     else { cata_motor.move_voltage(0); cata_motor_secondary.move_voltage(0); }
 }
 
 bool climb_extended = false;
 void extend_climber() {
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {  climb_extended = !climb_extended; }
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {  climb_extended = !climb_extended; }
     climber.set_value(climb_extended);
 }
+
+void stop_cata_with_sensor() {
+    while (true) {
+        std::cout <<"sensor val: " << distance_sensor.get() << std::endl;
+        if (distance_sensor.get() < 30) {
+            cata_motor.move_voltage(0);
+            cata_motor_secondary.move_voltage(0);
+            break;
+        }
+        else {
+            cata_motor.move_voltage(-9000); cata_motor_secondary.move_voltage(-9000); 
+        }
+
+        pros::delay(10);
+
+    }
+}
+

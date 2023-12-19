@@ -320,13 +320,11 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
       break;
     }
 
-    if (utility::get_x() - prev_x < 1 && utility::get_y() - prev_y < 1) { overRideTimer++; }
-    if (overRideTimer > 2000.0) {
-			std::cout << "in breakout" << std::endl;
+    if (fabs(utility::get_x() - prev_x) < 2 && fabs(utility::get_y() - prev_y) < 2) { overRideTimer++; }
+    if (overRideTimer > 100.0) {
       utility::motor_deactivation();
 			break;
-    }
-  
+    }  
 
     prev_x = utility::get_x();
 	  prev_y = utility::get_y();
@@ -352,7 +350,6 @@ void Eclipse::FeedbackControl::boomerang(double target_x, double target_y, doubl
       double carrotPoint_y = 0;
 
       if (fabs(utility::getDistanceError(target_x, target_y)) < settling_error && settling == false){
-        std::cout << "i am settling" << std::endl;
         settling = true;
         mtp.mtp_max_angular_speed = fmax(fabs(prev_angular_speed), 30);
       }
@@ -456,7 +453,6 @@ void eclipse_trajectory_algorithm(std::vector<std::pair<double, double>> path, d
   for (size_t i = 0; i < path.size(); i++) {
 
     const auto& point = path[i];
-    std::cout << "x: " << point.first << ", y: " << point.second << std::endl;
 
     if (i == path.size() - 1){
       // move

@@ -23,6 +23,7 @@ extern pros::ADIAnalogIn cata_sensor;
 extern pros::Motor cata_motor;
 extern pros::Motor cata_motor_secondary;
 extern pros::Motor intake_motor;
+extern pros::Distance distance_sensor;
 
 extern pros::ADIDigitalOut wings;
 extern pros::ADIDigitalOut blocker;

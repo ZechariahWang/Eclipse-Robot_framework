@@ -37,6 +37,7 @@ pros::Imu imu_sensor(14); // IMU sensor
 
 // Game specific subsystems. Header declaration is in globals.hpp
 pros::ADIAnalogIn cata_sensor('x');
+pros::Distance distance_sensor(1);
 pros::Motor cata_motor(7, pros::E_MOTOR_GEARSET_36, false, pros::E_MOTOR_ENCODER_COUNTS);
 pros::Motor cata_motor_secondary(10, pros::E_MOTOR_GEARSET_36, true, pros::E_MOTOR_ENCODER_COUNTS);
 pros::Motor intake_motor(5, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS);
@@ -611,17 +612,7 @@ void autonomous(){  // Autonomous function control
 
 	right_side(); 
 
-	// testing_boomerang();
-
-	// PurePursuitTestPath();
-	// ReversePurePursuitTestPath();
-
-
-	
-	// mtp.move_to_point(20, 20, 90, 110, 8, 80, false);
-	// mtp.move_to_point(20, 0, 110, 110, 6, 80, false);
-	// mtp.move_to_point(0, 0, 110, 110, 6, 80, false);
-
+	// PrimaryLeftSide();
 
 }
 

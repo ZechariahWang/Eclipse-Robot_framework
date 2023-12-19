@@ -356,8 +356,8 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
       utility::motor_deactivation();
       break;
     }
-    if (fabs(mov_t.t_error - mov_t.t_prev_error) < 5) mov_t.t_failsafe++;
-    if (mov_t.t_failsafe > 3000){
+    if (fabs(mov_t.t_derivative) < 5) mov_t.t_failsafe++;
+    if (mov_t.t_failsafe > 100){
       utility::motor_deactivation();
       break;
     }
@@ -379,7 +379,7 @@ void Eclipse::RotationPID::set_rotation_pid(double t_theta,
   rot_r.reset_r_alterables();
   rot_r.r_maxSpeed = maxSpeed;
   while (true){
-    //odom.update_odom();
+    odom.update_odom();
     double currentPos = current_robot_heading();
     double vol = rot_r.compute_r(currentPos, t_theta);
 
@@ -391,7 +391,7 @@ void Eclipse::RotationPID::set_rotation_pid(double t_theta,
       break;
     }
     if (fabs(rot_r.r_error - rot_r.r_prev_error) < 3) {rot_r.r_failsafe++;}
-    if (rot_r.r_failsafe > 3000){
+    if (rot_r.r_failsafe > 100){
       utility::motor_deactivation();
       break;
     }
@@ -444,7 +444,7 @@ void Eclipse::CurvePID::set_curve_pid(double t_theta,
       break;
     }
     if (fabs(cur_c.c_error - cur_c.c_prev_error) < 0.3) {cur_c.c_failsafe++;}
-    if (cur_c.c_failsafe > 100000){
+    if (cur_c.c_failsafe > 100){
       utility::motor_deactivation();
       break;
     }
