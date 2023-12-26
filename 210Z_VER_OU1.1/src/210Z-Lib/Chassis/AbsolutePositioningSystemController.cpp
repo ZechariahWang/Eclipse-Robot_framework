@@ -106,8 +106,8 @@ void Eclipse::Odometry::update_odom() {
   
   if (delta_angle) {
     double i = sin(delta_angle / 2.0) * 2.0;
-    local_x = (delta_right / delta_angle - 3) * i;
-    local_y = (delta_middle / delta_angle + 1.2) * i;
+    local_x = (delta_right / delta_angle - 3) * i; // left to right distance
+    local_y = (delta_middle / delta_angle + 1.2) * i; // middle distance
   } else {
     local_x = delta_right;
     local_y = delta_middle;

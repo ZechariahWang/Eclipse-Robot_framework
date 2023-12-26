@@ -334,7 +334,7 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
     double avg_voltage_req = mov_t.compute_t(filtered_position, target); // compute proportional integral derivative controller on filtered pos
     double headingAssist = mov_t.find_min_angle(TARGET_THETA, current_robot_heading()) * mov_t.t_h_kp; // apply a heading assist to keep robot moving straight
     // initial timer of 100 ms to keep robot from oscillating
-    cd++; if (cd <= 20){ utility::engage_left_motors(0); utility::engage_right_motors(0); continue;}
+    cd++; if (cd <= 2){ utility::engage_left_motors(0); utility::engage_right_motors(0); continue;}
     if (target < 0) { is_backwards = true; } else { is_backwards = false; }
     double l_output = 0; double r_output = 0;
     if (slew_enabled){

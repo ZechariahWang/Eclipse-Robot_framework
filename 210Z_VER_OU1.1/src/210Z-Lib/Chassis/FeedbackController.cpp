@@ -58,6 +58,247 @@ void Eclipse::FeedbackControl::set_mtp_constants(double lkp, double lkd, double 
   mtp.mtp_max_angular_speed = max_angular_speed;
  }
 
+ /**
+ * @brief Turn to a specific coordinate position
+ * 
+ * @param targetX the target x coordinate
+ * @param targetY the target y coordinate
+ */
+
+void Eclipse::FeedbackControl::TurnToPoint(const int targetX, const int targetY){
+  int ct = 0;
+  double prev_linear_error = 0;
+  double prev_angular_error = 0;
+  double threshold = 3;
+  while (true){
+    odom.update_odom();
+
+    double angular_error = utility::getAngleError(targetX, targetY, false);
+    double angular_derivative = angular_error - prev_angular_error;
+    double ang_speed = (angular_error * mtp.akp) + (angular_derivative * mtp.akd);
+    if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) { ang_speed = mtp.mtp_max_angular_speed; }
+    else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){ ang_speed = -mtp.mtp_max_angular_speed; }
+
+    utility::engage_left_motors((-ang_speed) * (12000.0 / 127));
+    utility::engage_right_motors((ang_speed) * (12000.0 / 127));
+    ct++;
+  
+    if (fabs(angular_error * (180 / M_PI)) < threshold){
+      utility::motor_deactivation();
+      ct = 0;
+      break;
+    }
+
+    pros::delay(10);
+  }
+
+}
+
+/**
+ * @brief Mimic the movement of the standard MTP algorithm. Used for Pure Pursuit
+ * 
+ * @param target_x the target x coordinate
+ * @param target_y the target y coordinate
+ * @param max_linear_speed max speed robot can move while doing lateral movements
+ * @param max_rotation_speed max speed robot can move while doing rotational movements
+ * @param kp_linear linear proportional value
+ * @param kp_angular angular proportional value
+ */
+
+void mimic_move_to_point(double target_x, double target_y, bool reverse){
+    odom.update_odom();
+
+    double angular_error = utility::getAngleError(target_x, target_y, false);
+    double linear_error = utility::getDistanceError(target_x, target_y);
+
+    if (reverse == true){
+      angular_error = utility::getAngleError(target_x, target_y, true);
+      linear_error = -linear_error;
+    }
+
+    double lin_speed = (linear_error * mtp.lkp);
+    double ang_speed = (angular_error * mtp.akp);
+
+    if ((lin_speed * (12000.0 / 127)) > mtp.mtp_max_linear_speed * (12000.0 / 127)) { lin_speed = mtp.mtp_max_linear_speed; }
+    else if (lin_speed * (12000.0 / 127) < -mtp.mtp_max_linear_speed * 12000.0 / 127){ lin_speed = -mtp.mtp_max_linear_speed; }
+    if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) { ang_speed = mtp.mtp_max_angular_speed; }
+    else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){ ang_speed = -mtp.mtp_max_angular_speed; }
+
+    utility::engage_left_motors((lin_speed - ang_speed) * (12000.0 / 127));
+    utility::engage_right_motors((lin_speed + ang_speed) * (12000.0 / 127));
+}
+
+/**
+ * @brief Move to desired gloal robot position
+ * 
+ * @param target_x the target x coordinate
+ * @param target_y the target y coordinate
+ * @param max_linear_speed max speed robot can move while doing lateral movements
+ * @param max_rotation_speed max speed robot can move while doing rotational movements
+ * 
+ */
+
+void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, bool backwards){
+  int ct = 0;
+  double prev_linear_error = 0;
+  double prev_angular_error = 0;
+  double threshold = 7.5;
+
+  int overRideTimer = 0;
+  int distanceThreshold = 1;
+  int timer = 2000;
+  double prev_x = 0;
+  double prev_y = 0;
+  while (true){
+    odom.update_odom();
+
+    double angular_error = utility::getAngleError(target_x, target_y, false);
+    double linear_error = utility::getDistanceError(target_x, target_y);
+
+    if (backwards == true){
+      angular_error = utility::getAngleError(target_x, target_y, true);
+      linear_error = -linear_error;
+    }
+
+    double linear_derivative = linear_error - prev_linear_error;
+    double angular_derivative = angular_error - prev_angular_error;
+
+    double lin_speed = (linear_error * mtp.lkp) + (linear_derivative * mtp.lkd);
+    double ang_speed = (angular_error * mtp.akp) + (angular_derivative * mtp.akd);
+
+    double ang_lin_adjustment_factor = angular_error;
+    lin_speed *= std::cos(ang_lin_adjustment_factor);
+
+    if ((lin_speed * (12000.0 / 127)) > mtp.mtp_max_linear_speed * (12000.0 / 127)) { lin_speed = mtp.mtp_max_linear_speed; }
+    else if (lin_speed * (12000.0 / 127) < -mtp.mtp_max_linear_speed * 12000.0 / 127){ lin_speed = -mtp.mtp_max_linear_speed; }
+    if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) { ang_speed = mtp.mtp_max_angular_speed; }
+    else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){ ang_speed = -mtp.mtp_max_angular_speed; }
+
+    utility::engage_left_motors((lin_speed - ang_speed) * (12000.0 / 127));
+    utility::engage_right_motors((lin_speed + ang_speed) * (12000.0 / 127));
+    ct++;
+  
+    if (fabs(linear_error) < threshold){
+      utility::motor_deactivation();
+      ct = 0;
+      break;
+    }
+
+    if (fabs(utility::get_x() - prev_x) < 2 && fabs(utility::get_y() - prev_y) < 2) { overRideTimer++; }
+    if (overRideTimer > 100.0) {
+      utility::motor_deactivation();
+			break;
+    }  
+
+    prev_x = utility::get_x();
+	  prev_y = utility::get_y();
+
+    pros::delay(10);
+  }
+}
+
+void Eclipse::FeedbackControl::boomerang(double target_x, double target_y, double target_theta, double d_lead, bool reverse) {
+    bool settling = false;
+    double settling_error = 7.5;
+    double minError = 3;
+    double minRotationError = 0.052;
+    double prev_lin_error = 100;
+    double prev_lin_speed;
+    double prev_angular_error = 100;
+    double prev_angular_speed;
+    if (reverse){ target_theta += 180; }
+    while (true) {
+      odom.update_odom();
+      bool noPose = (target_theta > 360);
+      double carrotPoint_x = 0;
+      double carrotPoint_y = 0;
+
+      if (fabs(utility::getDistanceError(target_x, target_y)) < settling_error && settling == false){
+        settling = true;
+        mtp.mtp_max_angular_speed = fmax(fabs(prev_angular_speed), 30);
+      }
+
+      if (noPose == false){
+        double h = utility::getDistanceError(target_x, target_y);
+        double at = target_theta * M_PI / 180.0;
+        carrotPoint_x = target_x - h * cos(at) * d_lead;
+        carrotPoint_y = target_y - h * sin(at) * d_lead;
+      } else {
+        carrotPoint_x = target_x;
+        carrotPoint_y = target_y;
+      }
+
+      if (settling){
+        carrotPoint_x = target_x;
+        carrotPoint_y = target_y;
+      }
+
+      // get current error
+      double lin_error = utility::getDistanceError(target_x, target_y);
+      double ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, false);
+      double global_ang_error = utility::getAngleError(target_x, target_y, false);
+
+      if (settling){
+        ang_error = utility::getAngleError(target_x, target_y, false);
+      }
+
+      if (reverse == true){
+        lin_error = -lin_error;
+        ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, true);
+      }
+
+      double linear_derivative = (lin_error - prev_lin_error);
+      double angular_derivative = (ang_error - prev_angular_error);
+
+      // calculate linear speed
+      double lin_speed = (lin_error * mtp.lkp) + (linear_derivative * mtp.lkd);
+      double ang_speed = (ang_error * mtp.akp) + (angular_derivative * mtp.akd);
+
+      double over_turn = fabs(lin_speed) + fabs(ang_speed) - mtp.mtp_max_linear_speed;
+      if (over_turn > 0){
+        if (lin_speed > 0) {
+          lin_speed -= over_turn;
+        }
+        else {
+          lin_speed += over_turn;
+        }
+      }
+
+      // cap linear speed
+      if ((lin_speed * (12000.0 / 127)) > mtp.mtp_max_linear_speed * (12000.0 / 127)) {
+        lin_speed = mtp.mtp_max_linear_speed;
+      }
+      else if (lin_speed * (12000.0 / 127) < -mtp.mtp_max_linear_speed * 12000.0 / 127){
+        lin_speed = -mtp.mtp_max_linear_speed;
+      }
+      if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) {
+        ang_speed = mtp.mtp_max_angular_speed;
+      }
+      else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){
+        ang_speed = -mtp.mtp_max_angular_speed;
+      }
+
+      // add speeds together zech has autism
+      double left_speed = lin_speed - ang_speed;
+      double right_speed = lin_speed + ang_speed;
+
+      prev_lin_error = lin_error;
+      prev_lin_speed = lin_speed;
+      prev_angular_error = ang_error;
+      prev_lin_speed = ang_speed;
+
+      utility::engage_left_motors(left_speed * (12000.0 / 127));
+      utility::engage_right_motors(right_speed * (12000.0 / 127));
+
+      if (fabs(lin_error) < minError){
+        utility::motor_deactivation();
+        break;
+      }
+
+      pros::delay(10);
+    }
+}
+
 
 /**
  * @brief MTP Algorithm. Move to a desired coordinate position while facing a desired angle. Can only be used with mecanum drives
@@ -193,247 +434,6 @@ void Eclipse::FeedbackControl::move_to_reference_pose(const double targetX,
   }
 }
 
-/**
- * @brief Turn to a specific coordinate position
- * 
- * @param targetX the target x coordinate
- * @param targetY the target y coordinate
- */
-
-void Eclipse::FeedbackControl::TurnToPoint(const int targetX, const int targetY){
-  int ct = 0;
-  double prev_linear_error = 0;
-  double prev_angular_error = 0;
-  double threshold = 3;
-  while (true){
-    odom.update_odom();
-
-    double angular_error = utility::getAngleError(targetX, targetY, false);
-    double angular_derivative = angular_error - prev_angular_error;
-    double ang_speed = (angular_error * mtp.akp) + (angular_derivative * mtp.akd);
-    if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) { ang_speed = mtp.mtp_max_angular_speed; }
-    else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){ ang_speed = -mtp.mtp_max_angular_speed; }
-
-    utility::engage_left_motors((-ang_speed) * (12000.0 / 127));
-    utility::engage_right_motors((ang_speed) * (12000.0 / 127));
-    ct++;
-  
-    if (fabs(angular_error * (180 / M_PI)) < threshold){
-      utility::motor_deactivation();
-      ct = 0;
-      break;
-    }
-
-    pros::delay(10);
-  }
-
-}
-
-/**
- * @brief Mimic the movement of the standard MTP algorithm. Used for Pure Pursuit
- * 
- * @param target_x the target x coordinate
- * @param target_y the target y coordinate
- * @param max_linear_speed max speed robot can move while doing lateral movements
- * @param max_rotation_speed max speed robot can move while doing rotational movements
- * @param kp_linear linear proportional value
- * @param kp_angular angular proportional value
- */
-
-void mimic_move_to_point(double target_x, double target_y, bool reverse){
-    odom.update_odom();
-
-    double angular_error = utility::getAngleError(target_x, target_y, false);
-    double linear_error = utility::getDistanceError(target_x, target_y);
-
-    if (reverse == true){
-      angular_error = utility::getAngleError(target_x, target_y, true);
-      linear_error = -linear_error;
-    }
-
-    double lin_speed = (linear_error * mtp.lkp);
-    double ang_speed = (angular_error * mtp.akp);
-
-    if ((lin_speed * (12000.0 / 127)) > mtp.mtp_max_linear_speed * (12000.0 / 127)) { lin_speed = mtp.mtp_max_linear_speed; }
-    else if (lin_speed * (12000.0 / 127) < -mtp.mtp_max_linear_speed * 12000.0 / 127){ lin_speed = -mtp.mtp_max_linear_speed; }
-    if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) { ang_speed = mtp.mtp_max_angular_speed; }
-    else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){ ang_speed = -mtp.mtp_max_angular_speed; }
-
-    utility::engage_left_motors((lin_speed - ang_speed) * (12000.0 / 127));
-    utility::engage_right_motors((lin_speed + ang_speed) * (12000.0 / 127));
-}
-
-/**
- * @brief Move to desired gloal robot position
- * 
- * @param target_x the target x coordinate
- * @param target_y the target y coordinate
- * @param max_linear_speed max speed robot can move while doing lateral movements
- * @param max_rotation_speed max speed robot can move while doing rotational movements
- * @param kp_linear linear proportional value
- * @param kp_angular angular proportional value
- * 
- */
-
-// TODO work on reverse movement
-void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, bool backwards){
-  int ct = 0;
-  double prev_linear_error = 0;
-  double prev_angular_error = 0;
-  double threshold = 7.5;
-
-  int overRideTimer = 0;
-  int distanceThreshold = 1;
-  int timer = 2000;
-  double prev_x = 0;
-  double prev_y = 0;
-  while (true){
-    odom.update_odom();
-
-    double angular_error = utility::getAngleError(target_x, target_y, false);
-    double linear_error = utility::getDistanceError(target_x, target_y);
-
-    if (backwards == true){
-      angular_error = utility::getAngleError(target_x, target_y, true);
-      linear_error = -linear_error;
-    }
-
-    double linear_derivative = linear_error - prev_linear_error;
-    double angular_derivative = angular_error - prev_angular_error;
-
-    double lin_speed = (linear_error * mtp.lkp) + (linear_derivative * mtp.lkd);
-    double ang_speed = (angular_error * mtp.akp) + (angular_derivative * mtp.akd);
-
-    if ((lin_speed * (12000.0 / 127)) > mtp.mtp_max_linear_speed * (12000.0 / 127)) { lin_speed = mtp.mtp_max_linear_speed; }
-    else if (lin_speed * (12000.0 / 127) < -mtp.mtp_max_linear_speed * 12000.0 / 127){ lin_speed = -mtp.mtp_max_linear_speed; }
-    if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) { ang_speed = mtp.mtp_max_angular_speed; }
-    else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){ ang_speed = -mtp.mtp_max_angular_speed; }
-    //if (ct < 40){ lin_speed = 0; }
-
-    utility::engage_left_motors((lin_speed - ang_speed) * (12000.0 / 127));
-    utility::engage_right_motors((lin_speed + ang_speed) * (12000.0 / 127));
-    ct++;
-  
-    if (fabs(linear_error) < threshold){
-      utility::motor_deactivation();
-      ct = 0;
-      break;
-    }
-
-    if (fabs(utility::get_x() - prev_x) < 2 && fabs(utility::get_y() - prev_y) < 2) { overRideTimer++; }
-    if (overRideTimer > 100.0) {
-      utility::motor_deactivation();
-			break;
-    }  
-
-    prev_x = utility::get_x();
-	  prev_y = utility::get_y();
-
-    pros::delay(10);
-  }
-}
-
-void Eclipse::FeedbackControl::boomerang(double target_x, double target_y, double target_theta, double d_lead, bool reverse) {
-    bool settling = false;
-    double settling_error = 7.5;
-    double minError = 3;
-    double minRotationError = 0.052;
-    double prev_lin_error = 100;
-    double prev_lin_speed;
-    double prev_angular_error = 100;
-    double prev_angular_speed;
-    if (reverse){ target_theta += 180; }
-    while (true) {
-      odom.update_odom();
-      bool noPose = (target_theta > 360);
-      double carrotPoint_x = 0;
-      double carrotPoint_y = 0;
-
-      if (fabs(utility::getDistanceError(target_x, target_y)) < settling_error && settling == false){
-        settling = true;
-        mtp.mtp_max_angular_speed = fmax(fabs(prev_angular_speed), 30);
-      }
-
-      if (noPose == false){
-        double h = utility::getDistanceError(target_x, target_y);
-        double at = target_theta * M_PI / 180.0;
-        carrotPoint_x = target_x - h * cos(at) * d_lead;
-        carrotPoint_y = target_y - h * sin(at) * d_lead;
-      } else {
-        carrotPoint_x = target_x;
-        carrotPoint_y = target_y;
-      }
-
-      if (settling){
-        carrotPoint_x = target_x;
-        carrotPoint_y = target_y;
-      }
-
-      // get current error
-      double lin_error = utility::getDistanceError(target_x, target_y);
-      double ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, false);
-      double global_ang_error = utility::getAngleError(target_x, target_y, false);
-
-      if (settling){
-        ang_error = utility::getAngleError(target_x, target_y, false);
-      }
-
-      if (reverse == true){
-        lin_error = -lin_error;
-        ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, true);
-      }
-
-      double linear_derivative = (lin_error - prev_lin_error);
-      double angular_derivative = (ang_error - prev_angular_error);
-
-      // calculate linear speed
-      double lin_speed = (lin_error * mtp.lkp) + (linear_derivative * mtp.lkd);
-      double ang_speed = (ang_error * mtp.akp) + (angular_derivative * mtp.akd);
-
-      double over_turn = fabs(lin_speed) + fabs(ang_speed) - mtp.mtp_max_linear_speed;
-      if (over_turn > 0){
-        if (lin_speed > 0) {
-          lin_speed -= over_turn;
-        }
-        else {
-          lin_speed += over_turn;
-        }
-      }
-
-      // cap linear speed
-      if ((lin_speed * (12000.0 / 127)) > mtp.mtp_max_linear_speed * (12000.0 / 127)) {
-        lin_speed = mtp.mtp_max_linear_speed;
-      }
-      else if (lin_speed * (12000.0 / 127) < -mtp.mtp_max_linear_speed * 12000.0 / 127){
-        lin_speed = -mtp.mtp_max_linear_speed;
-      }
-      if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) {
-        ang_speed = mtp.mtp_max_angular_speed;
-      }
-      else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){
-        ang_speed = -mtp.mtp_max_angular_speed;
-      }
-
-      // add speeds together zech has autism
-      double left_speed = lin_speed - ang_speed;
-      double right_speed = lin_speed + ang_speed;
-
-      prev_lin_error = lin_error;
-      prev_lin_speed = lin_speed;
-      prev_angular_error = ang_error;
-      prev_lin_speed = ang_speed;
-
-      utility::engage_left_motors(left_speed * (12000.0 / 127));
-      utility::engage_right_motors(right_speed * (12000.0 / 127));
-
-      if (fabs(lin_error) < minError){
-        utility::motor_deactivation();
-        break;
-      }
-
-      pros::delay(10);
-    }
-}
 
 std::vector<std::pair<double, double>> test_path = {
   {0.0, 0.0},
