@@ -75,17 +75,17 @@ Eclipse::TranslationPID::TranslationPID(){ // Translation PID Constructor
 }
 
 Eclipse::RotationPID::RotationPID(){ // Rotation PID Constructor
-  rot_r.r_tol = 10;
+  rot_r.r_tol = 5;
   rot_r.r_error_thresh = 3;
 }
 
 Eclipse::CurvePID::CurvePID(){ // Curve PID Constructor
-  cur_c.c_tol = 20;
+  cur_c.c_tol = 5;
   cur_c.c_error_thresh = 3;
 }
 
 Eclipse::ArcPID::ArcPID(){ // Arc PID Constructor
-  arc_a.a_tol = 20;
+  arc_a.a_tol = 5;
   arc_a.a_error_thresh = 10;
 }
 
@@ -317,7 +317,9 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
                                          double maxSpeed, 
                                          bool slew_enabled){
 
-  utility::restart_all_chassis_motors(false); mov_t.reset_t_alterables();
+  chassis_left_motors.at(0).set_zero_position(0);
+  chassis_right_motors.at(0).set_zero_position(0);
+  mov_t.reset_t_alterables();
   double TARGET_THETA = current_robot_heading(); double POSITION_TARGET = target; bool is_backwards = false; int8_t cd = 0;
   mov_t.t_maxSpeed = maxSpeed;
   mov_t.circumference = mov_t.wheelDiameter * M_PI;
@@ -375,7 +377,9 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
 void Eclipse::RotationPID::set_rotation_pid(double t_theta,
                                    double maxSpeed){
 
-  utility::restart_all_chassis_motors(false);
+  // utility::restart_all_chassis_motors(false);
+  chassis_left_motors.at(0).set_zero_position(0);
+  chassis_right_motors.at(0).set_zero_position(0);
   rot_r.reset_r_alterables();
   rot_r.r_maxSpeed = maxSpeed;
   while (true){
@@ -386,7 +390,7 @@ void Eclipse::RotationPID::set_rotation_pid(double t_theta,
     utility::engage_left_motors(vol * (12000.0 / 127));
     utility::engage_right_motors(-vol * (12000.0 / 127));
     if (fabs(rot_r.r_error) < 3) { rot_r.r_iterator++; } else { rot_r.r_iterator = 0;}
-    if (fabs(rot_r.r_iterator) >= 10){
+    if (fabs(rot_r.r_iterator) >= 2){
       utility::motor_deactivation();
       break;
     }

@@ -142,13 +142,22 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
   int ct = 0;
   double prev_linear_error = 0;
   double prev_angular_error = 0;
-  double threshold = 7.5;
+  double threshold = 5;
+
+  bool settling = false;
 
   int overRideTimer = 0;
   int distanceThreshold = 1;
   int timer = 2000;
   double prev_x = 0;
   double prev_y = 0;
+
+  double prev_angular_speed = 0;
+  double global_angular_speed = 0;
+  double global_linear_velocity = 0;
+  double global_linear_acceleration = 0;
+  double prev_global_linear_velocity = 0;
+
   while (true){
     odom.update_odom();
 
@@ -160,6 +169,11 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
       linear_error = -linear_error;
     }
 
+    if (fabs(linear_error) < 7.5 && settling == false) {
+      mtp.mtp_max_angular_speed = fmin(fabs(prev_angular_speed), 10);
+      settling = true;
+    }
+
     double linear_derivative = linear_error - prev_linear_error;
     double angular_derivative = angular_error - prev_angular_error;
 
@@ -169,10 +183,28 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
     double ang_lin_adjustment_factor = angular_error;
     lin_speed *= std::cos(ang_lin_adjustment_factor);
 
-    if ((lin_speed * (12000.0 / 127)) > mtp.mtp_max_linear_speed * (12000.0 / 127)) { lin_speed = mtp.mtp_max_linear_speed; }
-    else if (lin_speed * (12000.0 / 127) < -mtp.mtp_max_linear_speed * 12000.0 / 127){ lin_speed = -mtp.mtp_max_linear_speed; }
-    if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) { ang_speed = mtp.mtp_max_angular_speed; }
-    else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){ ang_speed = -mtp.mtp_max_angular_speed; }
+      // double over_turn = fabs(lin_speed) + fabs(ang_speed) - mtp.mtp_max_linear_speed;
+      // if (over_turn > 0){
+      //   if (lin_speed > 0) {
+      //     lin_speed -= over_turn;
+      //   }
+      //   else {
+      //     lin_speed += over_turn;
+      //   }
+      // }
+
+    if ((lin_speed * (12000.0 / 127)) > mtp.mtp_max_linear_speed * (12000.0 / 127)) {
+      lin_speed = mtp.mtp_max_linear_speed;
+    }
+    else if (lin_speed * (12000.0 / 127) < -mtp.mtp_max_linear_speed * 12000.0 / 127){
+      lin_speed = -mtp.mtp_max_linear_speed;
+    }
+    if ((ang_speed * (12000.0 / 127)) > mtp.mtp_max_angular_speed * (12000.0 / 127)) {
+      ang_speed = mtp.mtp_max_angular_speed; 
+    }
+    else if (ang_speed * (12000.0 / 127) < -mtp.mtp_max_angular_speed * 12000.0 / 127){
+      ang_speed = -mtp.mtp_max_angular_speed; 
+    }
 
     utility::engage_left_motors((lin_speed - ang_speed) * (12000.0 / 127));
     utility::engage_right_motors((lin_speed + ang_speed) * (12000.0 / 127));
@@ -184,14 +216,19 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
       break;
     }
 
-    if (fabs(utility::get_x() - prev_x) < 2 && fabs(utility::get_y() - prev_y) < 2) { overRideTimer++; }
-    if (overRideTimer > 100.0) {
+    if (fabs(utility::get_x() - prev_x) < 1 && fabs(utility::get_y() - prev_y) < 1) { overRideTimer++; }
+    if (overRideTimer > 70.0) {
       utility::motor_deactivation();
 			break;
     }  
 
     prev_x = utility::get_x();
 	  prev_y = utility::get_y();
+
+    prev_linear_error = linear_error;
+    prev_angular_error = angular_error;
+    prev_angular_speed = ang_speed;
+    prev_global_linear_velocity = global_linear_velocity;
 
     pros::delay(10);
   }
