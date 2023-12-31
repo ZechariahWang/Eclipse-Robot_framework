@@ -30,7 +30,7 @@ void PurePursuitTestPath(){
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
 			mtp.set_mtp_constants(3, 35, 40, 0, 40, 40);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
 			utility::motor_deactivation();
 			break;
 		}
@@ -56,7 +56,7 @@ void ReversePurePursuitTestPath(){
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
 			mtp.set_mtp_constants(3, 35, 40, 0, 40, 40);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
 			utility::motor_deactivation();
 			break;
 		}

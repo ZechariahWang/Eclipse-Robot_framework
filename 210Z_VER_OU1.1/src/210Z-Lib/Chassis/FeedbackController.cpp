@@ -138,7 +138,7 @@ void mimic_move_to_point(double target_x, double target_y, bool reverse){
  * 
  */
 
-void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, bool backwards){
+void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, bool backwards, bool init_delay){
   int ct = 0;
   double prev_linear_error = 0;
   double prev_angular_error = 0;
@@ -148,7 +148,6 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
 
   int overRideTimer = 0;
   int distanceThreshold = 1;
-  int timer = 2000;
   double prev_x = 0;
   double prev_y = 0;
 
@@ -183,16 +182,6 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
     double ang_lin_adjustment_factor = angular_error;
     lin_speed *= std::cos(ang_lin_adjustment_factor);
 
-      // double over_turn = fabs(lin_speed) + fabs(ang_speed) - mtp.mtp_max_linear_speed;
-      // if (over_turn > 0){
-      //   if (lin_speed > 0) {
-      //     lin_speed -= over_turn;
-      //   }
-      //   else {
-      //     lin_speed += over_turn;
-      //   }
-      // }
-
     if ((lin_speed * (12000.0 / 127)) > mtp.mtp_max_linear_speed * (12000.0 / 127)) {
       lin_speed = mtp.mtp_max_linear_speed;
     }
@@ -206,8 +195,15 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
       ang_speed = -mtp.mtp_max_angular_speed; 
     }
 
-    utility::engage_left_motors((lin_speed - ang_speed) * (12000.0 / 127));
-    utility::engage_right_motors((lin_speed + ang_speed) * (12000.0 / 127));
+    if (ct < 20 && init_delay) {
+      lin_speed = 0;  
+    }
+
+    float leftPower = lin_speed - ang_speed;
+    float rightPower = lin_speed + ang_speed;
+
+    utility::engage_left_motors((leftPower) * (12000.0 / 127));
+    utility::engage_right_motors((rightPower) * (12000.0 / 127));
     ct++;
   
     if (fabs(linear_error) < threshold){
@@ -216,8 +212,9 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
       break;
     }
 
-    if (fabs(utility::get_x() - prev_x) < 1 && fabs(utility::get_y() - prev_y) < 1) { overRideTimer++; }
+    if (fabs(linear_error) < 2) { overRideTimer++; }
     if (overRideTimer > 70.0) {
+      ct = 0;
       utility::motor_deactivation();
 			break;
     }  

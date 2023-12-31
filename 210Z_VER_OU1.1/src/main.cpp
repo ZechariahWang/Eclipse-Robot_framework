@@ -28,20 +28,20 @@ char buffer[100];
 // Chassis drivetrain config. If you want to config sensors, and misc subsystems go to globals.cpp
 AssetConfig config(
 	{-13, -12, -11}, // Left Motor Ports (negative value means ports are reversed)
-	{18, 20, 19} // Right Motor Ports (negative value means port is reversed)
+	{17, 20, 19} // Right Motor Ports (negative value means port is reversed)
 ); 
 
 
 pros::ADIEncoder vertical_auxiliary_sensor('y', 'z', true); // vertical tracking wheel
 pros::Rotation horizontal_rotation_sensor(10); // horizontal tracking wheel
-pros::Imu imu_sensor(14); // IMU sensor
+pros::Imu imu_sensor(2); // IMU sensor
 
 // Game specific subsystems. Header declaration is in globals.hpp
 pros::ADIAnalogIn cata_sensor('x');
 pros::Distance distance_sensor(109);
-pros::Motor cata_motor(70, pros::E_MOTOR_GEARSET_36, false, pros::E_MOTOR_ENCODER_COUNTS);
+pros::Motor cata_motor(3, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS); // flywheel
 pros::Motor cata_motor_secondary(109, pros::E_MOTOR_GEARSET_36, true, pros::E_MOTOR_ENCODER_COUNTS);
-pros::Motor intake_motor(52, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS);
+pros::Motor intake_motor(18, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS);
 
 pros::ADIDigitalOut wings('h');
 pros::ADIDigitalOut blocker('g');
@@ -597,7 +597,7 @@ void PurePursuitTestPath22(){
     std::vector<CurvePoint> Path;
 	bool reverse = false;
 
-	double end_pose_x = 52; double end_pose_y = 30;
+	double end_pose_x = 50; double end_pose_y = 23;
 
     CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 10, 5, 1);
     CurvePoint newPoint1(10, 0, 1, 2, 10, 5, 1);
@@ -608,7 +608,7 @@ void PurePursuitTestPath22(){
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
 			mtp.set_mtp_constants(6, 35, 150, 0, 110, 110);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
 			utility::motor_deactivation();
 			break;
 		}
@@ -617,61 +617,66 @@ void PurePursuitTestPath22(){
 	}
 }
 
-void PurePursuitTestPath23(){
-	double end_point_tolerance = 15;
-    std::vector<CurvePoint> Path;
-	bool reverse = false;
 
-	double end_pose_x = 67; double end_pose_y = -12;
+void test6Ball(){
+	PurePursuitTestPath22();
 
-    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 10, 5, 1);
-    CurvePoint newPoint3(end_pose_x, end_pose_y, 2, 1, 10, 5, 1);
-    Path.push_back(StartPos); Path.push_back(newPoint3);
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(90, 110);
 
-    double prev_x = 0;
-    double prev_y = 0;
-    int overRideTimer = 0;
+	mtp.set_mtp_constants(6, 0, 150, 0, 110, 110);
+	mtp.move_to_point(60, -20, false, false);
 
-    while (true){ 
-		odom.update_odom();
-		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
-			mtp.set_mtp_constants(4, 35, 150, 0, 40, 110);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse);
-			utility::motor_deactivation();
-			break;
-		}
-        if (fabs(utility::get_x() - prev_x) < 2 && fabs(utility::get_y() - prev_y) < 2) { overRideTimer++; }
-        if (overRideTimer > 200.0) {
-            utility::motor_deactivation();
-            break;
-        }  
-		FollowCurve(Path, 0, 5, 2, reverse);
-		pros::delay(10);
-	}
-}
+	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
+	mtp.move_to_point(60, -2, true, false);
 
-void PurePursuitTestPath24(){
-	double end_point_tolerance = 15;
-    std::vector<CurvePoint> Path;
-	bool reverse = false;
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-130, 110);
 
-	double end_pose_x = 30; double end_pose_y = 21;
+	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
+	mtp.move_to_point(35, 6, false, false);
 
-    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 10, 5, 1);
-    CurvePoint newPoint3(end_pose_x, end_pose_y, 2, 1, 10, 5, 1);
-    Path.push_back(StartPos); Path.push_back(newPoint3);
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-140, 110);
 
-    while (true){ 
-		odom.update_odom();
-		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
-			mtp.set_mtp_constants(6, 35, 150, 0, 90, 110);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse);
-			utility::motor_deactivation();
-			break;
-		}
-		FollowCurve(Path, 0, 5, 2, reverse);
-		pros::delay(10);
-	}
+	mtp.set_mtp_constants(6, 0, 250, 0, 110, 110);
+	mtp.move_to_point(50, -5, true, true);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(90, 110);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(20, 110, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-15, 110, false);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(170, 110);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(42, 110, false);
+
+    cur_c.set_c_constants(6, 0, 45);
+    cur_c.set_curve_pid(-90, 110, 0.1, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(26, 110, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-40, 110, false);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(45, 110);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(20, 110, false);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(0, 110);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(20, 110, false);
 }
 
 
@@ -697,87 +702,13 @@ void autonomous(){  // Autonomous function control
 	// mtp.set_mtp_constants(6, 0, 150, 0, 90, 110);
 	// mtp.move_to_point(40, -20, false);
 
-	// mtp.set_mtp_constants(6, 0, 150, 0, 90, 110);
-	// mtp.move_to_point(40, 20, false);
+	// mtp.set_mtp_constants(5, 0, 150, 0, 90, 110);
+	// mtp.move_to_point(0, 0, true);
 
 	// mtp.set_mtp_constants(6, 0, 150, 0, 90, 110);
 	// mtp.move_to_point(40, -20, true);
 
-	PurePursuitTestPath22();
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(90, 110);
-
-	mtp.set_mtp_constants(6, 0, 150, 0, 110, 110);
-	mtp.move_to_point(69, -12, false);
-
-	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
-	mtp.move_to_point(69, 5, true);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-140, 110);
-
-	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
-	mtp.move_to_point(40, 14, false);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(45, 110);
-
-	mtp.set_mtp_constants(6, 0, 250, 0, 110, 110);
-	mtp.move_to_point(78, 5, false);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(90, 110);
-
-	mtp.set_mtp_constants(6, 0, 150, 0, 110, 110);
-	mtp.move_to_point(78, -29, false);
-
-	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
-	mtp.move_to_point(75, 0, true);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(170, 110);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(35, 110, false);
-
-    cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-90, 110, 0.1, false);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(22, 110, false);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-40, 110, false);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(45, 110);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(20, 110, false);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(0, 110);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(20, 110, false);
-
-	// PurePursuitTestPath24();
-
-    // mov_t.set_t_constants(5, 0, 35, 500);
-	// mov_t.set_translation_pid(24, 110, false);
-
-    // rot_r.set_r_constants(6, 0, 45);
-    // rot_r.set_rotation_pid(45, 110);
-
-    // rot_r.set_r_constants(6, 0, 45);
-    // rot_r.set_rotation_pid(-45, 110);
-
-    // rot_r.set_r_constants(6, 0, 45);
-    // rot_r.set_rotation_pid(0, 110);
-
-    // mov_t.set_t_constants(5, 0, 35, 500);
-	// mov_t.set_translation_pid(-24, 110, false);
+	test6Ball();
 
 }
 
@@ -794,7 +725,7 @@ void opcontrol(){ // Driver control function
 		extend_wings();
 		extend_blocker();
 		extend_climber();
-		raw_cata();
+		controlFlywheel(600);
 		pros::delay(delayAmount); // Dont hog CPU ;)
 	}
 }

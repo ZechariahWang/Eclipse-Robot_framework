@@ -29,7 +29,7 @@ namespace Eclipse{
             void overRideCoordinatePos(double new_gx, double new_gy);
             void simultaneous_mov_executor(double targetX, double targetY, double targetTheta, double translationSpeed, double rotationSpeed);
             void set_mtp_constants(double lkp, double lkd, double akp, double akd, double max_linear_speed, double max_angular_speed);
-            void move_to_point(double target_x, double target_y, bool backwards);
+            void move_to_point(double target_x, double target_y, bool backwards, bool init_delay);
             void boomerang(double target_x, double target_y, double target_theta, double d_lead, bool reverse);
     };
 

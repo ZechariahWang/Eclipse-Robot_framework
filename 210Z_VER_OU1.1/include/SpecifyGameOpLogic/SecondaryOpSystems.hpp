@@ -8,3 +8,4 @@ void extend_wings();
 void extend_blocker();
 void extend_climber();
 void stop_cata_with_sensor();
+void controlFlywheel(int targetVelocity);

@@ -25,7 +25,7 @@ void MoveToCenterTriball(){
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
 			mtp.set_mtp_constants(3, 35, 40, 0, 60, 60);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
 			utility::motor_deactivation();
 			break;
 		}
@@ -56,7 +56,7 @@ void MoveToLeftTriball(){
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
 			mtp.set_mtp_constants(3, 35, 40, 0, 60, 60);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
 			utility::motor_deactivation();
 			break;
 		}
@@ -86,7 +86,7 @@ void MoveToGoalFirstRun(){
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
 			mtp.set_mtp_constants(3, 35, 40, 0, 60, 60);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
 			utility::motor_deactivation();
 			break;
 		}
@@ -116,7 +116,7 @@ void MoveToLowerTriball(){
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
 			mtp.set_mtp_constants(3, 35, 40, 0, 60, 60);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
 			utility::motor_deactivation();
 			break;
 		}
@@ -142,7 +142,7 @@ void MoveToBottomOfGoal(){
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
 			mtp.set_mtp_constants(3, 35, 40, 0, 60, 60);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
 			utility::motor_deactivation();
 			break;
 		}

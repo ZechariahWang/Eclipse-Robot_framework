@@ -82,7 +82,7 @@ double prev_right_pos = 0;
 double prev_middle_pos = 0;
 double prev_heading = 0;
 
-double tpi = 1;
+double tpi = 1.14;
 double middle_tpi = 1;
  
 void Eclipse::Odometry::update_odom() {
