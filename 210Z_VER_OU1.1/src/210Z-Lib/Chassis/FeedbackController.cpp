@@ -282,8 +282,8 @@ void Eclipse::FeedbackControl::boomerang(double target_x, double target_y, doubl
       double angular_derivative = (ang_error - prev_angular_error);
 
       // calculate linear speed
-      double lin_speed = (lin_error * mtp.lkp) + (linear_derivative * mtp.lkd);
-      double ang_speed = (ang_error * mtp.akp) + (angular_derivative * mtp.akd);
+      double lin_speed = (lin_error * mtp.lkp);
+      double ang_speed = (ang_error * mtp.akp);
 
       double over_turn = fabs(lin_speed) + fabs(ang_speed) - mtp.mtp_max_linear_speed;
       if (over_turn > 0){

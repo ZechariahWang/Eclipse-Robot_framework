@@ -597,7 +597,7 @@ void PurePursuitTestPath22(){
     std::vector<CurvePoint> Path;
 	bool reverse = false;
 
-	double end_pose_x = 50; double end_pose_y = 23;
+	double end_pose_x = 58; double end_pose_y = 28;
 
     CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 10, 5, 1);
     CurvePoint newPoint1(10, 0, 1, 2, 10, 5, 1);
@@ -607,7 +607,57 @@ void PurePursuitTestPath22(){
     while (true){ 
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
-			mtp.set_mtp_constants(6, 35, 150, 0, 110, 110);
+			mtp.set_mtp_constants(5, 35, 250, 0, 110, 110);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
+			utility::motor_deactivation();
+			break;
+		}
+		FollowCurve(Path, 0, 5, 2, reverse);
+		pros::delay(10);
+	}
+}
+
+void goToLowerBall(){
+	double end_point_tolerance = 15;
+    std::vector<CurvePoint> Path;
+	bool reverse = false;
+
+	double end_pose_x = 35; double end_pose_y = 24;
+
+    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 10, 5, 1);
+    CurvePoint newPoint1(40, 0, 1, 2, 10, 5, 1);
+    CurvePoint newPoint3(end_pose_x, end_pose_y, 2, 1, 10, 5, 1);
+    Path.push_back(StartPos); Path.push_back(newPoint1); Path.push_back(newPoint3);
+
+    while (true){ 
+		odom.update_odom();
+		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+			mtp.set_mtp_constants(7, 35, 200, 0, 110, 110);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
+			utility::motor_deactivation();
+			break;
+		}
+		FollowCurve(Path, 0, 5, 2, reverse);
+		pros::delay(10);
+	}
+}
+
+void PurePursuitTestPath23(){
+	double end_point_tolerance = 15;
+    std::vector<CurvePoint> Path;
+	bool reverse = false;
+
+	double end_pose_x = 0; double end_pose_y = 18;
+
+    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
+    CurvePoint newPoint1(2, -20, 1, 2, 40, 5, 1);
+    CurvePoint newPoint3(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
+    Path.push_back(StartPos); Path.push_back(newPoint1); Path.push_back(newPoint3);
+
+    while (true){ 
+		odom.update_odom();
+		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+			mtp.set_mtp_constants(7, 0, 300, 0, 110, 110);
 			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
 			utility::motor_deactivation();
 			break;
@@ -628,24 +678,17 @@ void test6Ball(){
 	intake_motor.move_voltage(-12000);
 
 	mtp.set_mtp_constants(6, 0, 150, 0, 110, 110);
-	mtp.move_to_point(60, -20, false, false);
-
-	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
-	mtp.move_to_point(60, -2, true, false);
+	mtp.move_to_point(65, -18, false, false);
 
     rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-130, 110);
+    rot_r.set_rotation_pid(-160, 110);
 
 	intake_motor.move_voltage(12000);
 
-	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
-	mtp.move_to_point(35, 6, false, false);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-140, 110);
+	goToLowerBall();
 
 	mtp.set_mtp_constants(6, 0, 250, 0, 110, 110);
-	mtp.move_to_point(60, -5, true, true);
+	mtp.move_to_point(62, 0, true, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 110);
@@ -653,27 +696,23 @@ void test6Ball(){
 	intake_motor.move_voltage(-12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(20, 110, false);
+	mov_t.set_translation_pid(11, 110, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-15, 110, false);
+	mov_t.set_translation_pid(-10, 110, false);
 
     rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(170, 110);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(42, 110, false);
-
-    cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-90, 110, 0.1, false);
+    rot_r.set_rotation_pid(160, 110);
 
 	intake_motor.move_voltage(12000);
 
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(26, 110, false);
+	PurePursuitTestPath23();
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-90, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-40, 110, false);
+	mov_t.set_translation_pid(-42, 110, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(45, 110);
@@ -681,13 +720,31 @@ void test6Ball(){
     mov_t.set_t_constants(5, 0, 35, 500);
 	mov_t.set_translation_pid(20, 110, false);
 
+    // rot_r.set_r_constants(6, 0, 45);
+    // rot_r.set_rotation_pid(180, 110);
+
+    // mov_t.set_t_constants(7, 0, 35, 500);
+	// mov_t.set_translation_pid(-10, 127, false);
+
+   	// mov_t.set_t_constants(7, 0, 35, 500);
+	// mov_t.set_translation_pid(10, 127, false);
+
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(0, 110);
 
+   	mov_t.set_t_constants(7, 0, 35, 500);
+	mov_t.set_translation_pid(10, 127, false);
+
+  	mov_t.set_t_constants(7, 0, 35, 500);
+	mov_t.set_translation_pid(-8, 127, false);
+
 	intake_motor.move_voltage(-12000);
 
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(20, 110, false);
+   	mov_t.set_t_constants(7, 0, 35, 500);
+	mov_t.set_translation_pid(20, 127, false);
+
+   	mov_t.set_t_constants(7, 0, 35, 500);
+	mov_t.set_translation_pid(-10, 127, false);
 }
 
 
@@ -719,19 +776,19 @@ void autonomous(){  // Autonomous function control
 	// mtp.set_mtp_constants(6, 0, 150, 0, 90, 110);
 	// mtp.move_to_point(40, -20, true);
 
-	// test6Ball();
+	test6Ball();
 
-	mtp.set_mtp_constants(6, 0, 150, 0, 110, 110);
-	mtp.move_to_point(20, 0, false, false);
+	// mtp.set_mtp_constants(6, 0, 150, 0, 110, 110);
+	// mtp.move_to_point(20, 0, false, false);
 
-	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
-	mtp.move_to_point(20, -20, true, true);
+	// mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
+	// mtp.move_to_point(20, -20, true, true);
 
-	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
-	mtp.move_to_point(0, -20, false, true);
+	// mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
+	// mtp.move_to_point(0, -20, false, true);
 
-	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
-	mtp.move_to_point(0, 0, false, true);
+	// mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
+	// mtp.move_to_point(0, 0, false, true);
 
 }
 
