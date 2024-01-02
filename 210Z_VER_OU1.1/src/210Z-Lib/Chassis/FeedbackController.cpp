@@ -142,7 +142,7 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
   int ct = 0;
   double prev_linear_error = 0;
   double prev_angular_error = 0;
-  double threshold = 5;
+  double threshold = 3;
 
   bool settling = false;
 
@@ -212,15 +212,12 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
       break;
     }
 
-    if (fabs(linear_error) < 2) { overRideTimer++; }
+    if (fabs(linear_derivative) < 0.5) { overRideTimer++; }
     if (overRideTimer > 70.0) {
       ct = 0;
       utility::motor_deactivation();
 			break;
     }  
-
-    prev_x = utility::get_x();
-	  prev_y = utility::get_y();
 
     prev_linear_error = linear_error;
     prev_angular_error = angular_error;

@@ -34,7 +34,7 @@ AssetConfig config(
 
 pros::ADIEncoder vertical_auxiliary_sensor('y', 'z', true); // vertical tracking wheel
 pros::Rotation horizontal_rotation_sensor(10); // horizontal tracking wheel
-pros::Imu imu_sensor(2); // IMU sensor
+pros::Imu imu_sensor(6); // IMU sensor
 
 // Game specific subsystems. Header declaration is in globals.hpp
 pros::ADIAnalogIn cata_sensor('x');
@@ -619,10 +619,13 @@ void PurePursuitTestPath22(){
 
 
 void test6Ball(){
+	intake_motor.move_voltage(12000);
 	PurePursuitTestPath22();
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 110);
+
+	intake_motor.move_voltage(-12000);
 
 	mtp.set_mtp_constants(6, 0, 150, 0, 110, 110);
 	mtp.move_to_point(60, -20, false, false);
@@ -633,6 +636,8 @@ void test6Ball(){
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-130, 110);
 
+	intake_motor.move_voltage(12000);
+
 	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
 	mtp.move_to_point(35, 6, false, false);
 
@@ -640,10 +645,12 @@ void test6Ball(){
     rot_r.set_rotation_pid(-140, 110);
 
 	mtp.set_mtp_constants(6, 0, 250, 0, 110, 110);
-	mtp.move_to_point(50, -5, true, true);
+	mtp.move_to_point(60, -5, true, true);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 110);
+
+	intake_motor.move_voltage(-12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
 	mov_t.set_translation_pid(20, 110, false);
@@ -660,6 +667,8 @@ void test6Ball(){
     cur_c.set_c_constants(6, 0, 45);
     cur_c.set_curve_pid(-90, 110, 0.1, false);
 
+	intake_motor.move_voltage(12000);
+
     mov_t.set_t_constants(5, 0, 35, 500);
 	mov_t.set_translation_pid(26, 110, false);
 
@@ -674,6 +683,8 @@ void test6Ball(){
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(0, 110);
+
+	intake_motor.move_voltage(-12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
 	mov_t.set_translation_pid(20, 110, false);
@@ -708,7 +719,19 @@ void autonomous(){  // Autonomous function control
 	// mtp.set_mtp_constants(6, 0, 150, 0, 90, 110);
 	// mtp.move_to_point(40, -20, true);
 
-	test6Ball();
+	// test6Ball();
+
+	mtp.set_mtp_constants(6, 0, 150, 0, 110, 110);
+	mtp.move_to_point(20, 0, false, false);
+
+	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
+	mtp.move_to_point(20, -20, true, true);
+
+	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
+	mtp.move_to_point(0, -20, false, true);
+
+	mtp.set_mtp_constants(6, 0, 200, 0, 110, 110);
+	mtp.move_to_point(0, 0, false, true);
 
 }
 

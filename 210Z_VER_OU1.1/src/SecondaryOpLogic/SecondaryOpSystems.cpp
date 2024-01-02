@@ -76,6 +76,19 @@ void controlFlywheel(int targetVelocity) {
         int motorSpeed = targetVelocity + (int)tbh;
         cata_motor.move_velocity(motorSpeed);
     }
+    else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+        int currentVelocity = cata_motor.get_actual_velocity();
+        int error = -targetVelocity - currentVelocity;
+
+        if ((error > 0 && tbh < 0) || (error < 0 && tbh > 0)) {
+            tbh = tbhInitial;
+        } else {
+            tbh *= (1.0 - tbhGain);
+        }
+
+        int motorSpeed = targetVelocity + (int)tbh;
+        cata_motor.move_velocity(motorSpeed);
+    }
     else {
         cata_motor.move_velocity(0);
     }
