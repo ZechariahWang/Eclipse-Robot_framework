@@ -27,15 +27,43 @@ int32_t receive_and_validate_input_key(std::string key, bool hold) {
 
 
 void power_intake(){
-    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){ intake_motor.move_voltage(12000); }
-    else if ((controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2))){ intake_motor.move_voltage(-12000); } // intake
+    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){ intake_motor.move_voltage(12000); }
+    else if ((controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2))){ intake_motor.move_voltage(-12000); } // intake
     else{ intake_motor.move_voltage(0); }
 }
 
-bool wings_extended = false;
+bool left_wing_extended = false;
+bool right_wing_extended = false;
+bool both_wings_extended = false;
 void extend_wings() {
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {  wings_extended = !wings_extended; }
-    wings.set_value(wings_extended);
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+        both_wings_extended = !both_wings_extended;
+        left_wing_extended = both_wings_extended;
+        right_wing_extended = both_wings_extended;
+    }
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+        left_wing_extended = !left_wing_extended;
+    }
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
+        right_wing_extended = !right_wing_extended;
+        std::cout << right_wing_extended << std::endl;
+    }
+    left_wing.set_value(left_wing_extended);
+    right_wing.set_value(right_wing_extended);
+}
+
+void extend_left_wing() {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+        left_wing_extended = !left_wing_extended;
+    }
+    left_wing.set_value(left_wing_extended);
+}
+
+void extend_right_wing() {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
+       //  right_wing_extended = !right_wing_extended;
+    }
+    // right_wing.set_value(right_wing_extended);
 }
 
 bool blocker_extended = false;
@@ -57,13 +85,21 @@ void extend_climber() {
     climber.set_value(climb_extended);
 }
 
+bool odom_piston_extended = false;
+void extend_odom_piston(){
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
+        odom_piston_extended = !odom_piston_extended;
+    }
+    odom_piston.set_value(odom_piston_extended);
+}
+
 
 double tbh = 0.0;
 double tbhInitial = 0.0;
 double tbhGain = 0.001; 
 
 void controlFlywheel(int targetVelocity) {
-    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
         int currentVelocity = cata_motor.get_actual_velocity();
         int error = targetVelocity - currentVelocity;
 
@@ -76,7 +112,7 @@ void controlFlywheel(int targetVelocity) {
         int motorSpeed = targetVelocity + (int)tbh;
         cata_motor.move_velocity(motorSpeed);
     }
-    else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+    else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) {
         int currentVelocity = cata_motor.get_actual_velocity();
         int error = -targetVelocity - currentVelocity;
 

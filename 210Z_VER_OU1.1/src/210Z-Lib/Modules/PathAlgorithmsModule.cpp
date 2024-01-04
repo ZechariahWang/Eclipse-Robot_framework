@@ -142,7 +142,7 @@ void FollowCurve(std::vector<CurvePoint> allPoints, double followAngle, double l
     robotPosition.setY(utility::get_y());
 
     CurvePoint followMe = getFollowPointPath(allPoints, robotPosition, 15);
-    mtp.set_mtp_constants(5, 35, 150, 0, 127, 110);
+    mtp.set_mtp_constants(5, 35, 150, 0, lkp, 110);
     mimic_move_to_point(followMe.getX(), followMe.getY(), reverse);
 }
 

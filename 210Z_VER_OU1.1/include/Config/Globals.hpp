@@ -25,7 +25,9 @@ extern pros::Motor cata_motor_secondary;
 extern pros::Motor intake_motor;
 extern pros::Distance distance_sensor;
 
-extern pros::ADIDigitalOut wings;
+extern pros::ADIDigitalOut left_wing;
+extern pros::ADIDigitalOut right_wing;
+extern pros::ADIDigitalOut odom_piston;
 extern pros::ADIDigitalOut blocker;
 extern pros::ADIDigitalOut climber;
 

@@ -120,7 +120,7 @@ void MoveToLowerTriball(){
 			utility::motor_deactivation();
 			break;
 		}
-		FollowCurve(Path, 0, 5, 2, reverse);
+		FollowCurve(Path, 0, 110, 2, reverse);
 		pros::delay(10);
 	}
 }
@@ -146,7 +146,7 @@ void MoveToBottomOfGoal(){
 			utility::motor_deactivation();
 			break;
 		}
-		FollowCurve(Path, 0, 5, 2, reverse);
+		FollowCurve(Path, 0, 40, 2, reverse);
 		pros::delay(10);
 	}
 }
@@ -154,9 +154,7 @@ void MoveToBottomOfGoal(){
 
 void PrimaryRightSide() {
     blocker.set_value(true);
-    wings.set_value(true);
 	pros::delay(500);
-    wings.set_value(false);
 	intake_motor.move_voltage(-12000); // intake
 
     MoveToCenterTriball();

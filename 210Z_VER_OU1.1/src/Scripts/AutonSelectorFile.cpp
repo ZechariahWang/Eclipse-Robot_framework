@@ -69,7 +69,6 @@ void ReversePurePursuitTestPath(){
 // main driver function for the left side auton route
 void left_side() {
 	std::cout << "running"  << std::endl;
-	wings.set_value(false);
 	blocker.set_value(true);
 
 	//move_to_goal_left_side(); // move to goal 
@@ -94,8 +93,6 @@ void right_side() {
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 40);
 
-	wings.set_value(true);
-
 	intake_motor.move_voltage(12000);
 
 	mov_t.set_t_constants(5, 0, 35, 200);
@@ -112,10 +109,6 @@ void right_side() {
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 90);
 
-
-	wings.set_value(true);
-
-
 	mov_t.set_t_constants(5, 0, 35, 200);
 	mov_t.set_translation_pid(19, 90, false);
 
@@ -129,8 +122,6 @@ void right_side() {
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-132, 90);
-
-	wings.set_value(false);
 
 	intake_motor.move_voltage(-12000);
 
@@ -146,7 +137,6 @@ void right_side() {
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 90);
 
-	wings.set_value(true);
 	intake_motor.move_voltage(12000);
 	pros::delay(500);
 
@@ -247,13 +237,9 @@ void skills() {
 	rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-180, 90);
 
-	wings.set_value(true);
-
 	mov_t.set_t_constants(5, 0, 35, 200);
 	mov_t.set_translation_pid(28, 90, false);
 
-
-	wings.set_value(false);
 
 
 	mov_t.set_t_constants(5, 0, 35, 200);
@@ -262,14 +248,10 @@ void skills() {
 	rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-180, 90);
 
-
-	wings.set_value(true);
-
 	mov_t.set_t_constants(5, 0, 35, 200);
 	mov_t.set_translation_pid(24, 90, false);
 
 
-	wings.set_value(false);
 
 	mov_t.set_t_constants(5, 0, 35, 200);
 	mov_t.set_translation_pid(-24, 90, false);
@@ -277,13 +259,8 @@ void skills() {
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-180, 90);
 
-
-	wings.set_value(true);
-
 	mov_t.set_t_constants(5, 0, 35, 200);
 	mov_t.set_translation_pid(28, 90, false);
-
-	wings.set_value(false);
 
 
 	mov_t.set_t_constants(5, 0, 35, 200);
@@ -291,8 +268,6 @@ void skills() {
 
 	rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-180, 90);
-
-	wings.set_value(true);
 
 
 	mov_t.set_t_constants(5, 0, 35, 200);
