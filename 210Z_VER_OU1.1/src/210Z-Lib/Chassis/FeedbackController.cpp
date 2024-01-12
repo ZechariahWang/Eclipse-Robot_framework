@@ -212,7 +212,7 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
       break;
     }
 
-    if (fabs(linear_derivative) < 0.5) { overRideTimer++; }
+    if (fabs(linear_derivative) < 0.3) { overRideTimer++; }
     if (overRideTimer > 70.0) {
       ct = 0;
       utility::motor_deactivation();

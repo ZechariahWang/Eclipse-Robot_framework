@@ -19,11 +19,12 @@ extern pros::Imu imu_sensor;
 extern pros::MotorGroup left_side_motors;
 extern pros::MotorGroup right_side_motors;
 
-extern pros::ADIAnalogIn cata_sensor;
+extern pros::ADIDigitalIn cata_sensor;
 extern pros::Motor cata_motor;
 extern pros::Motor cata_motor_secondary;
 extern pros::Motor intake_motor;
 extern pros::Distance distance_sensor;
+extern pros::Motor flywheel_arm;
 
 extern pros::ADIDigitalOut left_wing;
 extern pros::ADIDigitalOut right_wing;

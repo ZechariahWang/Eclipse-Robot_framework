@@ -32,22 +32,26 @@ AssetConfig config(
 ); 
 
 
+
 pros::ADIEncoder vertical_auxiliary_sensor('y', 'z', true); // vertical tracking wheel
 pros::Rotation horizontal_rotation_sensor(21); // horizontal tracking wheel
-pros::Imu imu_sensor(6); // IMU sensor
+pros::Imu imu_sensor(7); // IMU sensor
 
 // Game specific subsystems. Header declaration is in globals.hpp
-pros::ADIAnalogIn cata_sensor('x');
-pros::Distance distance_sensor(109);
-pros::Motor cata_motor(3, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS); // flywheel
+pros::ADIDigitalIn cata_sensor('d');
+pros::Distance distance_sensor(8);
+pros::Motor cata_motor(4, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS); // flywheel
+pros::Motor flywheel_arm(15, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS); 
 pros::Motor cata_motor_secondary(109, pros::E_MOTOR_GEARSET_36, true, pros::E_MOTOR_ENCODER_COUNTS);
-pros::Motor intake_motor(18, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS);
+pros::Motor intake_motor(6, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS);
+pros::ADIDigitalOut climber('f');
 
 pros::ADIDigitalOut left_wing('h');
 pros::ADIDigitalOut right_wing('g');
-pros::ADIDigitalOut odom_piston('p');
+pros::ADIDigitalOut odom_piston('e');
+
+// not used
 pros::ADIDigitalOut blocker('z');
-pros::ADIDigitalOut climber('n');
 
 lv_obj_t *sensor_button_home; lv_obj_t *auton_button_home; lv_obj_t *misc_button_home; lv_obj_t *game_button_home; lv_obj_t *welcomeDisplay; lv_obj_t *home_welcome_text; lv_obj_t *home_page = lv_page_create(lv_scr_act(), NULL);
 lv_obj_t *odom_readings_sensor; lv_obj_t *dt_readings_sensor; lv_obj_t *sensor1_readings_sensor; lv_obj_t *sensor2_readings_sensor; lv_obj_t *sensor3_readings_sensor; lv_obj_t *sensor4_readings_sensor; lv_obj_t *return_button_sensor;
@@ -582,9 +586,11 @@ void initialize() { // Init function control
 	odom.set_horizontal_tracker_specs(2.75, 1.7);
 	odom.set_vertical_tracker_specs(2.75, 4.6);
 	imu_sensor.tare_rotation();
-	cata_sensor.calibrate();
+	odom_piston.set_value(false);
+	init_sequence();
 	sprintf(buffer, SYMBOL_LIST " Selected Path %d: %s", selected_auton, auton_Legend[selected_auton].c_str());
     lv_label_set_text(current_auton_display_selector, buffer);
+    intake_motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	// select.receive_selector_input(time); // Enabled Auton Selector (STEP 1)
 }
 
@@ -614,7 +620,7 @@ void PurePursuitTestPath22(){
 			utility::motor_deactivation();
 			break;
 		}
-		FollowCurve(Path, 0, 110, 2, reverse);
+		FollowCurve(Path, 15, 5, 110, reverse);
 		pros::delay(10);
 	}
 }
@@ -639,7 +645,7 @@ void goToLowerBall(){
 			utility::motor_deactivation();
 			break;
 		}
-		FollowCurve(Path, 0, 110, 2, reverse);
+		FollowCurve(Path, 15, 5, 110, reverse);
 		pros::delay(10);
 	}
 }
@@ -664,7 +670,7 @@ void PurePursuitTestPath23(){
 			utility::motor_deactivation();
 			break;
 		}
-		FollowCurve(Path, 0, 110, 2, reverse);
+		FollowCurve(Path, 15, 5, 110, reverse);
 		pros::delay(10);
 	}
 }
@@ -769,7 +775,7 @@ void moveToBottomOfGoal(){
 			utility::motor_deactivation();
 			break;
 		}
-		FollowCurve(Path, 0, 100, 2, reverse);
+		FollowCurve(Path, 15, 5, 100, reverse);
 		pros::delay(10);
 	}
 }
@@ -794,7 +800,7 @@ void moveToLowerTriball(){
 			utility::motor_deactivation();
 			break;
 		}
-		FollowCurve(Path, 0, 70, 2, reverse);
+		FollowCurve(Path, 15, 5, 70, reverse);
 		pros::delay(10);
 	}
 }
@@ -871,6 +877,83 @@ void safe_6ball() {
 }
 
 
+void knock_mid_goals(){
+	double end_point_tolerance = 15;
+    std::vector<CurvePoint> Path;
+	bool reverse = false;
+
+	double end_pose_x = 49; double end_pose_y = -18;
+
+    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
+    CurvePoint newPoint1(10, 0, 1, 2, 40, 5, 1);
+    CurvePoint newPoint3(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
+    Path.push_back(StartPos); Path.push_back(newPoint1); Path.push_back(newPoint3);
+
+    while (true){ 
+		odom.update_odom();
+		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+			mtp.set_mtp_constants(7, 0, 300, 0, 110, 110);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
+			utility::motor_deactivation();
+			break;
+		}
+		FollowCurve(Path, 15, 9, 110, reverse);
+		pros::delay(10);
+	}
+}
+
+void go_to_team_zone(){
+	double end_point_tolerance = 15;
+    std::vector<CurvePoint> Path;
+	bool reverse = true;
+
+	double end_pose_x = 10; double end_pose_y = 28;
+
+    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
+    CurvePoint newPoint0(45, 0, 1, 2, 40, 5, 1);
+    CurvePoint newPoint1(10, 6, 1, 2, 40, 5, 1);
+    CurvePoint newPoint3(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
+    Path.push_back(StartPos); Path.push_back(newPoint0); Path.push_back(newPoint1); Path.push_back(newPoint3);
+
+    while (true){ 
+		odom.update_odom();
+		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+			mtp.set_mtp_constants(7, 0, 300, 0, 110, 110);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
+			utility::motor_deactivation();
+			break;
+		}
+		FollowCurve(Path, 10, 6, 70, reverse);
+		pros::delay(10);
+	}
+}
+
+
+void close_side() {
+
+	knock_mid_goals();
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(0, 40);
+
+	mtp.set_mtp_constants(6, 0, 150, 0, 110, 110);
+	mtp.move_to_point(45, 20, false, true);
+
+	go_to_team_zone();
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-45, 70);
+
+    cur_c.set_c_constants(6, 0, 45);
+    cur_c.set_curve_pid(-90, 90, 0.56, true);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-27, 110, false);
+
+
+}
+
+
 /**
  * @brief Main autonomous function. PID prereqs:
  * @brief 90 DEGREES CONSTANTS: 6, 0, 45
@@ -887,11 +970,13 @@ void autonomous(){  // Autonomous function control
 	slew.set_slew_min_power({70, 70});
 	mov_t.set_dt_constants(3.125, 1.6, 600); // Parameters are : Wheel diameter, gear ratio, motor cartridge type
 	utility::restart_all_chassis_motors(false);
+	// auton_sequence();
 	// selector.recieve_selector_input(time); // Enabled Auton Selector (STEP 1) ONLY FOR PROTOTYPE USE
 	// select.select_current_auton(); // Enable Auton Selector (STEP 2) 
 
 	// test6Ball();
-	safe_6ball();
+	// safe_6ball();
+	close_side();
 
 }
 
@@ -900,7 +985,8 @@ void autonomous(){  // Autonomous function control
  * 
  */
 
-void opcontrol(){ // Driver control function
+void opcontrol(){ // Driver control function	
+	odom_piston.set_value(true);
 	while (true){
 	    op_mov.exponential_curve_accelerator();
 		odom.update_odom();
@@ -909,6 +995,8 @@ void opcontrol(){ // Driver control function
 		extend_odom_piston();
 		extend_blocker();
 		extend_climber();
+		raw_cata();
+
 		controlFlywheel(600);
 		pros::delay(delayAmount); // Dont hog CPU ;)
 	}

@@ -12,3 +12,5 @@ void extend_climber();
 void stop_cata_with_sensor();
 void extend_odom_piston();
 void controlFlywheel(int targetVelocity);
+void init_sequence();
+void auton_sequence();

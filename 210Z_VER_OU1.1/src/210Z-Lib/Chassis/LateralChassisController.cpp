@@ -80,7 +80,7 @@ Eclipse::RotationPID::RotationPID(){ // Rotation PID Constructor
 }
 
 Eclipse::CurvePID::CurvePID(){ // Curve PID Constructor
-  cur_c.c_tol = 5;
+  cur_c.c_tol = 10;
   cur_c.c_error_thresh = 3;
 }
 
