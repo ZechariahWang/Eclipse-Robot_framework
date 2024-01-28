@@ -138,11 +138,11 @@ void mimic_move_to_point(double target_x, double target_y, bool reverse){
  * 
  */
 
-void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, bool backwards, bool init_delay){
+void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, bool backwards, bool init_delay, int timer){
   int ct = 0;
   double prev_linear_error = 0;
   double prev_angular_error = 0;
-  double threshold = 3;
+  double threshold = 5;
 
   bool settling = false;
 
@@ -212,10 +212,9 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
       break;
     }
 
-    if (fabs(linear_derivative) < 0.3) { overRideTimer++; }
-    if (overRideTimer > 70.0) {
-      ct = 0;
+    if (ct > (timer * 100)) { 
       utility::motor_deactivation();
+      ct = 0;
 			break;
     }  
 

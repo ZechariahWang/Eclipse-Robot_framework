@@ -31,6 +31,7 @@ extern pros::ADIDigitalOut right_wing;
 extern pros::ADIDigitalOut odom_piston;
 extern pros::ADIDigitalOut blocker;
 extern pros::ADIDigitalOut climber;
+extern  pros::ADIDigitalOut front_wings;
 
 extern Eclipse::KalmanFilter kal;
 extern Eclipse::TranslationPID mov_t;

@@ -33,7 +33,7 @@ void Eclipse::Metrics::display_data(){
 	lv_label_set_text(sensor2_readings_sensor, buffer);
 	sprintf(buffer, SYMBOL_DRIVE " Sensor 3 Value: NULL");
 	lv_label_set_text(sensor3_readings_sensor, buffer);
-	sprintf(buffer, SYMBOL_DRIVE " Sensor 4 Value: NULL");
+	sprintf(buffer, SYMBOL_DRIVE " X: %.2f Y: %.2f Theta: %f", utility::get_x(), utility::get_y(), imu_sensor.get_rotation());
 	lv_label_set_text(sensor4_readings_sensor, buffer);
 }
 
@@ -49,7 +49,7 @@ void Eclipse::Metrics::output_sensor_data(){
 	lv_label_set_text(sensor2_readings_sensor, buffer);
 	sprintf(buffer, SYMBOL_DRIVE " Sensor 3 Value: NULL");
 	lv_label_set_text(sensor3_readings_sensor, buffer);
-	sprintf(buffer, SYMBOL_DRIVE " Sensor 4 Value: NULL");
+	sprintf(buffer, SYMBOL_DRIVE " X: %.2f Y: %.2f Theta: %f", utility::get_x(), utility::get_y(), imu_sensor.get_rotation());
 	lv_label_set_text(sensor4_readings_sensor, buffer);
 }
 

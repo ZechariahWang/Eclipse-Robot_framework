@@ -7,6 +7,7 @@
  * 
  */
 
+#include "Config/Globals.hpp"
 #include "main.h"
 #include "vector"
 #include "variant"
@@ -70,7 +71,7 @@ void Eclipse::Slew::initialize_slew(bool slew_enabled, const double max_speed, c
  */
 
 Eclipse::TranslationPID::TranslationPID(){ // Translation PID Constructor
-  mov_t.t_tol = 10;
+  mov_t.t_tol = 5;
   mov_t.t_error_thresh = 100;
 }
 
@@ -80,8 +81,8 @@ Eclipse::RotationPID::RotationPID(){ // Rotation PID Constructor
 }
 
 Eclipse::CurvePID::CurvePID(){ // Curve PID Constructor
-  cur_c.c_tol = 10;
-  cur_c.c_error_thresh = 3;
+  cur_c.c_tol = 5;
+  cur_c.c_error_thresh = 7;
 }
 
 Eclipse::ArcPID::ArcPID(){ // Arc PID Constructor
@@ -246,6 +247,7 @@ double get_min_angle_error_pid(float angle1, float angle2, bool radians){
 double Eclipse::RotationPID::compute_r(double current, double target){
   rot_r.r_error = get_min_angle_error_pid(target, current_robot_heading(), false);
   rot_r.r_derivative = rot_r.r_error - rot_r.r_prev_error;
+  std::cout << "rot derivative: " << rot_r.r_derivative << std::endl;
   if (rot_r.r_ki != 0){ rot_r.r_integral += rot_r.r_error; }
   if (rot_r.r_error == 0 || rot_r.r_error > target){ rot_r.r_integral = 0; }
 
@@ -266,7 +268,9 @@ double Eclipse::RotationPID::compute_r(double current, double target){
 
 double Eclipse::CurvePID::compute_c(double current, double target){
   cur_c.c_error = get_min_angle_error_pid(target, current_robot_heading(), false);
+  std::cout << "error: " << cur_c.c_error << std::endl;
   cur_c.c_derivative = cur_c.c_error - cur_c.c_prev_error;
+  std::cout << "derivative: " << cur_c.c_derivative << std::endl;
   if (cur_c.c_ki != 0){
     cur_c.c_integral += cur_c.c_error;
   }
@@ -278,6 +282,7 @@ double Eclipse::CurvePID::compute_c(double current, double target){
   if (output * (12000.0 / 127) >= cur_c.c_maxSpeed * (12000.0 / 127)) { output = cur_c.c_maxSpeed; }
   if (output * (12000.0 / 127) <= -cur_c.c_maxSpeed * (12000.0 / 127)) { output = -cur_c.c_maxSpeed; }
   cur_c.c_prev_error = cur_c.c_error;
+  std::cout << "prev: " << cur_c.c_prev_error << std::endl;
   return output;
 }
 
@@ -344,8 +349,8 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
       double tpr = (50.0 * (3600.0 / mov_t.cartridge) * mov_t.ratio);
       slew.initialize_slew(true, maxSpeed, target, (utility::get_encoder_position()), init_left_pos, is_backwards, tpr / c);
       double slew_output = slew.calculate_slew(filtered_position);
-      double l_output = utility::clamp(avg_voltage_req, -slew_output, slew_output);
-      double r_output = utility::clamp(avg_voltage_req, -slew_output, slew_output);
+      l_output = utility::clamp(avg_voltage_req, -slew_output, slew_output);
+      r_output = utility::clamp(avg_voltage_req, -slew_output, slew_output);
     }
     else{
       l_output = avg_voltage_req;
@@ -417,11 +422,13 @@ void Eclipse::CurvePID::set_curve_pid(double t_theta,
                              double curveDamper,
                              bool backwards){
 
-  utility::restart_all_chassis_motors(false);
+  chassis_left_motors.at(0).set_zero_position(0);
+  chassis_right_motors.at(0).set_zero_position(0);
   cur_c.reset_c_alterables();
   cur_c.c_maxSpeed = maxSpeed;
   cur_c.c_rightTurn = false;
   while (true){
+    odom.update_odom();
     double currentPos = imu_sensor.get_rotation();
     double vol = cur_c.compute_c(currentPos, t_theta);
 
@@ -447,8 +454,8 @@ void Eclipse::CurvePID::set_curve_pid(double t_theta,
       utility::motor_deactivation();
       break;
     }
-    if (fabs(cur_c.c_error - cur_c.c_prev_error) < 0.3) {cur_c.c_failsafe++;}
-    if (cur_c.c_failsafe > 100){
+    if (fabs(cur_c.c_error - cur_c.c_prev_error) < 0.1) {cur_c.c_failsafe++;}
+    if (cur_c.c_failsafe > 300){
       utility::motor_deactivation();
       break;
     }

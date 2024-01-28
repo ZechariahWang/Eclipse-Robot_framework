@@ -24,7 +24,7 @@ void move_to_goal_left_side(){
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
 			mtp.set_mtp_constants(3, 35, 40, 0, 40, 40);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 3000);
 			utility::motor_deactivation();
 			break;
 		}
@@ -57,7 +57,7 @@ void move_to_elevation_pole(){
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
 			mtp.set_mtp_constants(3, 35, 40, 0, 40, 40);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 3000);
 			utility::motor_deactivation();
 			break;
 		}

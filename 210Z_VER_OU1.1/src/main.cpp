@@ -27,28 +27,27 @@ char buffer[100];
 
 // Chassis drivetrain config. If you want to config sensors, and misc subsystems go to globals.cpp
 AssetConfig config(
-	{-13, -12, -11}, // Left Motor Ports (negative value means ports are reversed)
-	{17, 20, 19} // Right Motor Ports (negative value means port is reversed)
+	{-14, -5, -20}, // Left Motor Ports (negative value means ports are reversed)
+	{21, 7, 3} // Right Motor Ports (negative value means port is reversed)
 ); 
 
-
-
 pros::ADIEncoder vertical_auxiliary_sensor('y', 'z', true); // vertical tracking wheel
-pros::Rotation horizontal_rotation_sensor(21); // horizontal tracking wheel
-pros::Imu imu_sensor(7); // IMU sensor
+pros::Rotation horizontal_rotation_sensor(19); // horizontal tracking wheel
+pros::Imu imu_sensor(15); // IMU sensor
 
 // Game specific subsystems. Header declaration is in globals.hpp
 pros::ADIDigitalIn cata_sensor('d');
 pros::Distance distance_sensor(8);
-pros::Motor cata_motor(4, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS); // flywheel
+pros::Motor cata_motor(12, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS); // flywheel
 pros::Motor flywheel_arm(15, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS); 
 pros::Motor cata_motor_secondary(109, pros::E_MOTOR_GEARSET_36, true, pros::E_MOTOR_ENCODER_COUNTS);
-pros::Motor intake_motor(6, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS);
+pros::Motor intake_motor(8, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS);
 pros::ADIDigitalOut climber('f');
 
 pros::ADIDigitalOut left_wing('h');
 pros::ADIDigitalOut right_wing('g');
-pros::ADIDigitalOut odom_piston('e');
+pros::ADIDigitalOut front_wings('e');
+pros::ADIDigitalOut odom_piston('c');
 
 // not used
 pros::ADIDigitalOut blocker('z');
@@ -587,6 +586,8 @@ void initialize() { // Init function control
 	odom.set_vertical_tracker_specs(2.75, 4.6);
 	imu_sensor.tare_rotation();
 	odom_piston.set_value(false);
+	// horizontal_rotation_sensor.set_position(0);
+	utility::restart_all_chassis_motors(false);
 	init_sequence();
 	sprintf(buffer, SYMBOL_LIST " Selected Path %d: %s", selected_auton, auton_Legend[selected_auton].c_str());
     lv_label_set_text(current_auton_display_selector, buffer);
@@ -599,13 +600,33 @@ void disabled() {}
 void competition_initialize() {}
 //------------------------------\*
 
+void init_extend_piston() {
+	odom_piston.set_value(false);
+	pros::delay(200);
+	odom_piston.set_value(true);
+	pros::delay(300);
+}
 
-void PurePursuitTestPath22(){
+void move_arm_down() {
+	while (true) {
+		flywheel_arm.move_voltage(-10000); 
+		if (cata_sensor.get_value() == 1) {
+			flywheel_arm.move_voltage(0);  // once arm is down, stop motor
+            arm_down = false;
+            down_flywheel_enabled = true;
+            cata_toggled = false;
+			break;
+		}
+	}
+}
+
+
+void move_to_mid(){
 	double end_point_tolerance = 15;
     std::vector<CurvePoint> Path;
 	bool reverse = false;
 
-	double end_pose_x = 58; double end_pose_y = 28;
+	double end_pose_x = 50; double end_pose_y = 32;
 
     CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 10, 5, 1);
     CurvePoint newPoint1(10, 0, 1, 2, 10, 5, 1);
@@ -615,8 +636,8 @@ void PurePursuitTestPath22(){
     while (true){ 
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
-			mtp.set_mtp_constants(5, 35, 250, 0, 110, 110);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
+			mtp.set_mtp_constants(5, 35, 40, 0, 110, 110);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 3000);
 			utility::motor_deactivation();
 			break;
 		}
@@ -625,37 +646,37 @@ void PurePursuitTestPath22(){
 	}
 }
 
-void goToLowerBall(){
-	double end_point_tolerance = 15;
+void go_to_lower_ball(){
+	double end_point_tolerance = 22;
     std::vector<CurvePoint> Path;
 	bool reverse = false;
 
-	double end_pose_x = 35; double end_pose_y = 24;
+	double end_pose_x = 40; double end_pose_y = 17;
 
     CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 10, 5, 1);
-    CurvePoint newPoint1(40, 0, 1, 2, 10, 5, 1);
+    CurvePoint newPoint1(45, 0, 1, 2, 10, 5, 1);
     CurvePoint newPoint3(end_pose_x, end_pose_y, 2, 1, 10, 5, 1);
     Path.push_back(StartPos); Path.push_back(newPoint1); Path.push_back(newPoint3);
 
     while (true){ 
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
-			mtp.set_mtp_constants(7, 35, 200, 0, 110, 110);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
+			mtp.set_mtp_constants(7, 35, 40, 0, 110, 110);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 3000);
 			utility::motor_deactivation();
 			break;
 		}
-		FollowCurve(Path, 15, 5, 110, reverse);
+		FollowCurve(Path, 25, 6, 90, reverse);
 		pros::delay(10);
 	}
 }
 
-void PurePursuitTestPath23(){
-	double end_point_tolerance = 15;
+void move_to_pole(){
+	double end_point_tolerance = 22;
     std::vector<CurvePoint> Path;
 	bool reverse = false;
 
-	double end_pose_x = 0; double end_pose_y = 18;
+	double end_pose_x = 0; double end_pose_y = 2;
 
     CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
     CurvePoint newPoint1(2, -20, 1, 2, 40, 5, 1);
@@ -665,12 +686,12 @@ void PurePursuitTestPath23(){
     while (true){ 
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
-			mtp.set_mtp_constants(7, 0, 300, 0, 110, 110);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
+			mtp.set_mtp_constants(7, 0, 40, 0, 110, 110);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 3000);
 			utility::motor_deactivation();
 			break;
 		}
-		FollowCurve(Path, 15, 5, 110, reverse);
+		FollowCurve(Path, 25, 6, 90, reverse);
 		pros::delay(10);
 	}
 }
@@ -678,7 +699,7 @@ void PurePursuitTestPath23(){
 
 void test6Ball(){
 	intake_motor.move_voltage(12000);
-	PurePursuitTestPath22();
+	move_to_mid();
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 110);
@@ -686,17 +707,17 @@ void test6Ball(){
 	intake_motor.move_voltage(-12000);
 
 	mtp.set_mtp_constants(6, 0, 150, 0, 110, 110);
-	mtp.move_to_point(65, -18, false, false);
+	mtp.move_to_point(65, -18, false, false, 3000);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-160, 110);
 
 	intake_motor.move_voltage(12000);
 
-	goToLowerBall();
+	go_to_lower_ball();
 
 	mtp.set_mtp_constants(6, 0, 250, 0, 110, 110);
-	mtp.move_to_point(62, 0, true, false);
+	mtp.move_to_point(60, 0, true, false, 3000);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 110);
@@ -714,7 +735,13 @@ void test6Ball(){
 
 	intake_motor.move_voltage(12000);
 
-	PurePursuitTestPath23();
+	move_to_pole();
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-90, 110);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(10, 110, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-90, 110);
@@ -723,28 +750,25 @@ void test6Ball(){
 	mov_t.set_translation_pid(-42, 110, false);
 
     rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(45, 110);
+    rot_r.set_rotation_pid(-135, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(20, 110, false);
+	mov_t.set_translation_pid(-20, 110, false);
 
-    // rot_r.set_r_constants(6, 0, 45);
-    // rot_r.set_rotation_pid(180, 110);
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-180, 110);
 
-    // mov_t.set_t_constants(7, 0, 35, 500);
-	// mov_t.set_translation_pid(-10, 127, false);
+   	mov_t.set_t_constants(7, 0, 35, 500);
+	mov_t.set_translation_pid(-10, 127, false);
 
-   	// mov_t.set_t_constants(7, 0, 35, 500);
-	// mov_t.set_translation_pid(10, 127, false);
+  	mov_t.set_t_constants(7, 0, 35, 500);
+	mov_t.set_translation_pid(8, 127, false);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-90, 110);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(0, 110);
-
-   	mov_t.set_t_constants(7, 0, 35, 500);
-	mov_t.set_translation_pid(10, 127, false);
-
-  	mov_t.set_t_constants(7, 0, 35, 500);
-	mov_t.set_translation_pid(-8, 127, false);
 
 	intake_motor.move_voltage(-12000);
 
@@ -756,56 +780,59 @@ void test6Ball(){
 }
 
 void moveToBottomOfGoal(){
-	double end_point_tolerance = 15;
+	double end_point_tolerance = 22;
     std::vector<CurvePoint> Path;
 	bool reverse = true;
 
-	double end_pose_x = -46; double end_pose_y = -33;
+	double end_pose_x = -36; double end_pose_y = -8;
 
     CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
-    CurvePoint newPoint1(-35, -6, 1, 2, 40, 5, 1);
+    CurvePoint newPoint1(-20, 0, 1, 2, 40, 5, 1);
     CurvePoint newPoint3(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
     Path.push_back(StartPos); Path.push_back(newPoint1); Path.push_back(newPoint3);
 
     while (true){ 
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
-			mtp.set_mtp_constants(7, 0, 300, 0, 110, 110);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
+			mtp.set_mtp_constants(7, 0, 40, 0, 90, 50);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 3000);
 			utility::motor_deactivation();
 			break;
 		}
-		FollowCurve(Path, 15, 5, 100, reverse);
+		FollowCurve(Path, 19, 6, 90, reverse);
 		pros::delay(10);
 	}
 }
 
 void moveToLowerTriball(){
-	double end_point_tolerance = 15;
+	double end_point_tolerance = 22;
     std::vector<CurvePoint> Path;
 	bool reverse = true;
 
-	double end_pose_x = -12; double end_pose_y = -30;
+	double end_pose_x = -8; double end_pose_y = -30;
 
     CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
-    CurvePoint newPoint2(-40, -15, 1, 2, 40, 5, 1);
+    CurvePoint newPoint2(-18, -28, 1, 2, 40, 5, 1);
     CurvePoint newPoint3(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
     Path.push_back(StartPos); Path.push_back(newPoint2); Path.push_back(newPoint3);
 
     while (true){ 
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
-			mtp.set_mtp_constants(7, 0, 300, 0, 70, 110);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
+			mtp.set_mtp_constants(7, 0, 40, 0, 90, 50);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 3000);
 			utility::motor_deactivation();
 			break;
 		}
-		FollowCurve(Path, 15, 5, 70, reverse);
+		FollowCurve(Path, 25, 6, 90, reverse);
 		pros::delay(10);
 	}
 }
 
 void safe_6ball() {
+
+	odom_piston.set_value(true);
+	pros::delay(500);
 
 	intake_motor.move_voltage(12000);
 
@@ -814,14 +841,33 @@ void safe_6ball() {
 
 	moveToBottomOfGoal();
 
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-90, 60);
+	left_wing.set_value(true);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(8, 110, false);
+	mov_t.set_translation_pid(-15, 110, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(10, 110, false);
+
+	left_wing.set_value(false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-10, 110, false);
 
     rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(84, 60);
+    rot_r.set_rotation_pid(-90, 110);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-15, 110, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(10, 110, false);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(0, 110);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(90, 110);
 
 	intake_motor.move_voltage(-12000);
 
@@ -829,7 +875,7 @@ void safe_6ball() {
 	mov_t.set_translation_pid(12, 110, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-8, 110, false);
+	mov_t.set_translation_pid(-14, 110, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(180, 110);
@@ -842,10 +888,10 @@ void safe_6ball() {
     rot_r.set_rotation_pid(0, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(14, 110, false);
+	mov_t.set_translation_pid(12, 110, false);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-40, 90, 0.2, true);
+    cur_c.set_curve_pid(-40, 110, 0.2, true);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(125, 110);
@@ -859,19 +905,21 @@ void safe_6ball() {
 	intake_motor.move_voltage(12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(23, 60, false);
+	mov_t.set_translation_pid(20, 80, false);
 
     rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(180, 40);
+    rot_r.set_rotation_pid(180, 70);
 
-	left_wing.set_value(true);
-	right_wing.set_value(true);
+	front_wings.set_value(true);
 	pros::delay(500);
 
 	intake_motor.move_voltage(-12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
 	mov_t.set_translation_pid(60, 110, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-15, 110, false);
 
 
 }
@@ -882,7 +930,7 @@ void knock_mid_goals(){
     std::vector<CurvePoint> Path;
 	bool reverse = false;
 
-	double end_pose_x = 49; double end_pose_y = -18;
+	double end_pose_x = 46; double end_pose_y = -22;
 
     CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
     CurvePoint newPoint1(10, 0, 1, 2, 40, 5, 1);
@@ -893,7 +941,7 @@ void knock_mid_goals(){
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
 			mtp.set_mtp_constants(7, 0, 300, 0, 110, 110);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 3000);
 			utility::motor_deactivation();
 			break;
 		}
@@ -919,7 +967,7 @@ void go_to_team_zone(){
 		odom.update_odom();
 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
 			mtp.set_mtp_constants(7, 0, 300, 0, 110, 110);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 3000);
 			utility::motor_deactivation();
 			break;
 		}
@@ -931,26 +979,153 @@ void go_to_team_zone(){
 
 void close_side() {
 
-	knock_mid_goals();
+	odom_piston.set_value(true);
+	pros::delay(500);
+
+	front_wings.set_value(true);
+	pros::delay(500);
+	front_wings.set_value(false);
 
     rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(0, 40);
-
-	mtp.set_mtp_constants(6, 0, 150, 0, 110, 110);
-	mtp.move_to_point(45, 20, false, true);
-
-	go_to_team_zone();
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-45, 70);
+    rot_r.set_rotation_pid(110, 40);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-90, 90, 0.56, true);
+    cur_c.set_curve_pid(180, 90, 0.6, true);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-27, 110, false);
+	mov_t.set_translation_pid(-40, 90, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(6, 90, false);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(90, 70);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(40, 90, false);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(0, 70);
+
+	front_wings.set_value(true);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(26, 90, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-8, 90, false);
 
 
+	// knock_mid_goals();
+
+    // rot_r.set_r_constants(6, 0, 45);
+    // rot_r.set_rotation_pid(0, 40);
+
+	// front_wings.set_value(true);
+	// pros::delay(500);
+	// front_wings.set_value(false);
+
+	// mtp.set_mtp_constants(6, 0, 150, 0, 110, 110);
+	// mtp.move_to_point(45, 20, false, true);
+
+	// go_to_team_zone();
+
+    // rot_r.set_r_constants(6, 0, 45);
+    // rot_r.set_rotation_pid(-45, 70);
+
+    // cur_c.set_c_constants(6, 0, 45);
+    // cur_c.set_curve_pid(-90, 90, 0.56, true);
+
+    // mov_t.set_t_constants(5, 0, 35, 500);
+	// mov_t.set_translation_pid(-27, 90, false);
+
+    // mov_t.set_t_constants(5, 0, 35, 500);
+	// mov_t.set_translation_pid(5, 90, false);
+
+}
+
+void left_no_odom() {
+    cur_c.set_c_constants(6, 0, 45);
+    cur_c.set_curve_pid(20, 110, 0.6, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(33, 90, false);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(90, 110);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(20, 110, true);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-10, 110, true);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-170, 110);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(27, 90, true);
+
+    cur_c.set_c_constants(6, 0, 45);
+    cur_c.set_curve_pid(-90, 90, 0.2, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(10, 110, false);
+
+    cur_c.set_c_constants(6, 0, 45);
+    cur_c.set_curve_pid(-45, 90, 0.2, false);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-45, 60);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-24, 110, true);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(5, 60, true);
+
+    cur_c.set_c_constants(6, 0, 45);
+    cur_c.set_curve_pid(-90, 90, 0.1, true);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-90, 60);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-33, 60, true);
+}
+
+void debug_pp(){
+	double end_point_tolerance = 18;
+    std::vector<CurvePoint> Path;
+	bool reverse = false;
+
+	double end_pose_x = 100; double end_pose_y = 81;
+
+    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
+    CurvePoint newPoint0(18, -20, 1, 2, 40, 5, 1);
+    CurvePoint newPoint1(102, -23, 2, 1, 20, 5, 1);
+    CurvePoint newPoint2(90, 15, 2, 1, 20, 5, 1);
+    CurvePoint newPoint3(71, 45, 2, 1, 20, 5, 1);
+    CurvePoint newPoint4(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
+    Path.push_back(StartPos); Path.push_back(newPoint0); Path.push_back(newPoint1); Path.push_back(newPoint2); Path.push_back(newPoint3); Path.push_back(newPoint4); 
+
+    while (true){ 
+		odom.update_odom();
+		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+		mtp.set_mtp_constants(6, 0, 150, 0, 70, 90);
+		mtp.move_to_point(end_pose_x, end_pose_y, false, false, 2);
+			utility::motor_deactivation();
+			break;
+		}
+		FollowCurve(Path, 25, 6, 70, reverse);
+		pros::delay(10);
+	}
+}
+
+
+void test_path_debug() {
+	pros::delay(500);
+	debug_pp();
 }
 
 
@@ -966,17 +1141,28 @@ void autonomous(){  // Autonomous function control
 	global_robot_x = 0;
 	global_robot_y = 0;
 	utility::set_chassis_to_brake();
-	slew.set_slew_distance({7, 7});
-	slew.set_slew_min_power({70, 70});
+	slew.set_slew_distance({4, 4});
+	slew.set_slew_min_power({40, 40});
 	mov_t.set_dt_constants(3.125, 1.6, 600); // Parameters are : Wheel diameter, gear ratio, motor cartridge type
 	utility::restart_all_chassis_motors(false);
-	// auton_sequence();
+	init_extend_piston();
+	// move_arm_down();
 	// selector.recieve_selector_input(time); // Enabled Auton Selector (STEP 1) ONLY FOR PROTOTYPE USE
 	// select.select_current_auton(); // Enable Auton Selector (STEP 2) 
 
 	// test6Ball();
 	// safe_6ball();
-	close_side();
+	// close_side();
+	// skills();
+	// debug_pp();
+
+	// mtp.set_mtp_constants(7, 0, 150, 0, 90, 90);
+	// mtp.move_to_point(20, -20, false, false, 5);
+
+	// mtp.set_mtp_constants(7, 0, 150, 0, 90, 90);
+	// mtp.move_to_point(0, 0, true, true, 5);
+
+	debug_pp();
 
 }
 
@@ -986,13 +1172,15 @@ void autonomous(){  // Autonomous function control
  */
 
 void opcontrol(){ // Driver control function	
+	init_extend_piston();	
+	// move_arm_down();
 	odom_piston.set_value(true);
 	while (true){
 	    op_mov.exponential_curve_accelerator();
 		odom.update_odom();
 		power_intake();
 		extend_wings();
-		extend_odom_piston();
+		extend_front_wings();
 		extend_blocker();
 		extend_climber();
 		raw_cata();

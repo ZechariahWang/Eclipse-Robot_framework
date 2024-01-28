@@ -1,4 +1,5 @@
 #include "main.h"
+#include <vector>
 
 using namespace Eclipse;
 
@@ -155,3 +156,22 @@ void trapezoidal_driver(double target_pos) {
 
     utility::motor_deactivation();
 }
+
+
+double distance = 0;
+double position = 0;
+double velocity = 0;
+double max_acceleration = 0;
+double max_velocity = 0;
+double current_time = 0;
+
+std::vector<double> timePhase = {0,0,0};
+std::vector<double> distancePhase;
+std::vector<double> velocityPhase;
+
+
+double get_current_position() { return position; }
+void set_constraints() {}
+void trapezoidal_motion_profiler() { timePhase[0] = 5; }
+void move_with_trapezoidal(double distance, double timeout) {}
+

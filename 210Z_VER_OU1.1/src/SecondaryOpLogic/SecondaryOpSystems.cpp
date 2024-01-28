@@ -2,6 +2,21 @@
 #include "main.h"
 #include <string>
 
+/**
+ * L2: Outtake
+ * R2: Intake
+ * L1: Left Wing
+ * R2: Right Wing
+ * DOWN: Both backwings
+ * RIGHT: Move arm down
+ * LEFT: Move arm up
+ * UP: Flywheel backwards
+ * Y: Climber
+ * B: Flywheel forward
+ * A: Front wings
+ * X: NULL
+ */
+
 
 const uint64_t LINE_SENSOR_VAL = 4096; // max value to be considered an object
 const uint64_t LINE_SENSOR_THRESHHOLD = 1000; // min value to notdetect anything
@@ -37,7 +52,7 @@ bool left_wing_extended = false;
 bool right_wing_extended = false;
 bool both_wings_extended = false;
 void extend_wings() {
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
         both_wings_extended = !both_wings_extended;
         left_wing_extended = both_wings_extended;
         right_wing_extended = both_wings_extended;
@@ -73,44 +88,12 @@ void extend_blocker() {
     blocker.set_value(blocker_extended);
 }
 
-// bool cata_toggled = false;
-// bool first_down = false;
-// int counter = 0;
-// void raw_cata(){
-//     while (true) {
-//         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) { cata_toggled = true; }
-//         if (cata_toggled) {
-//         if (distance_sensor.get() < 30) {
-//                 flywheel_arm.move_voltage(0); 
-//                 first_down = false;
-//         }
-//         else {
-//                 flywheel_arm.move_voltage(-12000); 
-//         }
-//         }
-
-//         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
-//             first_down = true;
-//         }
-
-//         if (first_down && distance_sensor.get() < 30){ 
-//             flywheel_arm.move_voltage(-12000); 
-//             counter++;
-//             flywheel_arm.move_voltage(0);
-//             cata_toggled = false;
-//             counter = 0;
-//         }
-//         else if (first_down == false) {
-//             flywheel_arm.move_voltage(0);
-//         }
-//         pros::delay(10);
-//     }
-// }
-
 bool cata_toggled = false;
 bool arm_down = false;
+bool down_flywheel_enabled = false;
+bool arm_down_on_single_button = false;
 void raw_cata(){
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
         cata_toggled = !cata_toggled;
     }
     if (cata_toggled == true) { // we want to move the arm down
@@ -118,6 +101,7 @@ void raw_cata(){
          if (cata_sensor.get_value() == 1) {
             flywheel_arm.move_voltage(0);  // once arm is down, stop motor
             arm_down = false;
+            down_flywheel_enabled = true;
             cata_toggled = false;
          }
     }
@@ -125,37 +109,33 @@ void raw_cata(){
         flywheel_arm.move_voltage(0); 
     }
 
-    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) { // move arm up
         arm_down = true;
         flywheel_arm.move_voltage(-10000); 
     }
     else if (arm_down) {
         flywheel_arm.move_voltage(0); 
         arm_down = false;
+        down_flywheel_enabled = false;
     }
 }
 
 bool climb_extended = false;
 void extend_climber() {
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {  climb_extended = !climb_extended; }
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {  climb_extended = !climb_extended; }
     climber.set_value(climb_extended);
 }
-
-bool odom_piston_extended = false;
-void extend_odom_piston(){
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
-        //odom_piston_extended = !odom_piston_extended;
-    }
-    //odom_piston.set_value(odom_piston_extended);
-}
-
 
 double tbh = 0.0;
 double tbhInitial = 0.0;
 double tbhGain = 0.001; 
 
+bool flywheel_enabled = false;
 void controlFlywheel(int targetVelocity) {
-    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
+        flywheel_enabled = !flywheel_enabled;
+    }
+    if (down_flywheel_enabled && flywheel_enabled) {
         int currentVelocity = cata_motor.get_actual_velocity();
         int error = targetVelocity - currentVelocity;
 
@@ -168,7 +148,7 @@ void controlFlywheel(int targetVelocity) {
         int motorSpeed = targetVelocity + (int)tbh;
         cata_motor.move_velocity(motorSpeed);
     }
-    else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) {
+    else if (down_flywheel_enabled == false && flywheel_enabled) {
         int currentVelocity = cata_motor.get_actual_velocity();
         int error = -targetVelocity - currentVelocity;
 
@@ -197,6 +177,18 @@ void stop_cata_with_sensor() {
         }
 
         pros::delay(10);
+    }
+}
+
+bool front_wings_extended = false;
+void extend_front_wings() {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+        front_wings_extended = !front_wings_extended;
+    }
+    if (front_wings_extended) {
+        front_wings.set_value(true);
+    } else {
+        front_wings.set_value(false);
     }
 }
 
