@@ -138,7 +138,7 @@ void mimic_move_to_point(double target_x, double target_y, bool reverse){
  * 
  */
 
-void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, bool backwards, bool init_delay, int timer){
+void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, bool backwards, bool init_delay, double timer){
   int ct = 0;
   double prev_linear_error = 0;
   double prev_angular_error = 0;

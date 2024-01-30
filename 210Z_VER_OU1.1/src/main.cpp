@@ -27,27 +27,27 @@ char buffer[100];
 
 // Chassis drivetrain config. If you want to config sensors, and misc subsystems go to globals.cpp
 AssetConfig config(
-	{-14, -5, -20}, // Left Motor Ports (negative value means ports are reversed)
-	{21, 7, 3} // Right Motor Ports (negative value means port is reversed)
+	{-20, -17, -19}, // Left Motor Ports (negative value means ports are reversed)
+	{21, 10, 8} // Right Motor Ports (negative value means port is reversed)
 ); 
 
 pros::ADIEncoder vertical_auxiliary_sensor('y', 'z', true); // vertical tracking wheel
-pros::Rotation horizontal_rotation_sensor(19); // horizontal tracking wheel
-pros::Imu imu_sensor(15); // IMU sensor
+pros::Rotation horizontal_rotation_sensor(2); // horizontal tracking wheel
+pros::Imu imu_sensor(5); // IMU sensor
 
 // Game specific subsystems. Header declaration is in globals.hpp
-pros::ADIDigitalIn cata_sensor('d');
+pros::ADIDigitalIn cata_sensor('b');
 pros::Distance distance_sensor(8);
-pros::Motor cata_motor(12, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS); // flywheel
-pros::Motor flywheel_arm(15, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS); 
+pros::Motor cata_motor(14, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS); // flywheel
+pros::Motor flywheel_arm(13, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS); 
 pros::Motor cata_motor_secondary(109, pros::E_MOTOR_GEARSET_36, true, pros::E_MOTOR_ENCODER_COUNTS);
-pros::Motor intake_motor(8, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS);
-pros::ADIDigitalOut climber('f');
+pros::Motor intake_motor(4, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS);
+pros::ADIDigitalOut climber('c');
 
-pros::ADIDigitalOut left_wing('h');
-pros::ADIDigitalOut right_wing('g');
-pros::ADIDigitalOut front_wings('e');
-pros::ADIDigitalOut odom_piston('c');
+pros::ADIDigitalOut left_wing('f');
+pros::ADIDigitalOut right_wing('a');
+pros::ADIDigitalOut front_wings('g');
+pros::ADIDigitalOut odom_piston('e');
 
 // not used
 pros::ADIDigitalOut blocker('z');
@@ -1129,6 +1129,117 @@ void test_path_debug() {
 }
 
 
+void moveToUnderGoal(){
+	double end_point_tolerance = 10;
+    std::vector<CurvePoint> Path;
+	bool reverse = true;
+
+	double end_pose_x = 31; double end_pose_y = -28;
+
+    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
+    CurvePoint newPoint0(0, 0, 1, 2, 40, 5, 1);
+    CurvePoint newPoint1(9, -15, 1, 2, 40, 5, 1);
+    CurvePoint newPoint4(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
+    Path.push_back(StartPos); Path.push_back(newPoint0); Path.push_back(newPoint1);  Path.push_back(newPoint4); 
+
+    while (true){ 
+		odom.update_odom();
+		if(fabs(sqrt(pow(9 - utility::get_x(), 2) + pow(-15 - utility::get_y(), 2))) <= 10){
+			left_wing.set_value(true);
+			pros::delay(50);
+			left_wing.set_value(false);
+		}
+		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+			mtp.set_mtp_constants(6, 0, 150, 0, 70, 0);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 0);
+			utility::motor_deactivation();
+			break;
+		}
+		FollowCurve(Path, 20, 6, 110, reverse);
+		pros::delay(10);
+	}
+}
+
+
+void new6ballmecha() {
+	odom_piston.set_value(true);
+	intake_motor.move_voltage(12000);
+	front_wings.set_value(true);
+	pros::delay(300);
+	front_wings.set_value(false);
+
+    rot_r.set_r_constants(5, 0, 45);
+    rot_r.set_rotation_pid(-90, 80);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(32, 110, true);
+
+	moveToUnderGoal();
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-180, 110);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-5, 110, true);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(5, 110, true);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-5, 110);
+
+	intake_motor.move_voltage(-12000);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(10, 110, true);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-5, 110, true);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-90, 110);
+
+	intake_motor.move_voltage(12000);
+
+	mtp.set_mtp_constants(7, 0, 170, 0, 110, 90);
+	mtp.move_to_point(33, 18, false, false, 1.5);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-90, 110);
+
+    cur_c.set_c_constants(6, 0, 45);
+    cur_c.set_curve_pid(-100, 110, 0.2, true);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(45, 110);
+
+	intake_motor.move_voltage(-12000);
+	pros::delay(200);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-32, 110);
+
+	intake_motor.move_voltage(12000);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(18, 110, true);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(90, 110);
+
+	intake_motor.move_voltage(-12000);
+
+	front_wings.set_value(true);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(40, 110, true);
+
+	// mtp.set_mtp_constants(7, 0, 200, 0, 90, 0);
+	// mtp.move_to_point(0, 35, false, true, 3000);
+
+}
+
+
 /**
  * @brief Main autonomous function. PID prereqs:
  * @brief 90 DEGREES CONSTANTS: 6, 0, 45
@@ -1162,7 +1273,9 @@ void autonomous(){  // Autonomous function control
 	// mtp.set_mtp_constants(7, 0, 150, 0, 90, 90);
 	// mtp.move_to_point(0, 0, true, true, 5);
 
-	debug_pp();
+	// debug_pp();
+
+	new6ballmecha();
 
 }
 
@@ -1174,7 +1287,7 @@ void autonomous(){  // Autonomous function control
 void opcontrol(){ // Driver control function	
 	init_extend_piston();	
 	// move_arm_down();
-	odom_piston.set_value(true);
+	odom_piston.set_value(false);
 	while (true){
 	    op_mov.exponential_curve_accelerator();
 		odom.update_odom();
@@ -1182,6 +1295,7 @@ void opcontrol(){ // Driver control function
 		extend_wings();
 		extend_front_wings();
 		extend_blocker();
+		extend_odom_piston();
 		extend_climber();
 		raw_cata();
 

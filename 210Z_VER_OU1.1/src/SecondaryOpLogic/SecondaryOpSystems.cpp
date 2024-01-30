@@ -92,12 +92,13 @@ bool cata_toggled = false;
 bool arm_down = false;
 bool down_flywheel_enabled = false;
 bool arm_down_on_single_button = false;
+int counter_cata = 0;
 void raw_cata(){
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
         cata_toggled = !cata_toggled;
     }
     if (cata_toggled == true) { // we want to move the arm down
-         flywheel_arm.move_voltage(-10000); 
+         flywheel_arm.move_voltage(-12000); 
          if (cata_sensor.get_value() == 1) {
             flywheel_arm.move_voltage(0);  // once arm is down, stop motor
             arm_down = false;
@@ -109,16 +110,22 @@ void raw_cata(){
         flywheel_arm.move_voltage(0); 
     }
 
-    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) { // move arm up
+    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) { // move arm up
         arm_down = true;
-        flywheel_arm.move_voltage(-10000); 
+        flywheel_arm.move_voltage(-12000); 
     }
     else if (arm_down) {
-        flywheel_arm.move_voltage(0); 
-        arm_down = false;
-        down_flywheel_enabled = false;
+        counter_cata++;
+        if (counter_cata > 100) {
+            flywheel_arm.move_voltage(0); 
+            arm_down = false;
+            down_flywheel_enabled = false;
+            counter_cata = 0;
+        }
     }
 }
+
+
 
 bool climb_extended = false;
 void extend_climber() {
@@ -190,6 +197,14 @@ void extend_front_wings() {
     } else {
         front_wings.set_value(false);
     }
+}
+
+bool odom_piston_extended = false;
+void extend_odom_piston() {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+        odom_piston_extended = !odom_piston_extended;
+    }
+    odom_piston.set_value(odom_piston_extended);
 }
 
 void init_sequence() {

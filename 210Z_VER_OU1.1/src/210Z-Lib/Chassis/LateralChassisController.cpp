@@ -76,7 +76,7 @@ Eclipse::TranslationPID::TranslationPID(){ // Translation PID Constructor
 }
 
 Eclipse::RotationPID::RotationPID(){ // Rotation PID Constructor
-  rot_r.r_tol = 5;
+  rot_r.r_tol = 10;
   rot_r.r_error_thresh = 3;
 }
 
@@ -395,7 +395,7 @@ void Eclipse::RotationPID::set_rotation_pid(double t_theta,
     utility::engage_left_motors(vol * (12000.0 / 127));
     utility::engage_right_motors(-vol * (12000.0 / 127));
     if (fabs(rot_r.r_error) < 3) { rot_r.r_iterator++; } else { rot_r.r_iterator = 0;}
-    if (fabs(rot_r.r_iterator) >= 2){
+    if (fabs(rot_r.r_iterator) >= 4){
       utility::motor_deactivation();
       break;
     }
