@@ -221,11 +221,11 @@ void curve_to_other_side_of_goal(){
     std::vector<CurvePoint> Path;
 	bool reverse = false;
 
-	double end_pose_x = 90; double end_pose_y = 110;
+	double end_pose_x = 100; double end_pose_y = 105;
 
     CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
-    CurvePoint newPoint1(65, 70, 1, 2, 40, 5, 1);
-    CurvePoint newPoint2(90, 90, 1, 2, 40, 5, 1);
+    CurvePoint newPoint1(65, 60, 1, 2, 40, 5, 1);
+    CurvePoint newPoint2(110, 80, 1, 2, 40, 5, 1);
     CurvePoint newPoint4(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
     Path.push_back(StartPos); Path.push_back(newPoint1);  Path.push_back(newPoint2); Path.push_back(newPoint4);
 
@@ -237,7 +237,7 @@ void curve_to_other_side_of_goal(){
 			utility::motor_deactivation();
 			break;
 		}
-		FollowCurve(Path, 25, 6, 90, reverse);
+		FollowCurve(Path, 25, 6, 50, reverse);
 		pros::delay(10);
 	}
 }
@@ -288,7 +288,6 @@ void skills() {
     mov_t.set_t_constants(5, 0, 35, 500);
 	mov_t.set_translation_pid(8, 110, false);
 
-
     mov_t.set_t_constants(5, 0, 35, 500);
 	mov_t.set_translation_pid(-9, 110, false);
 
@@ -304,7 +303,7 @@ void skills() {
 	right_wing.set_value(true);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-30, 110, false);
+	mov_t.set_translation_pid(-25, 110, false);
 
 	rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 90);
@@ -328,15 +327,19 @@ void skills() {
 	right_wing.set_value(false);
 
 	rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-35, 90);
-
-	curve_to_other_side_of_goal();
+    rot_r.set_rotation_pid(-28, 90);
 
 	rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-120, 90);
+    rot_r.set_rotation_pid(0, 90);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-180, 90, 0.3, false);
+    cur_c.set_curve_pid(-90, 90, 0.48, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(6, 110, false);
+
+    cur_c.set_c_constants(6, 0, 45);
+    cur_c.set_curve_pid(-180, 90, 0.37, false);
 
 	rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-180, 90);
@@ -346,6 +349,39 @@ void skills() {
 
     mov_t.set_t_constants(5, 0, 35, 500);
 	mov_t.set_translation_pid(12, 110, false);
+
+	mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-5, 110, false);
+
+	rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(90, 90);
+
+	cur_c.set_c_constants(6, 0, 45);
+    cur_c.set_curve_pid(180, 110, 0.45, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(24, 110, false);
+
+	rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(90, 90);
+
+	left_wing.set_value(true);
+	right_wing.set_value(true);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-38, 110, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(24, 110, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-48, 110, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(24, 110, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-48, 110, false);
 
 
 }

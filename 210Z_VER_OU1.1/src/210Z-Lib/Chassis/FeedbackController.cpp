@@ -199,6 +199,10 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
       lin_speed = 0;  
     }
 
+    if (fabs(linear_error) < 8) {
+      ang_speed = 0;
+    }
+
     float leftPower = lin_speed - ang_speed;
     float rightPower = lin_speed + ang_speed;
 
@@ -207,6 +211,7 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
     ct++;
   
     if (fabs(linear_error) < threshold){
+      ang_speed = 0;
       utility::motor_deactivation();
       ct = 0;
       break;
