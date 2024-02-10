@@ -72,8 +72,8 @@ void Eclipse::MatchMovement::exponential_curve_accelerator(){
     double forward_val = joystick_accelerator(forwardRed, leftYjoystick, forwardCurve);
     double turnVoltage = turn_val * (12000.0 / 127); 
     double forwardVoltage = forward_val * (12000.0 / 127);
-    double left =  forwardVoltage + turnVoltage;
-    double right = forwardVoltage - turnVoltage;
+    double left =  forwardVoltage - turnVoltage;
+    double right = forwardVoltage + turnVoltage;
     utility::engage_left_motors(left);
     utility::engage_right_motors(right);
 

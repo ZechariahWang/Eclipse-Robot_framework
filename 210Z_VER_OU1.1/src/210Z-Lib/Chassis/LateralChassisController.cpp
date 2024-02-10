@@ -356,6 +356,9 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
       l_output = avg_voltage_req;
       r_output = avg_voltage_req;
     }
+    std::cout << "average pos" << avgPos << std::endl;
+    std::cout << "output" << l_output << std::endl;
+    std::cout << "error" << mov_t.t_error << std::endl;
     utility::engage_left_motors((l_output * (12000.0 / 127)) + headingAssist);
     utility::engage_right_motors((r_output * (12000.0 / 127)) - headingAssist);
     if (fabs(mov_t.t_error) < mov_t.t_error_thresh){ mov_t.t_iterator++; } else { mov_t.t_iterator = 0;}
@@ -364,7 +367,7 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
       break;
     }
     if (fabs(mov_t.t_derivative) < 5) mov_t.t_failsafe++;
-    if (mov_t.t_failsafe > 100){
+    if (mov_t.t_failsafe > 50){
       utility::motor_deactivation();
       break;
     }

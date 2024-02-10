@@ -242,7 +242,22 @@ void curve_to_other_side_of_goal(){
 	}
 }
 
+void moveArmDown() {
+	while (true) {
+		flywheel_arm.move_voltage(-12000);
+         if (cata_sensor.get_value() == 1) {
+            flywheel_arm.move_voltage(0);  // once arm is down, stop motor
+			break;
+         }
+		 pros::delay(10);
+	}
+}
+
 void skills() {
+
+	odom_piston.set_value(true);
+	moveArmDown();
+	pros::delay(1000);
 
     cata_motor.move_voltage(12000);
 
@@ -250,14 +265,14 @@ void skills() {
 	mov_t.set_translation_pid(15, 110, false);
 
     rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-73, 110);
+    rot_r.set_rotation_pid(-69, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-17, 70, false);
+	mov_t.set_translation_pid(-18, 70, false);
 
 	left_wing.set_value(true);
 
-	//pros::delay(30000);
+	pros::delay(30000);
 
 	// shoot
 
@@ -336,7 +351,7 @@ void skills() {
     cur_c.set_curve_pid(-90, 90, 0.48, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(6, 110, false);
+	mov_t.set_translation_pid(10, 110, false);
 
     cur_c.set_c_constants(6, 0, 45);
     cur_c.set_curve_pid(-180, 90, 0.37, false);

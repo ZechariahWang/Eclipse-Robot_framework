@@ -43,8 +43,8 @@ int32_t receive_and_validate_input_key(std::string key, bool hold) {
 
 
 void power_intake(){
-    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){ intake_motor.move_voltage(12000); }
-    else if ((controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2))){ intake_motor.move_voltage(-12000); } // intake
+    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){ intake_motor.move_voltage(12000); }
+    else if ((controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2))){ intake_motor.move_voltage(-12000); } // intake
     else{ intake_motor.move_voltage(0); }
 }
 
@@ -90,8 +90,8 @@ void extend_blocker() {
 
 bool cata_toggled = false;
 bool arm_down = false;
-bool down_flywheel_enabled = false;
-bool arm_down_on_single_button = false;
+bool down_flywheel_enabled = true;
+bool arm_down_on_single_button = true;
 int counter_cata = 0;
 void raw_cata(){
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
@@ -135,16 +135,19 @@ void extend_climber() {
 
 double tbh = 0.0;
 double tbhInitial = 0.0;
-double tbhGain = 0.001; 
+double tbhGain = 0.0001; 
+
+double downSyndromeSpeed = 300;
+double upSyndromeSpeed = 600;
 
 bool flywheel_enabled = false;
 void controlFlywheel(int targetVelocity) {
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
         flywheel_enabled = !flywheel_enabled;
     }
-    if (down_flywheel_enabled && flywheel_enabled) {
+    if (down_flywheel_enabled && flywheel_enabled) { // down
         int currentVelocity = cata_motor.get_actual_velocity();
-        int error = targetVelocity - currentVelocity;
+        int error = downSyndromeSpeed - currentVelocity;
 
         if ((error > 0 && tbh < 0) || (error < 0 && tbh > 0)) {
             tbh = tbhInitial;
@@ -152,12 +155,12 @@ void controlFlywheel(int targetVelocity) {
             tbh *= (1.0 - tbhGain);
         }
 
-        int motorSpeed = targetVelocity + (int)tbh;
+        int motorSpeed = downSyndromeSpeed + (int)tbh;
         cata_motor.move_velocity(motorSpeed);
     }
     else if (down_flywheel_enabled == false && flywheel_enabled) {
         int currentVelocity = cata_motor.get_actual_velocity();
-        int error = -targetVelocity - currentVelocity;
+        int error = -upSyndromeSpeed - currentVelocity;
 
         if ((error > 0 && tbh < 0) || (error < 0 && tbh > 0)) {
             tbh = tbhInitial;
@@ -165,7 +168,7 @@ void controlFlywheel(int targetVelocity) {
             tbh *= (1.0 - tbhGain);
         }
 
-        int motorSpeed = targetVelocity + (int)tbh;
+        int motorSpeed = upSyndromeSpeed + (int)tbh;
         cata_motor.move_velocity(-motorSpeed);
     }
     else {
@@ -182,8 +185,6 @@ void stop_cata_with_sensor() {
         else {
             flywheel_arm.move_voltage(-12000); 
         }
-
-        pros::delay(10);
     }
 }
 
@@ -214,7 +215,6 @@ void init_sequence() {
 void auton_sequence() {
     intake_motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     cata_motor.move_velocity(-600);
-    pros::delay(500);
     cata_motor.move_velocity(0);
     stop_cata_with_sensor();
 }
