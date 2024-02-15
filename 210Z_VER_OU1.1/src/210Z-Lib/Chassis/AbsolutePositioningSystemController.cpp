@@ -71,7 +71,7 @@ double Eclipse::Odometry::get_distance_travelled(bool vertical, bool horizontal)
 
 float getEncoderDistanceTraveled() { return (float(vertical_auxiliary_sensor.get_value()) * 2.75 * M_PI / 360); }
 float getRotationDistanceTraveled() { return (float(horizontal_rotation_sensor.get_position()) * 2.75 * M_PI / 36000); }
-float getMotorDistanceTraveled() { return (float(chassis_left_motors.at(2).get_position()) * 2.75 * M_PI / 360); }
+float getMotorDistanceTraveled() { return (float(chassis_right_motors.at(2).get_position()) * 2.75 * M_PI / 360); }
 
 // odom position values
 double heading;
@@ -84,6 +84,8 @@ double prev_heading = 0;
 
 double tpi = 1.14;
 double middle_tpi = 1;
+
+// 5.24, 6.3 LEFT
  
 void Eclipse::Odometry::update_odom() {
   //double right_pos = -getRotationDistanceTraveled();
@@ -106,8 +108,8 @@ void Eclipse::Odometry::update_odom() {
   
   if (delta_angle) {
     double i = sin(delta_angle / 2.0) * 2.0;
-    local_x = (delta_right / delta_angle + (5.24)) * i; // left to right distance
-    local_y = (delta_middle / delta_angle + (6.3)) * i; // middle distance
+    local_x = (delta_right / delta_angle + (-3.79)) * i; // left to right distance
+    local_y = (delta_middle / delta_angle + (6.96)) * i; // middle distance
   } else {
     local_x = delta_right;
     local_y = delta_middle;

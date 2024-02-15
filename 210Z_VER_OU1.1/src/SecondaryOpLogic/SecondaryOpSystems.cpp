@@ -57,15 +57,35 @@ void extend_wings() {
         left_wing_extended = both_wings_extended;
         right_wing_extended = both_wings_extended;
     }
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
         left_wing_extended = !left_wing_extended;
     }
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
         right_wing_extended = !right_wing_extended;
         std::cout << right_wing_extended << std::endl;
     }
     left_wing.set_value(left_wing_extended);
     right_wing.set_value(right_wing_extended);
+}
+
+bool front_left_wing_extended = false;
+bool front_right_wing_extended = false;
+bool front_both_wings_extended = false;
+void extend_front_wings() {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
+        front_both_wings_extended = !front_both_wings_extended;
+        front_left_wing_extended = front_both_wings_extended;
+        front_right_wing_extended = front_both_wings_extended;
+    }
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+        front_left_wing_extended = !front_left_wing_extended;
+    }
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
+        front_right_wing_extended = !front_right_wing_extended;
+        std::cout << right_wing_extended << std::endl;
+    }
+    left_front_wing.set_value(front_left_wing_extended);
+    right_front_wing.set_value(front_right_wing_extended);
 }
 
 void extend_left_wing() {
@@ -129,8 +149,14 @@ void raw_cata(){
 
 bool climb_extended = false;
 void extend_climber() {
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {  climb_extended = !climb_extended; }
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {  climb_extended = !climb_extended; }
     climber.set_value(climb_extended);
+}
+
+bool primary_climb_extended = false;
+void extend_primary_climber() {
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {  primary_climb_extended = !primary_climb_extended; }
+    primary_climber.set_value(primary_climb_extended);
 }
 
 double tbh = 0.0;
@@ -189,7 +215,7 @@ void stop_cata_with_sensor() {
 }
 
 bool front_wings_extended = false;
-void extend_front_wings() {
+void extend_front_wings_manually() {
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
         front_wings_extended = !front_wings_extended;
     }
