@@ -108,11 +108,11 @@ void Eclipse::FeedbackControl::TurnToPoint(const int targetX, const int targetY)
 void mimic_move_to_point(double target_x, double target_y, bool reverse){
     odom.update_odom();
 
-    double angular_error = utility::getAngleError(target_x, target_y, false);
+    double angular_error = utility::getAngleError(target_x, target_y, false) * (180 / M_PI);
     double linear_error = utility::getDistanceError(target_x, target_y);
 
     if (reverse == true){
-      angular_error = utility::getAngleError(target_x, target_y, true);
+      angular_error = utility::getAngleError(target_x, target_y, true) * (180 / M_PI);
       linear_error = -linear_error;
     }
 
@@ -160,11 +160,11 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
   while (true){
     odom.update_odom();
 
-    double angular_error = utility::getAngleError(target_x, target_y, false);
+    double angular_error = utility::getAngleError(target_x, target_y, false) * (180 / M_PI);
     double linear_error = utility::getDistanceError(target_x, target_y);
 
     if (backwards == true){
-      angular_error = utility::getAngleError(target_x, target_y, true);
+      angular_error = utility::getAngleError(target_x, target_y, true) * (180 / M_PI);
       linear_error = -linear_error;
     }
 
@@ -179,7 +179,7 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
     double lin_speed = (linear_error * mtp.lkp) + (linear_derivative * mtp.lkd);
     double ang_speed = (angular_error * mtp.akp) + (angular_derivative * mtp.akd);
 
-    double ang_lin_adjustment_factor = angular_error;
+    double ang_lin_adjustment_factor = angular_error * (M_PI / 180);
     lin_speed *= std::cos(ang_lin_adjustment_factor);
 
     if ((lin_speed * (12000.0 / 127)) > mtp.mtp_max_linear_speed * (12000.0 / 127)) {
@@ -270,16 +270,16 @@ void Eclipse::FeedbackControl::boomerang(double target_x, double target_y, doubl
 
       // get current error
       double lin_error = utility::getDistanceError(target_x, target_y);
-      double ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, false);
-      double global_ang_error = utility::getAngleError(target_x, target_y, false);
+      double ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, false) * (180 / M_PI);
+      double global_ang_error = utility::getAngleError(target_x, target_y, false) * (180 / M_PI);
 
       if (settling){
-        ang_error = utility::getAngleError(target_x, target_y, false);
+        ang_error = utility::getAngleError(target_x, target_y, false) * (180 / M_PI);
       }
 
       if (reverse == true){
         lin_error = -lin_error;
-        ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, true);
+        ang_error = utility::getAngleError(carrotPoint_x, carrotPoint_y, true) * (180 / M_PI);
       }
 
       double linear_derivative = (lin_error - prev_lin_error);

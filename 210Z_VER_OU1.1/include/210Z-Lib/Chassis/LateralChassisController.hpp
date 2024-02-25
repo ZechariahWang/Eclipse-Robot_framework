@@ -94,7 +94,7 @@ namespace Eclipse{
              * @param maxSpeed the maxspeed the robot may travel at
              */
 
-            void set_translation_pid(double target, double max_speed, bool slew_enabled);
+            void set_translation_pid(double target, double max_speed, double timeOut, bool slew_enabled);
 
             /**
              * @brief calculate the min angle needed to reach a target theta within 360 degrees
@@ -210,7 +210,7 @@ namespace Eclipse{
              * @param backwards whether or not the robot will make the curve backwards or forwards
              */
 
-            void set_curve_pid(double t_theta, double max_speed, double curve_damper, bool backwards);
+            void set_curve_pid(double t_theta, double max_speed, double curve_damper, double timeOut, bool backwards);
     };
 
     class ArcPID{

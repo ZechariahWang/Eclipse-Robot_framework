@@ -113,6 +113,7 @@ bool arm_down = false;
 bool down_flywheel_enabled = true;
 bool arm_down_on_single_button = true;
 int counter_cata = 0;
+
 void raw_cata(){
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
         cata_toggled = !cata_toggled;
@@ -214,7 +215,7 @@ void stop_cata_with_sensor() {
     }
 }
 
-bool front_wings_extended = false;
+bool front_wings_extended = true;
 void extend_front_wings_manually() {
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
         front_wings_extended = !front_wings_extended;
@@ -226,7 +227,7 @@ void extend_front_wings_manually() {
     }
 }
 
-bool odom_piston_extended = false;
+bool odom_piston_extended = true;
 void extend_odom_piston() {
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
         odom_piston_extended = !odom_piston_extended;
@@ -243,5 +244,10 @@ void auton_sequence() {
     cata_motor.move_velocity(-600);
     cata_motor.move_velocity(0);
     stop_cata_with_sensor();
+}
+
+void realCataControl() {
+    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){ cata_motor.move_voltage(12000); }
+    else{ intake_motor.move_voltage(0); }
 }
 

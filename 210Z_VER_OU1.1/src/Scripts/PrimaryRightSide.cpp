@@ -153,67 +153,67 @@ void MoveToBottomOfGoal(){
 
 
 void PrimaryRightSide() {
-    blocker.set_value(true);
-	pros::delay(500);
-	intake_motor.move_voltage(-12000); // intake
+    // blocker.set_value(true);
+	// pros::delay(500);
+	// intake_motor.move_voltage(-12000); // intake
 
-    MoveToCenterTriball();
+    // MoveToCenterTriball();
 
-	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(-8, 90, false);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(70, 90);
-
-    intake_motor.move_voltage(12000);
-	pros::delay(500);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(0, 90);
-
-    intake_motor.move_voltage(-12000);
-
-    MoveToLeftTriball();
-
-	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(-5, 90, false);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(90, 90);
-
-    intake_motor.move_voltage(12000);
-
-	// wings.set_value(true);
-
-    MoveToGoalFirstRun();
-
-    mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(-5, 90, false);
-
-    mtp.set_mtp_constants(5, 35, 80, 0, 90, 90);
-    mtp.TurnToPoint(5, 24);
-
-    intake_motor.move_voltage(-12000);
-
-    MoveToLowerTriball();
-
-	rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-90, 90);
-
-    MoveToBottomOfGoal();
-
-	intake_motor.move_voltage(12000);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(225, 90);
-
-    cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(180, 90, 0.55, true);
-
+	// mov_t.set_t_constants(5, 0, 35, 200);
+	// mov_t.set_translation_pid(-8, 90, false);
 
     // rot_r.set_r_constants(6, 0, 45);
-    // rot_r.set_rotation_pid(35, 40);
+    // rot_r.set_rotation_pid(70, 90);
 
-	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(-20, 90, false);
+    // intake_motor.move_voltage(12000);
+	// pros::delay(500);
+
+    // rot_r.set_r_constants(6, 0, 45);
+    // rot_r.set_rotation_pid(0, 90);
+
+    // intake_motor.move_voltage(-12000);
+
+    // MoveToLeftTriball();
+
+	// mov_t.set_t_constants(5, 0, 35, 200);
+	// mov_t.set_translation_pid(-5, 90, false);
+
+    // rot_r.set_r_constants(6, 0, 45);
+    // rot_r.set_rotation_pid(90, 90);
+
+    // intake_motor.move_voltage(12000);
+
+	// // wings.set_value(true);
+
+    // MoveToGoalFirstRun();
+
+    // mov_t.set_t_constants(5, 0, 35, 200);
+	// mov_t.set_translation_pid(-5, 90, false);
+
+    // mtp.set_mtp_constants(5, 35, 80, 0, 90, 90);
+    // mtp.TurnToPoint(5, 24);
+
+    // intake_motor.move_voltage(-12000);
+
+    // MoveToLowerTriball();
+
+	// rot_r.set_r_constants(6, 0, 45);
+    // rot_r.set_rotation_pid(-90, 90);
+
+    // MoveToBottomOfGoal();
+
+	// intake_motor.move_voltage(12000);
+
+    // rot_r.set_r_constants(6, 0, 45);
+    // rot_r.set_rotation_pid(225, 90);
+
+    // cur_c.set_c_constants(6, 0, 45);
+    // cur_c.set_curve_pid(180, 90, 0.55, true);
+
+
+    // // rot_r.set_r_constants(6, 0, 45);
+    // // rot_r.set_rotation_pid(35, 40);
+
+	// mov_t.set_t_constants(5, 0, 35, 200);
+	// mov_t.set_translation_pid(-20, 90, false);
 }

@@ -318,9 +318,7 @@ double Eclipse::ArcPID::compute_a(double tx, double ty){
  * @param maxSpeed the maxspeed the robot may travel at
  */
 
-void Eclipse::TranslationPID::set_translation_pid(double target, 
-                                         double maxSpeed, 
-                                         bool slew_enabled){
+void Eclipse::TranslationPID::set_translation_pid(double target, double maxSpeed, double timeOut, bool slew_enabled){
 
   chassis_left_motors.at(0).set_zero_position(0);
   chassis_right_motors.at(0).set_zero_position(0);
@@ -332,6 +330,7 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
   mov_t.ticks_per_inches = (mov_t.ticks_per_rev / mov_t.circumference);
   target *= mov_t.ticks_per_inches;
   double init_left_pos = utility::get_encoder_position();
+  double local_timer = 0;
   kal.update_lateral_components();
   while (true){
     odom.update_odom();
@@ -340,8 +339,7 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
     double filtered_position = kal.lateral_update_filter_step(avgPos); // filter out robot pos with linear kalman filter
     double avg_voltage_req = mov_t.compute_t(filtered_position, target); // compute proportional integral derivative controller on filtered pos
     double headingAssist = mov_t.find_min_angle(TARGET_THETA, current_robot_heading()) * mov_t.t_h_kp; // apply a heading assist to keep robot moving straight
-    // initial timer of 100 ms to keep robot from oscillating
-    cd++; if (cd <= 2){ utility::engage_left_motors(0); utility::engage_right_motors(0); continue;}
+    cd++; if (cd <= 2){ utility::engage_left_motors(0); utility::engage_right_motors(0); continue;} // initial timer to keep robot from oscillating
     if (target < 0) { is_backwards = true; } else { is_backwards = false; }
     double l_output = 0; double r_output = 0;
     if (slew_enabled){
@@ -356,9 +354,11 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
       l_output = avg_voltage_req;
       r_output = avg_voltage_req;
     }
+
     std::cout << "average pos" << avgPos << std::endl;
     std::cout << "output" << l_output << std::endl;
     std::cout << "error" << mov_t.t_error << std::endl;
+
     utility::engage_left_motors((l_output * (12000.0 / 127)) + headingAssist);
     utility::engage_right_motors((r_output * (12000.0 / 127)) - headingAssist);
     if (fabs(mov_t.t_error) < mov_t.t_error_thresh){ mov_t.t_iterator++; } else { mov_t.t_iterator = 0;}
@@ -366,8 +366,15 @@ void Eclipse::TranslationPID::set_translation_pid(double target,
       utility::motor_deactivation();
       break;
     }
-    if (fabs(mov_t.t_derivative) < 5) mov_t.t_failsafe++;
+    if (fabs(mov_t.t_derivative) < 5 && timeOut == -1) mov_t.t_failsafe++;
     if (mov_t.t_failsafe > 50){
+      utility::motor_deactivation();
+      break;
+    }
+    if (timeOut > 0) {
+       local_timer++;
+    }
+    if (local_timer > (timeOut * 100)) { // timeout in seconds
       utility::motor_deactivation();
       break;
     }
@@ -420,16 +427,14 @@ void Eclipse::RotationPID::set_rotation_pid(double t_theta,
  * @param backwards whether or not the robot will make the curve backwards or forwards
  */
 
-void Eclipse::CurvePID::set_curve_pid(double t_theta,
-                             double maxSpeed, 
-                             double curveDamper,
-                             bool backwards){
+void Eclipse::CurvePID::set_curve_pid(double t_theta, double maxSpeed, double curveDamper, double timeOut, bool backwards){
 
   chassis_left_motors.at(0).set_zero_position(0);
   chassis_right_motors.at(0).set_zero_position(0);
   cur_c.reset_c_alterables();
   cur_c.c_maxSpeed = maxSpeed;
   cur_c.c_rightTurn = false;
+  double local_timer = 0;
   while (true){
     odom.update_odom();
     double currentPos = imu_sensor.get_rotation();
@@ -459,6 +464,13 @@ void Eclipse::CurvePID::set_curve_pid(double t_theta,
     }
     if (fabs(cur_c.c_error - cur_c.c_prev_error) < 0.1) {cur_c.c_failsafe++;}
     if (cur_c.c_failsafe > 300){
+      utility::motor_deactivation();
+      break;
+    }
+    if (timeOut > 0) {
+       local_timer++;
+    }
+    if (local_timer > (timeOut * 100)) { // timeout in seconds
       utility::motor_deactivation();
       break;
     }

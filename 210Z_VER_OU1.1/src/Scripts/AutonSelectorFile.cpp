@@ -75,7 +75,7 @@ void left_side() {
 	//move_to_goal_left_side(); // move to goal 
 
 	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(-5, 90, false);
+	mov_t.set_translation_pid(-5, 90, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-20, 90);
@@ -97,7 +97,7 @@ void right_side() {
 	intake_motor.move_voltage(12000);
 
 	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(26, 90, false);
+	mov_t.set_translation_pid(26, 90, -1, false);
 
 	intake_motor.move_voltage(0);
 
@@ -105,20 +105,20 @@ void right_side() {
     rot_r.set_rotation_pid(90, 90);
 
 	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(-15, 90, false);
+	mov_t.set_translation_pid(-15, 90, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 90);
 
 	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(19, 90, false);
+	mov_t.set_translation_pid(19, 90, -1, false);
 
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 90);
 
 	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(-10, 90, false);
+	mov_t.set_translation_pid(-10, 90, -1, false);
 
 
     rot_r.set_r_constants(6, 0, 45);
@@ -127,13 +127,13 @@ void right_side() {
 	intake_motor.move_voltage(-12000);
 
 	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(25, 90, false);
+	mov_t.set_translation_pid(25, 90, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-160, 90);
 
 	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(-18, 90, false);
+	mov_t.set_translation_pid(-18, 90, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 90);
@@ -142,10 +142,10 @@ void right_side() {
 	pros::delay(500);
 
 	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(24, 90, false);
+	mov_t.set_translation_pid(24, 90, -1, false);
 
 	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(-10, 90, false);
+	mov_t.set_translation_pid(-10, 90, -1, false);
 
     // rot_r.set_r_constants(6, 0, 45);
     // rot_r.set_rotation_pid(90, 90);
@@ -255,20 +255,25 @@ void moveArmDown() {
 
 void skills() {
 
-	odom_piston.set_value(true);
-	moveArmDown();
-	pros::delay(1000);
+	odom_piston.set_value(false);
+	//right_front_wing.set_value(true);
+	left_wing.set_value(true);
+	pros::delay(500);
+	//right_front_wing.set_value(false);
+	left_wing.set_value(false);
+	intake_motor.move_voltage(-12000);
+
 
     cata_motor.move_voltage(12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(15, 110, false);
+	mov_t.set_translation_pid(15, 110, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-69, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-18, 70, false);
+	mov_t.set_translation_pid(-18, 70, -1, false);
 
 	left_wing.set_value(true);
 
@@ -282,7 +287,7 @@ void skills() {
     rot_r.set_rotation_pid(-135, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(15, 110, false);
+	mov_t.set_translation_pid(15, 110, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-90, 110);
@@ -295,16 +300,16 @@ void skills() {
     rot_r.set_rotation_pid(0, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(12, 110, false);
+	mov_t.set_translation_pid(12, 110, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-9, 110, false);
+	mov_t.set_translation_pid(-9, 110, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(8, 110, false);
+	mov_t.set_translation_pid(8, 110, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-9, 110, false);
+	mov_t.set_translation_pid(-9, 110, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-90, 90);
@@ -318,25 +323,25 @@ void skills() {
 	right_wing.set_value(true);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-25, 110, false);
+	mov_t.set_translation_pid(-25, 110, -1, false);
 
 	rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 90);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(30, 110, false);
+	mov_t.set_translation_pid(30, 110, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 90);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-30, 110, false);
+	mov_t.set_translation_pid(-30, 110, -1, false);
 
 	rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 90);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(22, 110, false);
+	mov_t.set_translation_pid(22, 110, -1, false);
 
 	left_wing.set_value(false);
 	right_wing.set_value(false);
@@ -348,34 +353,34 @@ void skills() {
     rot_r.set_rotation_pid(0, 90);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-90, 90, 0.48, false);
+    cur_c.set_curve_pid(-90, 90, 0.48, 4, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(10, 110, false);
+	mov_t.set_translation_pid(10, 110, -1, false);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-180, 90, 0.37, false);
+    cur_c.set_curve_pid(-180, 90, 0.37, 4, false);
 
 	rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-180, 90);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-8, 110, false);
+	mov_t.set_translation_pid(-8, 110, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(12, 110, false);
+	mov_t.set_translation_pid(12, 110, -1, false);
 
 	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-5, 110, false);
+	mov_t.set_translation_pid(-5, 110, -1, false);
 
 	rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 90);
 
 	cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(180, 110, 0.45, false);
+    cur_c.set_curve_pid(180, 110, 0.45, 4, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(24, 110, false);
+	mov_t.set_translation_pid(24, 110, -1, false);
 
 	rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 90);
@@ -384,19 +389,19 @@ void skills() {
 	right_wing.set_value(true);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-38, 110, false);
+	mov_t.set_translation_pid(-38, 110, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(24, 110, false);
+	mov_t.set_translation_pid(24, 110, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-48, 110, false);
+	mov_t.set_translation_pid(-48, 110, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(24, 110, false);
+	mov_t.set_translation_pid(24, 110, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-48, 110, false);
+	mov_t.set_translation_pid(-48, 110, -1, false);
 
 
 }
@@ -404,10 +409,10 @@ void skills() {
 void new_skills() {
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(25, 90, 0.1, true);
+    cur_c.set_curve_pid(25, 90, 0.1, 4, true);
 
 	mov_t.set_t_constants(5, 0, 35, 200);
-	mov_t.set_translation_pid(8, 90, false);
+	mov_t.set_translation_pid(8, 90, -1, false);
 
 	cata_motor.move_voltage(-12000); cata_motor_secondary.move_voltage(-12000);
 	pros::delay(50000);
@@ -518,10 +523,10 @@ void test6Ball(){
 	intake_motor.move_voltage(-12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(11, 110, false);
+	mov_t.set_translation_pid(11, 110, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-10, 110, false);
+	mov_t.set_translation_pid(-10, 110, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(160, 110);
@@ -534,28 +539,28 @@ void test6Ball(){
     rot_r.set_rotation_pid(-90, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(10, 110, false);
+	mov_t.set_translation_pid(10, 110, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-90, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-42, 110, false);
+	mov_t.set_translation_pid(-42, 110, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-135, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-20, 110, false);
+	mov_t.set_translation_pid(-20, 110, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-180, 110);
 
    	mov_t.set_t_constants(7, 0, 35, 500);
-	mov_t.set_translation_pid(-10, 127, false);
+	mov_t.set_translation_pid(-10, 127, -1, false);
 
   	mov_t.set_t_constants(7, 0, 35, 500);
-	mov_t.set_translation_pid(8, 127, false);
+	mov_t.set_translation_pid(8, 127, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-90, 110);
@@ -566,10 +571,10 @@ void test6Ball(){
 	intake_motor.move_voltage(-12000);
 
    	mov_t.set_t_constants(7, 0, 35, 500);
-	mov_t.set_translation_pid(20, 127, false);
+	mov_t.set_translation_pid(20, 127, -1, false);
 
    	mov_t.set_t_constants(7, 0, 35, 500);
-	mov_t.set_translation_pid(-10, 127, false);
+	mov_t.set_translation_pid(-10, 127, -1, false);
 }
 
 void moveToBottomOfGoal(){
@@ -630,31 +635,31 @@ void safe_6ball() {
 	intake_motor.move_voltage(12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(6, 110, false);
+	mov_t.set_translation_pid(6, 110, -1, false);
 
 	moveToBottomOfGoal();
 
 	left_wing.set_value(true);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-15, 110, false);
+	mov_t.set_translation_pid(-15, 110, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(10, 110, false);
+	mov_t.set_translation_pid(10, 110, -1, false);
 
 	left_wing.set_value(false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-10, 110, false);
+	mov_t.set_translation_pid(-10, 110, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-90, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-15, 110, false);
+	mov_t.set_translation_pid(-15, 110, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(10, 110, false);
+	mov_t.set_translation_pid(10, 110, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(0, 110);
@@ -665,10 +670,10 @@ void safe_6ball() {
 	intake_motor.move_voltage(-12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(12, 110, false);
+	mov_t.set_translation_pid(12, 110, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-14, 110, false);
+	mov_t.set_translation_pid(-14, 110, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(180, 110);
@@ -681,10 +686,10 @@ void safe_6ball() {
     rot_r.set_rotation_pid(0, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(12, 110, false);
+	mov_t.set_translation_pid(12, 110, -1, false);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-40, 110, 0.2, true);
+    cur_c.set_curve_pid(-40, 110, 0.2, 4, true);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(125, 110);
@@ -698,7 +703,7 @@ void safe_6ball() {
 	intake_motor.move_voltage(12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(20, 80, false);
+	mov_t.set_translation_pid(20, 80, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(180, 70);
@@ -709,10 +714,10 @@ void safe_6ball() {
 	intake_motor.move_voltage(-12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(60, 110, false);
+	mov_t.set_translation_pid(60, 110, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-15, 110, false);
+	mov_t.set_translation_pid(-15, 110, -1, false);
 
 
 }
@@ -783,19 +788,19 @@ void close_side() {
     rot_r.set_rotation_pid(110, 40);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(180, 90, 0.6, true);
+    cur_c.set_curve_pid(180, 90, 0.6, 4, true);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-40, 90, false);
+	mov_t.set_translation_pid(-40, 90, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(6, 90, false);
+	mov_t.set_translation_pid(6, 90, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 70);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(40, 90, false);
+	mov_t.set_translation_pid(40, 90, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(0, 70);
@@ -803,10 +808,10 @@ void close_side() {
 	front_wings.set_value(true);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(26, 90, false);
+	mov_t.set_translation_pid(26, 90, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-8, 90, false);
+	mov_t.set_translation_pid(-8, 90, -1, false);
 
 
 	// knock_mid_goals();
@@ -849,10 +854,10 @@ void left_no_odom() {
 	pros::delay(200);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(20, 110, 0.6, false);
+    cur_c.set_curve_pid(20, 110, 0.6, 4, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(33, 90, false);
+	mov_t.set_translation_pid(33, 90, -1, false);
 
 	front_wings.set_value(true);
 
@@ -860,10 +865,10 @@ void left_no_odom() {
     rot_r.set_rotation_pid(90, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(20, 110, true);
+	mov_t.set_translation_pid(20, 110, -1, true);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-10, 110, true);
+	mov_t.set_translation_pid(-10, 110, -1, true);
 
 	front_wings.set_value(false);
 
@@ -871,16 +876,16 @@ void left_no_odom() {
     rot_r.set_rotation_pid(-170, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(27, 90, true);
+	mov_t.set_translation_pid(27, 90, -1, true);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-90, 90, 0.2, false);
+    cur_c.set_curve_pid(-90, 90, 0.2, 4, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(10, 110, false);
+	mov_t.set_translation_pid(10, 110, -1, false);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-45, 90, 0.2, false);
+    cur_c.set_curve_pid(-45, 90, 0.2, 4, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-45, 60);
@@ -888,21 +893,21 @@ void left_no_odom() {
 	left_wing.set_value(true);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-24, 110, true);
+	mov_t.set_translation_pid(-24, 110, -1, true);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(5, 60, true);
+	mov_t.set_translation_pid(5, 60, -1, true);
 
 	left_wing.set_value(false);	
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-90, 90, 0.1, true);
+    cur_c.set_curve_pid(-90, 90, 0.1, 4, true);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-90, 60);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-30, 60, true);
+	mov_t.set_translation_pid(-30, 60, -1, true);
 }
 
 void debug_pp(){
@@ -990,7 +995,7 @@ void new6ballmecha() {
     rot_r.set_rotation_pid(-88, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(30, 90, true);
+	mov_t.set_translation_pid(30, 90, -1, true);
 
 	moveToUnderGoal();
 
@@ -998,10 +1003,10 @@ void new6ballmecha() {
     rot_r.set_rotation_pid(-180, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-5, 127, false);
+	mov_t.set_translation_pid(-5, 127, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(6, 127, false);
+	mov_t.set_translation_pid(6, 127, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-90, 110);
@@ -1013,10 +1018,10 @@ void new6ballmecha() {
 	intake_motor.move_voltage(-12000);
 
 	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(14, 127, false);
+	mov_t.set_translation_pid(14, 127, -1, false);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-13, 110, false);
+	mov_t.set_translation_pid(-13, 110, -1, false);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-55, 110);
@@ -1024,19 +1029,19 @@ void new6ballmecha() {
 	intake_motor.move_voltage(12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(35, 110, true);
+	mov_t.set_translation_pid(35, 110, -1, true);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-90, 110);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(12, 90, true);
+	mov_t.set_translation_pid(12, 90, -1, true);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-5, 110, true);
+	mov_t.set_translation_pid(-5, 110, -1, true);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-100, 100, 0.2, true);
+    cur_c.set_curve_pid(-100, 100, 0.2, 4, true);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(60, 90);
@@ -1050,7 +1055,7 @@ void new6ballmecha() {
 	intake_motor.move_voltage(12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(26, 110, true);
+	mov_t.set_translation_pid(26, 110, -1, true);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(90, 90);
@@ -1060,12 +1065,12 @@ void new6ballmecha() {
 	front_wings.set_value(true);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(35, 110, false);
+	mov_t.set_translation_pid(35, 110, -1, false);
 
 	front_wings.set_value(false);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(0, 100, 0.2, true);
+    cur_c.set_curve_pid(0, 100, 0.2, 4, true);
 
 	// mtp.set_mtp_constants(7, 0, 200, 0, 90, 0);
 	// mtp.move_to_point(0, 35, false, true, 3000);
@@ -1080,12 +1085,12 @@ void driveBack() {
 	pros::delay(200);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-50, 110, false);
+	mov_t.set_translation_pid(-50, 110, -1, false);
 
 	pros::delay(1000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(24, 110, true);
+	mov_t.set_translation_pid(24, 110, -1, true);
 
 }
 
@@ -1146,7 +1151,7 @@ void closeSideMecha(){
     rot_r.set_rotation_pid(10, 90);
 
 	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-36, 90, true);
+	mov_t.set_translation_pid(-36, 90, -1, true);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(180, 90);
@@ -1158,23 +1163,23 @@ void closeSideMecha(){
     rot_r.set_rotation_pid(-90, 90);
 
 	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(8, 70, true);
+	mov_t.set_translation_pid(8, 70, -1, true);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-45, 100, 0.2, false);
+    cur_c.set_curve_pid(-45, 100, 0.2, 4, false);
 
 	left_wing.set_value(true);
 
 	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-15, 70, true);
+	mov_t.set_translation_pid(-15, 70, -1, true);
 
 	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(6, 70, true);
+	mov_t.set_translation_pid(6, 70, -1, true);
 
 	left_wing.set_value(false);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-90, 90, 0.36, true);
+    cur_c.set_curve_pid(-90, 90, 0.36, 4, true);
 
 	// move arm down
 
@@ -1203,10 +1208,10 @@ void testcloseSideMecha(){
 	front_wings.set_value(true);
 
 	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(20, 90, true);
+	mov_t.set_translation_pid(20, 90, -1, true);
 
 	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-10, 90, true);
+	mov_t.set_translation_pid(-10, 90, -1, true);
 
 	front_wings.set_value(false);
 
@@ -1214,7 +1219,7 @@ void testcloseSideMecha(){
     rot_r.set_rotation_pid(-170, 90);
 
 	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(36, 90, true);
+	mov_t.set_translation_pid(36, 90, -1, true);
 
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(140, 90);
@@ -1226,23 +1231,23 @@ void testcloseSideMecha(){
     rot_r.set_rotation_pid(-90, 90);
 
 	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(8, 70, true);
+	mov_t.set_translation_pid(8, 70, -1, true);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-45, 100, 0.16, false);
+    cur_c.set_curve_pid(-45, 100, 0.16, 4, false);
 
 	left_wing.set_value(true);
 
 	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-15, 70, true);
+	mov_t.set_translation_pid(-15, 70, -1, true);
 
 	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(6, 70, true);
+	mov_t.set_translation_pid(6, 70, -1, true);
 
 	left_wing.set_value(false);
 
     cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-110, 90, 0.2, true);
+    cur_c.set_curve_pid(-110, 90, 0.2, 4, true);
 
 	moveArmDownMecha();
 }

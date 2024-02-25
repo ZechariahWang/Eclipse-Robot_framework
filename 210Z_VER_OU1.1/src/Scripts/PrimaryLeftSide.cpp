@@ -68,42 +68,42 @@ void move_to_elevation_pole(){
 
 void PrimaryLeftSide() {
 
-    blocker.set_value(true);
-    pros::delay(500);
+    // blocker.set_value(true);
+    // pros::delay(500);
 
-    cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(45, 90, 0.35, true);
+    // cur_c.set_c_constants(6, 0, 45);
+    // cur_c.set_curve_pid(45, 90, 0.35, true);
 
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-10, 90, false);
+	// mov_t.set_t_constants(5, 0, 35, 500);
+	// mov_t.set_translation_pid(-10, 90, false);
 
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(10, 90, false);
+	// mov_t.set_t_constants(5, 0, 35, 500);
+	// mov_t.set_translation_pid(10, 90, false);
 
-    cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(0, 90, 0.35, false);
+    // cur_c.set_c_constants(6, 0, 45);
+    // cur_c.set_curve_pid(0, 90, 0.35, false);
 
-    climber.set_value(true);
+    // climber.set_value(true);
 
-    pros::delay(500);
+    // pros::delay(500);
 
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(20, 90, false);
+    // mov_t.set_t_constants(5, 0, 35, 500);
+	// mov_t.set_translation_pid(20, 90, false);
 
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(142, 40);
+    // rot_r.set_r_constants(6, 0, 45);
+    // rot_r.set_rotation_pid(142, 40);
 
-    blocker.set_value(true);
-    pros::delay(500);
+    // blocker.set_value(true);
+    // pros::delay(500);
 
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(8, 90, false);
+    // mov_t.set_t_constants(5, 0, 35, 500);
+	// mov_t.set_translation_pid(8, 90, false);
 
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(135, 40);
+    // rot_r.set_r_constants(6, 0, 45);
+    // rot_r.set_rotation_pid(135, 40);
 
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-36, 60, false);
+	// mov_t.set_t_constants(5, 0, 35, 500);
+	// mov_t.set_translation_pid(-36, 60, false);
 
     // move_to_elevation_pole();
 }
