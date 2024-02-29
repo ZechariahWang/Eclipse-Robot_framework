@@ -16,7 +16,8 @@ void controlFlywheel(int targetVelocity);
 void init_sequence();
 void auton_sequence();
 void extend_primary_climber();
-void realCataControl() ;
+void realCataControl();
+void realCataControl();
 
 extern bool arm_down;
 extern bool down_flywheel_enabled;

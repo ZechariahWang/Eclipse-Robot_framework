@@ -264,7 +264,7 @@ void skills() {
 	intake_motor.move_voltage(-12000);
 
 
-    cata_motor.move_voltage(12000);
+    //cata_motor.move_voltage(12000);
 
     mov_t.set_t_constants(5, 0, 35, 500);
 	mov_t.set_translation_pid(15, 110, -1, false);
@@ -292,7 +292,7 @@ void skills() {
     rot_r.set_r_constants(6, 0, 45);
     rot_r.set_rotation_pid(-90, 110);
 
-    cata_motor.move_voltage(0);
+    //cata_motor.move_voltage(0);
 
 	traverse_to_other_side();
 
@@ -414,9 +414,9 @@ void new_skills() {
 	mov_t.set_t_constants(5, 0, 35, 200);
 	mov_t.set_translation_pid(8, 90, -1, false);
 
-	cata_motor.move_voltage(-12000); cata_motor_secondary.move_voltage(-12000);
+	//cata_motor.move_voltage(-12000); //cata_motor_secondary.move_voltage(-12000);
 	pros::delay(50000);
-	cata_motor.move_voltage(0); cata_motor_secondary.move_voltage(0);
+	//cata_motor.move_voltage(0); // cata_motor_secondary.move_voltage(0);
 }
 
 void move_to_mid(){

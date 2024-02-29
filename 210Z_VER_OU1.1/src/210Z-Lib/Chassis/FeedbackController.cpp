@@ -142,7 +142,7 @@ void Eclipse::FeedbackControl::move_to_point(double target_x, double target_y, b
   int ct = 0;
   double prev_linear_error = 0;
   double prev_angular_error = 0;
-  double threshold = 5;
+  double threshold = 3;
 
   bool settling = false;
 

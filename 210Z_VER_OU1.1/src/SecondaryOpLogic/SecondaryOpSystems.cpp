@@ -1,5 +1,7 @@
 #include "Config/Globals.hpp"
 #include "main.h"
+#include "pros/misc.h"
+#include "pros/motors.h"
 #include <string>
 
 /**
@@ -119,7 +121,7 @@ void raw_cata(){
         cata_toggled = !cata_toggled;
     }
     if (cata_toggled == true) { // we want to move the arm down
-         flywheel_arm.move_voltage(-12000); 
+        //  flywheel_arm.move_voltage(-12000); 
          if (cata_sensor.get_value() == 1) {
             flywheel_arm.move_voltage(0);  // once arm is down, stop motor
             arm_down = false;
@@ -133,21 +135,19 @@ void raw_cata(){
 
     if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) { // move arm up
         arm_down = true;
-        flywheel_arm.move_voltage(-12000); 
+        // flywheel_arm.move_voltage(-12000); 
     }
     else if (arm_down) {
         counter_cata++;
         if (counter_cata > 100) {
-            flywheel_arm.move_voltage(0); 
+            // flywheel_arm.move_voltage(0); 
             arm_down = false;
             down_flywheel_enabled = false;
             counter_cata = 0;
         }
     }
 }
-
-
-
+//nigger
 bool climb_extended = false;
 void extend_climber() {
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {  climb_extended = !climb_extended; }
@@ -183,7 +183,7 @@ void controlFlywheel(int targetVelocity) {
         }
 
         int motorSpeed = downSyndromeSpeed + (int)tbh;
-        cata_motor.move_velocity(motorSpeed);
+       //  cata_motor.move_velocity(motorSpeed);
     }
     else if (down_flywheel_enabled == false && flywheel_enabled) {
         int currentVelocity = cata_motor.get_actual_velocity();
@@ -196,21 +196,21 @@ void controlFlywheel(int targetVelocity) {
         }
 
         int motorSpeed = upSyndromeSpeed + (int)tbh;
-        cata_motor.move_velocity(-motorSpeed);
+        //cata_motor.move_velocity(-motorSpeed);
     }
     else {
-        cata_motor.move_velocity(0);
+        //cata_motor.move_velocity(0);
     }
 }
 
 void stop_cata_with_sensor() {
     while (true) {
         if (distance_sensor.get() < 50) {
-            flywheel_arm.move_voltage(0);
+            //flywheel_arm.move_voltage(0);
             break;
         }
         else {
-            flywheel_arm.move_voltage(-12000); 
+            //flywheel_arm.move_voltage(-12000); 
         }
     }
 }
@@ -241,13 +241,21 @@ void init_sequence() {
 
 void auton_sequence() {
     intake_motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    cata_motor.move_velocity(-600);
-    cata_motor.move_velocity(0);
+    // cata_motor.move_velocity(-600);
+    // cata_motor.move_velocity(0);
     stop_cata_with_sensor();
 }
 
+bool realCataToggled = false;
 void realCataControl() {
-    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){ cata_motor.move_voltage(12000); }
-    else{ intake_motor.move_voltage(0); }
+    cata_motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    flywheel_arm.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) { realCataToggled = !realCataToggled; }
+    if (realCataToggled) {
+        cata_motor.move_voltage(8000);
+        flywheel_arm.move_voltage(-8000);
+    } else {
+        cata_motor.move_voltage(0);
+        flywheel_arm.move_voltage(0);
+    }
 }
-
