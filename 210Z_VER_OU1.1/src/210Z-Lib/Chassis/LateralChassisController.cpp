@@ -320,8 +320,8 @@ double Eclipse::ArcPID::compute_a(double tx, double ty){
 
 void Eclipse::TranslationPID::set_translation_pid(double target, double maxSpeed, double timeOut, bool slew_enabled){
 
-  chassis_left_motors.at(0).set_zero_position(0);
-  chassis_right_motors.at(0).set_zero_position(0);
+  chassis_left_motors.at(2).set_zero_position(0);
+  chassis_right_motors.at(2).set_zero_position(0);
   mov_t.reset_t_alterables();
   double TARGET_THETA = current_robot_heading(); double POSITION_TARGET = target; bool is_backwards = false; int8_t cd = 0;
   mov_t.t_maxSpeed = maxSpeed;

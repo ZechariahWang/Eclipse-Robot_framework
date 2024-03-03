@@ -309,7 +309,8 @@
       }
     },
     "upload_options": {
-      "description": ""
+      "description": "secondary",
+      "slot": 1
     }
   }
 }

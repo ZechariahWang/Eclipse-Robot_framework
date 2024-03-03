@@ -252,8 +252,8 @@ void realCataControl() {
     flywheel_arm.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) { realCataToggled = !realCataToggled; }
     if (realCataToggled) {
-        cata_motor.move_voltage(8000);
-        flywheel_arm.move_voltage(-8000);
+        cata_motor.move_voltage(8750);
+        flywheel_arm.move_voltage(-8750);
     } else {
         cata_motor.move_voltage(0);
         flywheel_arm.move_voltage(0);

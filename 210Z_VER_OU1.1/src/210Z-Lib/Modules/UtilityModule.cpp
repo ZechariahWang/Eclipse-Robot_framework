@@ -95,7 +95,7 @@ double Eclipse::utility::getAngleError(double target_x, double target_y, bool re
   }
 
   while (fabs(delta_theta) > M_PI) {
-    delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta);
+    delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta); // 360 * theta / abs(theta)
   }
 
   return delta_theta;
@@ -174,8 +174,8 @@ double Eclipse::utility::get_encoder_position() {
   int left_num = 0; // number of motors
   int right_num = 0; // number of motors
 
-  double left_pos = chassis_left_motors.at(0).get_position();
-  double right_pos = chassis_right_motors.at(0).get_position();
+  double left_pos = chassis_left_motors.at(2).get_position();
+  double right_pos = chassis_right_motors.at(2).get_position();
 
   return (left_pos + right_pos) / 2;
 }

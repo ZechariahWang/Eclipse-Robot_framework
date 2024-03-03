@@ -1252,6 +1252,404 @@ void testcloseSideMecha(){
 	moveArmDownMecha();
 }
 
+void movingInSkillsForward(){
+	double end_point_tolerance = 20;
+    std::vector<CurvePoint> Path;
+	bool reverse = false;
+
+	double end_pose_x = 101; double end_pose_y = -17;
+
+    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
+    CurvePoint newPoint0(0, -3, 1, 2, 40, 5, 1);
+    CurvePoint newPoint1(33, -3, 1, 2, 40, 5, 1);
+    CurvePoint newPoint2(55, -4, 1, 2, 40, 5, 1);
+    CurvePoint newPoint3(88, -11, 1, 2, 40, 5, 1);
+    CurvePoint newPoint4(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
+    Path.push_back(StartPos); Path.push_back(newPoint0); Path.push_back(newPoint1); Path.push_back(newPoint2); Path.push_back(newPoint3); Path.push_back(newPoint4); 
+
+    while (true){ 
+		odom.update_odom();
+		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+			mtp.set_mtp_constants(6, 0, 150, 0, 70, 0);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 0.3);
+			utility::motor_deactivation();
+			break;
+		}
+		FollowCurve(Path, 15, 15, 90, reverse); // circle size, linear kp, linear max speed
+		pros::delay(10);
+	}
+}
+
+void movingInSkillsBack(){
+	double end_point_tolerance = 20;
+    std::vector<CurvePoint> Path;
+	bool reverse = true;
+
+	double end_pose_x = -17; double end_pose_y = -12;
+
+    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
+
+    CurvePoint newPoint0(88, -11, 1, 2, 40, 5, 1);
+    CurvePoint newPoint1(55, -4, 1, 2, 40, 5, 1);
+    CurvePoint newPoint2(33, -3, 1, 2, 40, 5, 1);
+    CurvePoint newPoint3(0, -5, 1, 2, 40, 5, 1);
+    CurvePoint newPoint4(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
+    Path.push_back(StartPos); Path.push_back(newPoint0); Path.push_back(newPoint1); Path.push_back(newPoint2); Path.push_back(newPoint3); Path.push_back(newPoint4);
+
+    while (true){ 
+		odom.update_odom();
+		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+			mtp.set_mtp_constants(6, 0, 150, 0, 70, 80);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 0.3);
+			utility::motor_deactivation();
+			break;
+		}
+		FollowCurve(Path, 15, 15, 90, reverse); // circle size, linear kp, linear max speed
+		pros::delay(10);
+	}
+}
+
+void NorCalSkills() {
+
+	int bowlTime = 8000;
+	left_front_wing.set_value(true);
+	left_wing.set_value(true);
+	pros::delay(100);
+	left_wing.set_value(false);
+	intake_motor.move_voltage(12000);
+	left_front_wing.set_value(false);
+
+	// mov_t.set_t_constants(5, 0, 35, 500);
+	// mov_t.set_translation_pid(-10, 90, true);
+
+	// mov_t.set_t_constants(5, 0, 35, 500);
+	// mov_t.set_translation_pid(10, 90, true);
+
+    cur_c.set_c_constants(6, 0, 45); 
+    cur_c.set_curve_pid(-45, 100, 0.3, 4, true);
+
+	mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-6, 90, -1, true);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-45, 90);
+
+	left_wing.set_value(true);
+	pros::delay(bowlTime);
+	left_wing.set_value(false);
+
+	movingInSkillsForward();
+	movingInSkillsBack();
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-45, 90);
+
+	mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-3, 90, -1, true);
+
+	left_wing.set_value(true);
+	pros::delay(bowlTime);
+	left_wing.set_value(false);
+
+	movingInSkillsForward();
+	movingInSkillsBack();
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-45, 90);
+
+	mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-3, 90, -1, true);
+	
+	left_wing.set_value(true);
+	pros::delay(bowlTime);
+	left_wing.set_value(false);
+
+	movingInSkillsForward();
+	movingInSkillsBack();
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-45, 90);
+
+	mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-3, 90, -1, true);
+	
+	left_wing.set_value(true);
+	pros::delay(bowlTime);
+	left_wing.set_value(false);
+
+	movingInSkillsForward();
+	movingInSkillsBack();
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-45, 90);
+	
+	mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-3, 90, -1, true);
+	
+	left_wing.set_value(true);
+	pros::delay(bowlTime);
+	left_wing.set_value(false);
+
+
+	// mov_t.set_t_constants(5, 0, 35, 500);
+	// mov_t.set_translation_pid(49, 90, true);
+}
+
+void fixingPP(){
+	double end_point_tolerance = 20;
+    std::vector<CurvePoint> Path;
+	bool reverse = false;
+
+	double end_pose_x = 50; double end_pose_y = 0;
+
+    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
+
+    CurvePoint newPoint0(20, 0, 1, 2, 40, 5, 1);
+    CurvePoint newPoint1(20, -20, 1, 2, 40, 5, 1);
+    CurvePoint newPoint2(50, -20, 1, 2, 40, 5, 1);
+    CurvePoint newPoint3(50, 0, 1, 2, 40, 5, 1);
+    CurvePoint newPoint4(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
+    Path.push_back(StartPos); Path.push_back(newPoint0); Path.push_back(newPoint1); Path.push_back(newPoint2); Path.push_back(newPoint3); Path.push_back(newPoint4);
+
+    while (true){ 
+		odom.update_odom();
+		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+			mtp.set_mtp_constants(6, 0, 5, 35, 90, 110);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 3);
+			utility::motor_deactivation();
+			break;
+		}
+		FollowCurve(Path, 15, 6, 90, reverse); // circle size, linear kp, linear max speed
+		pros::delay(10);
+	}
+}
+
+void moveToUnderGoalRUSH6BALLPROVS(){
+	double end_point_tolerance = 10;
+    std::vector<CurvePoint> Path;
+	bool reverse = true;
+
+	double end_pose_x = 23; double end_pose_y = -24;
+
+    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
+    CurvePoint newPoint0(5, 0, 1, 2, 40, 5, 1);
+    CurvePoint newPoint1(9, -13, 1, 2, 40, 5, 1);
+    CurvePoint newPoint2(12, -17, 1, 2, 40, 5, 1);
+    CurvePoint newPoint4(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
+    Path.push_back(StartPos); Path.push_back(newPoint0); Path.push_back(newPoint1); Path.push_back(newPoint2); Path.push_back(newPoint4); 
+
+	bool downOnce = false;
+
+    while (true){ 
+		odom.update_odom();
+		if(fabs(sqrt(pow(12 - utility::get_x(), 2) + pow(-17 - utility::get_y(), 2))) <= 10 && downOnce == false){
+			odom.update_odom();
+			left_wing.set_value(true);
+			pros::delay(500);
+			utility::motor_deactivation();
+			left_wing.set_value(false);
+			odom.update_odom();
+			downOnce = true;
+		}
+		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+			mtp.set_mtp_constants(6, 0, 150, 0, 70, 40);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 0.5);
+			utility::motor_deactivation();
+			break;
+		}
+		FollowCurve(Path, 10, 10, 90, reverse);
+		pros::delay(10);
+	}
+}
+
+void moveToMidRUSH(){
+	double end_point_tolerance = 10;
+    std::vector<CurvePoint> Path;
+	bool reverse = false;
+
+	double end_pose_x = 55; double end_pose_y = 12;
+
+    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
+    CurvePoint newPoint0(32, 5, 1, 2, 40, 5, 1);
+    CurvePoint newPoint4(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
+    Path.push_back(StartPos); Path.push_back(newPoint0);  Path.push_back(newPoint4); 
+
+    while (true){ 
+		odom.update_odom();
+		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+			mtp.set_mtp_constants(6, 0, 150, 0, 127, 0);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 1);
+			utility::motor_deactivation();
+			break;
+		}
+		FollowCurve(Path, 10, 15, 127, reverse); // circle size, linear kp, linear max speed
+		pros::delay(10);
+	}
+}
+
+void moveToOriginRUSH(){
+	double end_point_tolerance = 10;
+    std::vector<CurvePoint> Path;
+	bool reverse = true;
+
+	double end_pose_x = -6; double end_pose_y = -4;
+
+    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
+    CurvePoint newPoint0(25, 0, 1, 2, 40, 5, 1);
+    CurvePoint newPoint4(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
+    Path.push_back(StartPos); Path.push_back(newPoint0);  Path.push_back(newPoint4); 
+
+    while (true){ 
+		odom.update_odom();
+		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+			mtp.set_mtp_constants(6, 0, 150, 0, 127, 0);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 0.3);
+			utility::motor_deactivation();
+			break;
+		}
+		FollowCurve(Path, 10, 15, 127, reverse); // circle size, linear kp, linear max speed
+		pros::delay(10);
+	}
+}
+
+void moveToBottomOfGoalRUSH(){
+	double end_point_tolerance = 10;
+    std::vector<CurvePoint> Path;
+	bool reverse = true;
+
+	double end_pose_x = 19; double end_pose_y = -42;
+
+	bool downOnce = false;
+
+    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
+    CurvePoint newPoint0(-6, -8, 1, 2, 40, 5, 1);
+    CurvePoint newPoint1(10, -38, 1, 2, 40, 5, 1);
+    CurvePoint newPoint2(17, -40, 1, 2, 40, 5, 1);
+    CurvePoint newPoint4(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
+    Path.push_back(StartPos); Path.push_back(newPoint0);  Path.push_back(newPoint1); Path.push_back(newPoint2);  Path.push_back(newPoint4); 
+
+    while (true){ 
+		odom.update_odom();
+		if(fabs(sqrt(pow(10 - utility::get_x(), 2) + pow(-32 - utility::get_y(), 2))) <= 16 && downOnce == false){
+			odom.update_odom();
+			left_wing.set_value(true);
+			pros::delay(200);
+			left_wing.set_value(false);
+			downOnce = true;
+		}
+		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+			mtp.set_mtp_constants(6, 0, 150, 0, 127, 60);
+			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 0.5);
+			utility::motor_deactivation();
+			break;
+		}
+		FollowCurve(Path, 15, 10, 90, reverse); // circle size, linear kp, linear max speed
+		pros::delay(10);
+	}
+}
+
+void rush6Ball() {
+
+	right_front_wing.set_value(true);
+	left_wing.set_value(true);
+	pros::delay(100);
+	right_front_wing.set_value(false);
+	left_wing.set_value(false);
+	intake_motor.move_voltage(-12000);
+	moveToMidRUSH();
+	moveToOriginRUSH();
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(45, 90);
+
+	intake_motor.move_voltage(12000);
+	pros::delay(200);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-88, 90);
+
+	intake_motor.move_voltage(-12000);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(32, 127, -1, false);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-90, 90);
+
+    // mov_t.set_t_constants(5, 0, 35, 500);
+	// mov_t.set_translation_pid(-30, 110, false);
+
+	moveToBottomOfGoalRUSH();
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-160, 90);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-8, 127, -1, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(5, 127, -1, false);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-5, 90);
+
+	intake_motor.move_voltage(12000);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(15, 127, -1, false);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-20, 127, -1, false);
+
+  	rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-57, 110);
+
+	intake_motor.move_voltage(-12000);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(40, 127, -1, true);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-90, 110);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(9, 127, -1, true);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(-8, 127, -1, true);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(60, 90);
+
+	intake_motor.move_voltage(12000);
+	pros::delay(300);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(-44, 90);
+
+	intake_motor.move_voltage(-12000);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(23, 127, -1, true);
+
+    rot_r.set_r_constants(6, 0, 45);
+    rot_r.set_rotation_pid(90, 90);
+
+	intake_motor.move_voltage(12000);
+
+	front_wings.set_value(true);
+
+    mov_t.set_t_constants(5, 0, 35, 500);
+	mov_t.set_translation_pid(35, 127, -1, false);
+
+	front_wings.set_value(false);
+
+    cur_c.set_c_constants(6, 0, 45);
+    cur_c.set_curve_pid(0, 100, 0.2, 4, true);
+
+
+}
+
 void AutonSelectorPrimary(const u_int16_t autonType){
     switch (autonType){
     case 0: auton1();                           break;
