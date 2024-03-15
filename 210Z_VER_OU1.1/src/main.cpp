@@ -35,8 +35,8 @@ char buffer[100];
 
 // Chassis drivetrain config. If you want to config sensors, and misc subsystems go to globals.cpp
 AssetConfig config(
-	{-7, -20, -14, -12}, // Left Motor Ports (negative value means ports are reversed)
-	{5, 21, 10, 3} // Right Motor Ports (negative value means port is reversed)
+	{-14, -15, -13, -12}, // Left Motor Ports (negative value means ports are reversed)
+	{17, 16, 18, 19} // Right Motor Ports (negative value means port is reversed)
 ); 
 
 
@@ -1288,22 +1288,32 @@ void initial_skills_phase() {
 
 }
 
+void DRIVER_PHASE() {
+	// op_mov.dt_Control();
+	op_mov.exponential_curve_accelerator();
+	odom.update_odom();
+	power_intake();
+	extend_wings();
+	extend_front_wings();
+	extend_odom_piston();
+	extend_climber();
+	extend_primary_climber();
+	realCataControl();
+	pros::delay(delayAmount); // Dont hog CPU ;)
+}
+
+void CONSTANT_TUNER_PHASE() {
+	tuner.driver_tuner();
+	pros::delay(10);
+}
+
+bool DRIVER_ENABLED = true;
+
 void opcontrol(){ // Driver control function	
 	odom_piston.set_value(true); 
-	// initial_skills_phase();
-
 	while (true){
-	    // op_mov.exponential_curve_accelerator();
-		op_mov.dt_Control();
-		odom.update_odom();
-		power_intake();
-		extend_wings();
-		extend_front_wings();
-		extend_odom_piston();
-		extend_climber();
-		extend_primary_climber();
-		realCataControl();
-		pros::delay(delayAmount); // Dont hog CPU ;)
+		if (DRIVER_ENABLED) { DRIVER_PHASE(); }
+		else { CONSTANT_TUNER_PHASE(); }
 	}
 }
 

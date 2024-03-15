@@ -23,7 +23,7 @@ pros::MotorGroup left_side_motors({dt_front_left, dt_middle_left, dt_rear_left})
 pros::MotorGroup right_side_motors({dt_front_right, dt_middle_right, dt_rear_right});
 
 // Lateral PID Classes
-Eclipse::TranslationPID mov_t; Eclipse::RotationPID rot_r; Eclipse::CurvePID cur_c; Eclipse::ArcPID arc_a;  Eclipse::FeedbackControl mtp;
+Eclipse::TranslationPID mov_t; Eclipse::RotationPID rot_r; Eclipse::CurvePID cur_c; Eclipse::ArcPID arc_a;  Eclipse::FeedbackControl mtp; Eclipse::ConstantsTuner tuner;
 
 // Position Tracking
 Eclipse::Odometry odom; Eclipse::KalmanFilter kal;

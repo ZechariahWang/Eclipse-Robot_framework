@@ -83,6 +83,7 @@ void opcontrol(void);
 #include "210Z-Lib/Modules/PIDcontrollerModule.hpp"
 #include "210Z-Lib/Modules/LinearMotionProfileModule.hpp"
 #include "210Z-Lib/Modules/BezierCurvePathGenModule.hpp"
+#include "210Z-Lib/Modules/ConstantsTuner.hpp"
 
 // Driver
 #include "210Z-Lib/OperationSystems/CoreOpSystems.hpp"

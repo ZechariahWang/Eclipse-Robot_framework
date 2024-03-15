@@ -48,3 +48,4 @@ extern Eclipse::ArcPID arc_a;
 extern Eclipse::FeedbackControl mtp;
 extern Eclipse::Odometry odom;
 extern Eclipse::Math math;
+extern Eclipse::ConstantsTuner tuner;
