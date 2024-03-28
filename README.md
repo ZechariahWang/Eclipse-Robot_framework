@@ -13,11 +13,6 @@ Code Framework for 210Z during the 2023-2024 Vex Robotics Competition.
 - 1x Provincial Champion
 - 1x Excellence Award
 
-- Peak 6th in Canada, 57th in the world.
-
-
-
-
 ## Project Structure
 The project is divided into three major sections: Core System Assets, Scripts, and Modules. The Core System Assets are the driving functions of the robot that control the fundamental components of the game logic, such as driver control, autonomous, and so on. The Scripts are the courses that the robot can take throughout the autonomous phases of the competition. These may include abilities, in-game autons, etc. The module section contains helper functions that can be called on the logic within the Core System Assets.
 
