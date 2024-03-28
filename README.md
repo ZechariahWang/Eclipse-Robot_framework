@@ -5,10 +5,14 @@
 
 Code Framework for 210Z during the 2023-2024 Vex Robotics Competition.
 
-- 6x World Championship Qualifiers
-- 15x Awards
-- 2022-2023 Alberta Provincial Champions
-- 2022-2023 Mecha Mayhem Signature Event Champions
+• 7x World Championship Qualified
+• 6x Regional Tournament Champions
+• 8x Design, Skills, Sportsmanship, Judges Awards
+• 6x Regional Tournament Finalists
+• 1x International Tournament Champion
+• 1x Provincial Champion
+• 1x Excellence Award
+
 - Peak 6th in Canada, 57th in the world.
 
 
