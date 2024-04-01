@@ -3,9 +3,9 @@
 namespace Eclipse {
     class ConstantsTuner {
         public:
-            double localKp = 0;
+            double localKp = 5;
             double localKi= 0;
-            double localKd = 0;
+            double localKd = 35;
 
             double global_increment_amount = 1;
             double kp_increment_amount = 1;

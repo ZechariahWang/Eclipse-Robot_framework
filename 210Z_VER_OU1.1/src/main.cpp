@@ -23,52 +23,46 @@
 
 using namespace Eclipse;
 
-constexpr u_int64_t time_dt = 100000; // Time until initialize phase ends. Effectively infinite.
-constexpr u_int16_t delayAmount = 10; // Dont overload the CPU during OP control
-char buffer[100];
+constexpr u_int64_t time_dt           = 100000; // Time until initialize phase ends. Effectively infinite.
+constexpr u_int16_t delayAmount       = 10; // Dont overload the CPU during OP control
+constexpr bool      DRIVER_ENABLED    = true;
 
-// // Chassis drivetrain config. If you want to config sensors, and misc subsystems go to globals.cpp
-// AssetConfig config(
-// 	{5, 21, 4, 3}, // Left Motor Ports (negative value means ports are reversed)
-// 	{-13, -20, -14, -12} // Right Motor Ports (negative value means port is reversed)
-// ); 
+char buffer[100];
 
 // Chassis drivetrain config. If you want to config sensors, and misc subsystems go to globals.cpp
 AssetConfig config(
-	{-14, -15, -13, -12}, // Left Motor Ports (negative value means ports are reversed)
-	{17, 16, 18, 19} // Right Motor Ports (negative value means port is reversed)
+	{-13, -14, -15, -11}, // Left Motor Ports (negative value means ports are reversed)
+	{17, 20, 16, 21} // Right Motor Ports (negative value means port is reversed)
 ); 
 
 
-// sarah
-// AssetConfig config(
-// 	{-10, -9, -190}, // Left Motor Ports (negative value means ports are reversed)
-// 	{20, 11, 80} // Right Motor Ports (negative value means port is reversed)
-// ); 
-
 pros::ADIEncoder vertical_auxiliary_sensor('y', 'z', true); // vertical tracking wheel
 pros::Rotation horizontal_rotation_sensor(19); // horizontal tracking wheel
-pros::Imu imu_sensor(1); // IMU sensor
+pros::Imu imu_sensor(10); // IMU sensor
 
-// Game specific subsystems. Header declaration is in globals.hpp
-pros::ADIDigitalIn cata_sensor('o');
-pros::Distance distance_sensor(-22);
-pros::Motor cata_motor(9, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS); // flywheel
-pros::Motor flywheel_arm(17, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS); 
-pros::Motor cata_motor_secondary(109, pros::E_MOTOR_GEARSET_36, true, pros::E_MOTOR_ENCODER_COUNTS);
-pros::Motor intake_motor(13, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS);
-pros::ADIDigitalOut climber('h');
+
+pros::Motor intake_motor(19, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS);
+pros::Motor intake_motor_secondary(12, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS);
 pros::ADIDigitalOut primary_climber('e');
 
 pros::ADIDigitalOut left_wing('g');
 pros::ADIDigitalOut right_wing('c');
 pros::ADIDigitalOut left_front_wing('f');
 pros::ADIDigitalOut right_front_wing('b');
+
 pros::ADIDigitalOut odom_piston('a');
 
 // not used
 pros::ADIDigitalOut blocker('z');
 pros::ADIDigitalOut front_wings('z');
+
+// Game specific subsystems. Header declaration is in globals.hpp
+pros::Distance distance_sensor(100);
+pros::Motor cata_motor(100, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS); // flywheel
+pros::Motor flywheel_arm(100, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS); 
+pros::Motor cata_motor_secondary(109, pros::E_MOTOR_GEARSET_36, true, pros::E_MOTOR_ENCODER_COUNTS);
+pros::ADIDigitalOut climber('z');
+pros::ADIDigitalIn cata_sensor('z');
 
 lv_obj_t *sensor_button_home; lv_obj_t *auton_button_home; lv_obj_t *misc_button_home; lv_obj_t *game_button_home; lv_obj_t *welcomeDisplay; lv_obj_t *home_welcome_text; lv_obj_t *home_page = lv_page_create(lv_scr_act(), NULL);
 lv_obj_t *odom_readings_sensor; lv_obj_t *dt_readings_sensor; lv_obj_t *sensor1_readings_sensor; lv_obj_t *sensor2_readings_sensor; lv_obj_t *sensor3_readings_sensor; lv_obj_t *sensor4_readings_sensor; lv_obj_t *return_button_sensor;
@@ -619,575 +613,6 @@ void disabled() {}
 void competition_initialize() {}
 //------------------------------\*
 
-void init_extend_piston() {
-	odom_piston.set_value(false);
-	pros::delay(200);
-	odom_piston.set_value(true);
-	pros::delay(300);
-}
-
-void move_arm_down() {
-	while (true) {
-		//flywheel_arm.move_voltage(-10000); 
-		if (cata_sensor.get_value() == 1) {
-			//flywheel_arm.move_voltage(0);  // once arm is down, stop motor
-            arm_down = false;
-            down_flywheel_enabled = true;
-            cata_toggled = false;
-			break;
-		}
-	}
-}
-
-void moveToUnderGoalNorCal(){
-	double end_point_tolerance = 10;
-    std::vector<CurvePoint> Path;
-	bool reverse = true;
-
-	double end_pose_x = 23; double end_pose_y = -20;
-
-    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
-    CurvePoint newPoint0(5, 0, 1, 2, 40, 5, 1);
-    CurvePoint newPoint1(9, -8, 1, 2, 40, 5, 1);
-    CurvePoint newPoint2(12, -17, 1, 2, 40, 5, 1);
-    CurvePoint newPoint4(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
-    Path.push_back(StartPos); Path.push_back(newPoint0); Path.push_back(newPoint1); Path.push_back(newPoint2); Path.push_back(newPoint4); 
-
-	bool downOnce = false;
-
-    while (true){ 
-		odom.update_odom();
-		if(fabs(sqrt(pow(12 - utility::get_x(), 2) + pow(-17 - utility::get_y(), 2))) <= 10 && downOnce == false){
-			odom.update_odom();
-			left_wing.set_value(true);
-			pros::delay(300);
-			utility::motor_deactivation();
-			left_wing.set_value(false);
-			odom.update_odom();
-			downOnce = true;
-		}
-		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
-			mtp.set_mtp_constants(6, 0, 5, 35, 70, 40);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 0.5);
-			utility::motor_deactivation();
-			break;
-		}
-		FollowCurve(Path, 10, 10, 90, reverse);
-		pros::delay(10);
-	}
-}
-
-
-void full6ballprovs() {
-
-	odom_piston.set_value(false);
-	intake_motor.move_voltage(12000);
-	pros::delay(200);
-	intake_motor.move_voltage(-12000);
-
-	rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(-90, 110);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(31, 90, 5, true);
-
-	moveToUnderGoalNorCal();
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-160, 110);
-
-    mov_t.set_t_constants(12, 0, 35, 500);
-	mov_t.set_translation_pid(-15, 127, 1, false);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(8, 127, 1, false);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-90, 110);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-5, 110);
-
-	intake_motor.move_voltage(12000);
-
-	mov_t.set_t_constants(12, 0, 35, 500);
-	mov_t.set_translation_pid(14, 127, 1, false);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-13, 110, 2, false);
-
- 	rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-55, 110);
-
-	intake_motor.move_voltage(-12000);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(34, 110, 4, true);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-90, 110);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(14, 90, 1, true);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-6, 110, 2, true);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(60, 90);
-
-	intake_motor.move_voltage(12000);
-	pros::delay(500);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(-46, 90);
-
-	intake_motor.move_voltage(-12000);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(27, 110, 3, true);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(90, 90);
-
-	intake_motor.move_voltage(12000);
-
-	left_front_wing.set_value(true);
-	right_front_wing.set_value(true);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(35, 110, 8, false);
-
-	left_front_wing.set_value(false);
-	right_front_wing.set_value(false);
-
-    cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(0, 100, 0.2, 4, true);
-
-}
-
-void closeSideProvs(){
-	left_front_wing.set_value(true);
-	intake_motor.move_voltage(12000);
-	pros::delay(300);
-	intake_motor.move_voltage(-12000);
-	left_front_wing.set_value(false);
-
-	mtp.set_mtp_constants(7, 0, 6, 35, 110, 110);
-	mtp.move_to_point(48, -14, false, false, 3);
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(10, 0, true, false, 3);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(160, 90);
-
-	intake_motor.move_voltage(12000);
-	pros::delay(700);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-90, 90);
-
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(11, 70, 3, true);
-
-    cur_c.set_c_constants(6, 0, 45); 
-    cur_c.set_curve_pid(-45, 100, 0.2, 4, false);
-
-	left_wing.set_value(true);
-
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-18, 40, 1.2, true);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-90, 90);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-45, 90);
-	
-	mov_t.set_t_constants(5, 0, 35, 500); 
-	mov_t.set_translation_pid(3, 70, 1, true); 
-
-	left_wing.set_value(false);
-
-    cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-90, 90, 0.31, 1.5, true); 
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(0, 60);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(88, 60);
-
-	intake_motor.move_voltage(12000);
-
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(29, 70, 3, true); 
-
-	right_front_wing.set_value(false);
-}
-
-void prototyperush6() {
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(53, 14, false, false, 3);
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(6, 3, true, false, 3);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(45, 90);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-88, 90);
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(5, 30, false, false, 3);
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(10, -14, true, false, 3);
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(25, -28, true, false, 3);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-180, 90);
-
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-15, 90, 1.5, true);
-
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(8, 90, 2, true);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-10, 110);
-
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(10, 90, 0.8, true);
-
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-6, 90, 2, true);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-90, 90);
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(67, 37, false, false, 1);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-90, 90);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-13, 110, 2, true);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(60, 90);
-
-	intake_motor.move_voltage(12000);
-	pros::delay(500);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(0, 90);
-
-	intake_motor.move_voltage(-12000);
-
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(84, 15, false, false, 1.8);
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(78, -38, false, false, 1.5);
-
-    cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(0, 90, 0.3, 3, true);
-}
-
-
-void moveToUnderGoalProvsSkills(){
-	double end_point_tolerance = 10;
-    std::vector<CurvePoint> Path;
-	bool reverse = false;
-
-	double end_pose_x = 40; double end_pose_y = 20;
-
-    CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
-    CurvePoint newPoint0(9, 13, 1, 2, 40, 5, 1);
-    CurvePoint newPoint1(20, 20, 1, 2, 40, 5, 1);
-    CurvePoint newPoint4(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
-    Path.push_back(StartPos); Path.push_back(newPoint0); Path.push_back(newPoint4); 
-
-	bool downOnce = false;
-
-    while (true){ 
-		odom.update_odom();
-		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
-			mtp.set_mtp_constants(8, 0, 6, 35, 120, 90);
-			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 2);
-			utility::motor_deactivation();
-			break;
-		}
-		FollowCurve(Path, 7, 12, 127, reverse); // circle size, linear kp, linear max speed
-		pros::delay(10);
-	}
-}
-
-void ProvsSkills() {
-
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-45, 110);
-
-	intake_motor.move_voltage(12000);
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(32, 17, false, false, 1.8);
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(17, 16, true, false, 1.8);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(70, 90);
-
-    mov_t.set_t_constants(8, 0, 35, 500);
-	mov_t.set_translation_pid(-4, 50, 2, true);
-
-	right_wing.set_value(true);
-    cata_motor.move_voltage(8750);
-    flywheel_arm.move_voltage(-8750);
-	pros::delay(21000);
-    cata_motor.move_voltage(0);
-    flywheel_arm.move_voltage(0);
-	right_wing.set_value(false);
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(26, -20, false, false, 3);
-
-	right_front_wing.set_value(true);
-
-	mtp.set_mtp_constants(9, 0, 5, 35, 110, 110);
-	mtp.move_to_point(80, -29, false, false, 2);
-
-	right_front_wing.set_value(false);
-
-	mtp.set_mtp_constants(9, 0, 5, 35, 110, 110);
-	mtp.move_to_point(110, 8, true, false, 3);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(45, 90);
-
-	mtp.set_mtp_constants(9, 0, 5, 35, 110, 110);
-	mtp.move_to_point(117, -10, false, false, 2);
-
-	mtp.set_mtp_constants(14, 0, 5, 35, 110, 110);
-	mtp.move_to_point(120, -80, false, false, 5);
-
-	right_front_wing.set_value(true);
-
-	mtp.set_mtp_constants(9, 0, 5, 35, 110, 110);
-	mtp.move_to_point(100, -105, false, false, 2);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(180, 90);
-
-    mov_t.set_t_constants(9, 0, 35, 500);
-	mov_t.set_translation_pid(18, 110, 1, true);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-15, 110, 1.2, true);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(180, 90);
-
-    mov_t.set_t_constants(9, 0, 35, 500);
-	mov_t.set_translation_pid(16, 110, 1.8, true);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-17, 110, 1.5, true);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(180, 90);
-
-	right_front_wing.set_value(false);
-
-	mtp.set_mtp_constants(9, 0, 7, 35, 110, 110);
-	mtp.move_to_point(75, -70, true, false, 3);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(-90, 90);
-
-	left_wing.set_value(true);
-	right_wing.set_value(true);
-
-	mtp.set_mtp_constants(16, 0, 5, 35, 110, 110); // hit 1
-	mtp.move_to_point(40, -120, true, false, 2);
-
-	left_wing.set_value(false);
-	right_wing.set_value(false);
-
-	mtp.set_mtp_constants(9, 0, 5, 35, 110, 110);
-	mtp.move_to_point(80, -70, false, false, 2);
-
-	mtp.set_mtp_constants(9, 0, 5, 35, 110, 110);
-	mtp.move_to_point(50, -70, false, false, 2);
-
-	left_wing.set_value(true);
-	right_wing.set_value(true);
-
-	mtp.set_mtp_constants(16, 0, 5, 35, 110, 110); // hit 2
-	mtp.move_to_point(50, -120, true, false, 2);
-
-	mtp.set_mtp_constants(9, 0, 5, 35, 110, 110);
-	mtp.move_to_point(30, -70, false, false, 1.5);
-
-	left_wing.set_value(false);
-	right_wing.set_value(false);
-
-	mtp.set_mtp_constants(16, 0, 5, 35, 110, 110); // hit 3
-	mtp.move_to_point(50, -120, true, false, 1.5);
-
-	mtp.set_mtp_constants(9, 0, 5, 35, 110, 110);
-	mtp.move_to_point(10, -70, true, false, 1.5);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(90, 90);
-
-    mov_t.set_t_constants(9, 0, 35, 500);
-	mov_t.set_translation_pid(19, 110, 1, true);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(160, 90);
-
-    mov_t.set_t_constants(9, 0, 35, 500);
-	mov_t.set_translation_pid(40, 110, 1.5, true);
-
-    mov_t.set_t_constants(9, 0, 35, 500);
-	mov_t.set_translation_pid(-5, 110, 3, true);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(90, 90);
-
-    cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(0, 90, 0.25, 3, false);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(0, 90);
-
-    mov_t.set_t_constants(9, 0, 35, 500);
-	mov_t.set_translation_pid(18, 110, 1, true);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-10, 110, 1.2, true);
-
-    mov_t.set_t_constants(9, 0, 35, 500);
-	mov_t.set_translation_pid(16, 110, 1, true);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-12, 110, 1.5, true);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(-135, 90);
-
-    cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-90, 90, 0.55, 3, false);
-
-	primary_climber.set_value(true);
-
-    mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(56, 110, 1.2, true);
-
-	primary_climber.set_value(false);
-	odom_piston.set_value(true); 
-}
-
-void closeSideNorCal(){
-	left_front_wing.set_value(true);
-	intake_motor.move_voltage(12000);
-	pros::delay(300);
-	intake_motor.move_voltage(-12000);
-	left_front_wing.set_value(false);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(16.5, 90);
-
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(49, 90, 3, true);
-
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-42, 90, 3, true);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(160, 90);
-
-	intake_motor.move_voltage(12000);
-	pros::delay(700);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-90, 90);
-
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(11, 70, 3, true);
-
-    cur_c.set_c_constants(6, 0, 45); 
-    cur_c.set_curve_pid(-45, 100, 0.2, 4, false);
-
-	left_wing.set_value(true);
-
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-18, 40, 2, true);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-90, 90);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-45, 90);
-	
-	mov_t.set_t_constants(5, 0, 35, 500); 
-	mov_t.set_translation_pid(3, 70, 1, true); 
-
-	left_wing.set_value(false);
-
-    cur_c.set_c_constants(6, 0, 45);
-    cur_c.set_curve_pid(-90, 90, 0.34, 2, true);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(0, 60);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(88, 60);
-
-	intake_motor.move_voltage(12000);
-
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(20, 70, 3, true); 
-}
-
-void provsElimRush() {
-	
-	left_front_wing.set_value(true);
-	intake_motor.move_voltage(12000);
-	pros::delay(100);
-	intake_motor.move_voltage(-12000);
-	left_front_wing.set_value(false);
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(16.5, 90);
-
-	mov_t.set_t_constants(12, 0, 35, 500);
-	mov_t.set_translation_pid(38, 120, 3, true);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(90, 90);
-
-	left_front_wing.set_value(true);
-	intake_motor.move_voltage(12000);
-	left_wing.set_value(true);
-
-	mov_t.set_t_constants(12, 0, 35, 500);
-	mov_t.set_translation_pid(21, 120, 3, true);
-
-	mov_t.set_t_constants(5, 0, 35, 500);
-	mov_t.set_translation_pid(-10, 90, 3, true);
-}
-
 /**
  * @brief Main autonomous function. PID prereqs:
  * @brief 90 DEGREES CONSTANTS: 6, 0, 45
@@ -1203,62 +628,17 @@ void autonomous(){  // Autonomous function control
 	odom_piston.set_value(false);
 	slew.set_slew_distance({4, 4});
 	slew.set_slew_min_power({40, 40});
-	mov_t.set_dt_constants(3.125, 1.6, 600); // Parameters are : Wheel diameter, gear ratio, motor cartridge type
+	mov_t.set_dt_constants(2.75, 0.8, 600); // Parameters are : Wheel diameter, gear ratio, motor cartridge type
 	utility::restart_all_chassis_motors(false);
-	// init_extend_piston();
-	// move_arm_down();
 	// selector.recieve_selector_input(time); // Enabled Auton Selector (STEP 1) ONLY FOR PROTOTYPE USE
 	// select.select_current_auton(); // Enable Auton Selector (STEP 2) 
 
-	// closeSideNorCal();
-	// new6ballNorCal();
-	// NorCalSkills();
-
-	// mov_t.set_t_constants(5, 0, 35, 500);
-	// mov_t.set_translation_pid(23, 127, 3, true);
-
-    // cur_c.set_c_constants(6, 0, 45);
-    // cur_c.set_curve_pid(90, 90, 0.3, 0.5, false);
-
-    // cur_c.set_c_constants(6, 0, 45);
-    // cur_c.set_curve_pid(0, 90, 0.3, 3, false);
-
-    // cur_c.set_c_constants(6, 0, 45);
-    // cur_c.set_curve_pid(135, 90, 0.1, 0.6, true);
-
-    // cur_c.set_c_constants(6, 0, 45);
-    // cur_c.set_curve_pid(180, 90, 0.1, 0.3, false);
-
-    // cur_c.set_c_constants(6, 0, 45);
-    // cur_c.set_curve_pid(-90, 90, 0.1, 3, false);
-
-	// mtp.set_mtp_constants(6, 0, 5, 35, 90, 110);
-	// mtp.move_to_point(20, -20, false, false, 3);
-
-	// mtp.set_mtp_constants(6, 0, 5, 35, 90, 110);
-	// mtp.move_to_point(40, 20, false, false, 3);
-
-	// mtp.set_mtp_constants(6, 0, 5, 35, 90, 110);
-	// mtp.move_to_point(20, 0, false, false, 3);
-
-	// mtp.set_mtp_constants(6, 0, 5, 35, 90, 110);
-	// mtp.move_to_point(-20, -20, true, false, 3);
-
-	// mtp.set_mtp_constants(6, 0, 5, 35, 90, 110);
-	// mtp.move_to_point(-25, 0, false, false, 1);
-
-	// mtp.set_mtp_constants(6, 0, 5, 35, 90, 110);
-	// mtp.move_to_point(-23, 80, false, false, 3);
-
-	// fixingPP();
-
-	// ProvsSkills();
-	// full6ballprovs();
-	// closeSideProvs();
-	// closeSideNorCal();
-
-	provsElimRush();
-
+	// script.global_close_side();
+	// script.global_six_ball();
+	script.local_close_side();
+	// script.local_six_ball();
+	// script.rush_six_ball();
+	// script.rush_disruption_close_side();
 
 }
 
@@ -1267,53 +647,12 @@ void autonomous(){  // Autonomous function control
  * 
  */
 
-void initial_skills_phase() {
-
-    rot_r.set_r_constants(6, 0, 45);
-    rot_r.set_rotation_pid(-45, 110);
-
-	intake_motor.move_voltage(12000);
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(32, 17, false, false, 1.8);
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(17, 16, true, false, 1.8);
-
-    rot_r.set_r_constants(7, 0, 85);
-    rot_r.set_rotation_pid(70, 90);
-
-	mtp.set_mtp_constants(7, 0, 5, 35, 110, 110);
-	mtp.move_to_point(17, 20, true, false, 0.7);
-
-}
-
-void DRIVER_PHASE() {
-	// op_mov.dt_Control();
-	op_mov.exponential_curve_accelerator();
-	odom.update_odom();
-	power_intake();
-	extend_wings();
-	extend_front_wings();
-	extend_odom_piston();
-	extend_climber();
-	extend_primary_climber();
-	realCataControl();
-	pros::delay(delayAmount); // Dont hog CPU ;)
-}
-
-void CONSTANT_TUNER_PHASE() {
-	tuner.driver_tuner();
-	pros::delay(10);
-}
-
-bool DRIVER_ENABLED = true;
-
 void opcontrol(){ // Driver control function	
 	odom_piston.set_value(true); 
 	while (true){
-		if (DRIVER_ENABLED) { DRIVER_PHASE(); }
-		else { CONSTANT_TUNER_PHASE(); }
+		if (DRIVER_ENABLED)
+		{ DRIVER_PHASE(); } else
+		{ CONSTANT_TUNER_PHASE(); }
 	}
 }
 

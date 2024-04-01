@@ -15,9 +15,8 @@ void Eclipse::ConstantsTuner::display_constant_data() {
     std::cout << "KP: " << tuner.localKp << std::endl;
     std::cout << "KI: " << tuner.localKi << std::endl;
     std::cout << "KD: " << tuner.localKd << std::endl;
-    std::cout << "Kp Increment Amount: " << tuner.kp_increment_amount << std::endl;
-    std::cout << "Kd Increment Amount: " << tuner.kd_increment_amount << std::endl;
-    std::cout << "current_constant_mode: " << tuner.CURRENT_MODE << std::endl;
+    std::cout << "Global Increment Amount: " << tuner.global_increment_amount << std::endl;
+    std::cout << "current_constant_mode: " << tuner.CURRENT_MODE << " | 0 = KP | 1 = Ki | 2 = Kd |" << std::endl;
     std::cout << "######################################################################################" << std::endl;
     std::cout << " " << std::endl;
     pros::delay(500);
@@ -26,46 +25,51 @@ void Eclipse::ConstantsTuner::display_constant_data() {
 
 void Eclipse::ConstantsTuner::modify_desired_constants() {
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-        tuner.localKp -= tuner.kp_increment_amount;
+        tuner.localKp -= tuner.global_increment_amount;
         tuner.display_constant_data();
     } else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
-        tuner.localKp += tuner.kp_increment_amount;
+        tuner.localKp += tuner.global_increment_amount;
         tuner.display_constant_data();   
     }
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
-        tuner.localKi -= tuner.ki_increment_amount;
+        tuner.localKi -= tuner.global_increment_amount;
         tuner.display_constant_data();
     } else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
-        tuner.localKi += tuner.ki_increment_amount;
+        tuner.localKi += tuner.global_increment_amount;
         tuner.display_constant_data();
     }
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
-        tuner.localKd -= tuner.kd_increment_amount;
+        tuner.localKd -= tuner.global_increment_amount;
         tuner.display_constant_data();
     } else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) {
-        tuner.localKd += tuner.kd_increment_amount;
+        tuner.localKd += tuner.global_increment_amount;
         tuner.display_constant_data();
     }
 }
 
 void Eclipse::ConstantsTuner::modify_proportional_derivative_increment_amount(double increment_amount) {
+    bool wasPressed = false;
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
         tuner.global_increment_amount += increment_amount;
-        tuner.display_constant_data();
+        wasPressed = true;
     } if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
         tuner.global_increment_amount -= increment_amount;
-        tuner.display_constant_data();
+        wasPressed = true;
     }
+
+    if (tuner.global_increment_amount < 0) { tuner.global_increment_amount = 0; }
+    if (wasPressed) { tuner.display_constant_data(); }
 }
 
 void Eclipse::ConstantsTuner::shift_constant() {
+    bool wasShifted = false;
     double constant_shifter = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X) / 127.0;
 
-    if (constant_shifter >= 1) { tuner.CURRENT_MODE += 1; tuner.display_constant_data(); }
-    if (constant_shifter <= -1) { tuner.CURRENT_MODE -= 1; tuner.display_constant_data(); }
+    if (constant_shifter >= 1) { tuner.CURRENT_MODE += 1; wasShifted = true; }
+    if (constant_shifter <= -1) { tuner.CURRENT_MODE -= 1; wasShifted = true; }
 
-    if (tuner.CURRENT_MODE < 0) { tuner.CURRENT_MODE = 0; tuner.display_constant_data(); }
-    if (tuner.CURRENT_MODE > 2) { tuner.CURRENT_MODE = 2; tuner.display_constant_data(); }
+    if (tuner.CURRENT_MODE < 0) { tuner.CURRENT_MODE = 0; wasShifted = true; }
+    if (tuner.CURRENT_MODE > 2) { tuner.CURRENT_MODE = 2; wasShifted = true; }
 
     if (tuner.CURRENT_MODE == 0) {
         tuner.kp_increment_amount = tuner.global_increment_amount;
@@ -74,6 +78,7 @@ void Eclipse::ConstantsTuner::shift_constant() {
     } else if (tuner.CURRENT_MODE == 2) {
         tuner.kd_increment_amount = tuner.global_increment_amount;
     }
+    if (wasShifted) { tuner.display_constant_data(); }
 }
 
 void Eclipse::ConstantsTuner::control_movement_output() {

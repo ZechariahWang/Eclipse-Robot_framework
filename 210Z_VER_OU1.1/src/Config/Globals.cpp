@@ -32,5 +32,8 @@ Eclipse::Odometry odom; Eclipse::KalmanFilter kal;
 Eclipse::MatchMovement op_mov;
 
 // Misc
-Eclipse::Metrics data_displayer; Eclipse::Selector data; Eclipse::Slew slew; Eclipse::Math math;
+Eclipse::Metrics data_displayer; Eclipse::Selector data; Eclipse::Slew slew; Eclipse::Math math; 
+
+// Scripts
+Eclipse::Paths script;
 

@@ -45,9 +45,9 @@ int32_t receive_and_validate_input_key(std::string key, bool hold) {
 
 
 void power_intake(){
-    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){ intake_motor.move_voltage(12000); }
-    else if ((controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2))){ intake_motor.move_voltage(-12000); } // intake
-    else{ intake_motor.move_voltage(0); }
+    if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){ intake_motor.move_voltage(12000); intake_motor_secondary.move_voltage(-12000); }
+    else if ((controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2))){ intake_motor.move_voltage(-12000); intake_motor_secondary.move_voltage(12000); } // intake
+    else{ intake_motor.move_voltage(0); intake_motor_secondary.move_voltage(0); }
 }
 
 bool left_wing_extended = false;

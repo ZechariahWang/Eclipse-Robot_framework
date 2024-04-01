@@ -247,7 +247,6 @@ double get_min_angle_error_pid(float angle1, float angle2, bool radians){
 double Eclipse::RotationPID::compute_r(double current, double target){
   rot_r.r_error = get_min_angle_error_pid(target, current_robot_heading(), false);
   rot_r.r_derivative = rot_r.r_error - rot_r.r_prev_error;
-  std::cout << "rot derivative: " << rot_r.r_derivative << std::endl;
   if (rot_r.r_ki != 0){ rot_r.r_integral += rot_r.r_error; }
   if (rot_r.r_error == 0 || rot_r.r_error > target){ rot_r.r_integral = 0; }
 
@@ -405,7 +404,7 @@ void Eclipse::RotationPID::set_rotation_pid(double t_theta,
     utility::engage_left_motors(vol * (12000.0 / 127));
     utility::engage_right_motors(-vol * (12000.0 / 127));
     if (fabs(rot_r.r_error) < 3) { rot_r.r_iterator++; } else { rot_r.r_iterator = 0;}
-    if (fabs(rot_r.r_iterator) >= 3){
+    if (fabs(rot_r.r_iterator) >= 5){
       utility::motor_deactivation();
       break;
     }

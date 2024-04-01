@@ -1,3 +1,12 @@
+/**
+ * @file WorldsPaths.hpp
+ * @author Zechariah Wang
+ * @brief Odometry logic for global position tracking within robot using cartesian coordinates
+ * @version 0.1
+ * @date 2024-03-28
+ * 
+ */
+
 #include "iostream"
 
 
