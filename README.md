@@ -3,7 +3,7 @@
 
 # Team 210Z 2023-2024 Library
 
-Code Framework for 210Z during the 2023-2024 Vex Robotics Competition.
+Code Framework for 210Z during the 2023-2024 Vex Robotics Competition garnered throughout three years of development.
 
 - 7x World Championship Qualified
 - 6x Regional Tournament Champions
