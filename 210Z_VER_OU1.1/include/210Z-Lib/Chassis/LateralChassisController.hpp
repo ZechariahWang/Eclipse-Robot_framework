@@ -161,7 +161,7 @@ namespace Eclipse{
              * @param maxSpeed the maxspeed the robot may make the turn in 
              */
 
-            void set_rotation_pid(double t_theta, double max_speed);
+            void set_rotation_pid(double t_theta, double max_speed, double timeOut);
     };
 
     class CurvePID{

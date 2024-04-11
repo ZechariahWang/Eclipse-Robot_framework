@@ -1,3 +1,11 @@
+/**
+ * @file SecondaryOpDriver.cpp
+ * @author Zechariah Wang
+ * @brief Driver functions for op control in main
+ * @version 0.1
+ * @date 2023-04-05
+ */
+
 #include "main.h"
 
 void DRIVER_PHASE() {

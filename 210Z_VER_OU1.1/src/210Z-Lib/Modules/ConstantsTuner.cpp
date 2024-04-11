@@ -84,19 +84,19 @@ void Eclipse::ConstantsTuner::shift_constant() {
 void Eclipse::ConstantsTuner::control_movement_output() {
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
         rot_r.set_r_constants(tuner.localKp, tuner.localKi, tuner.localKd);
-        rot_r.set_rotation_pid(360, 90);
+        rot_r.set_rotation_pid(360, 90, 3);
     } 
     else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
         rot_r.set_r_constants(tuner.localKp, tuner.localKi, tuner.localKd);
-        rot_r.set_rotation_pid(90, 90);
+        rot_r.set_rotation_pid(90, 90, 3);
     }
     else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)) {
         rot_r.set_r_constants(tuner.localKp, tuner.localKi, tuner.localKd);
-        rot_r.set_rotation_pid(180, 90);
+        rot_r.set_rotation_pid(180, 90, 3);
     }
     else if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
         rot_r.set_r_constants(tuner.localKp, tuner.localKi, tuner.localKd);
-        rot_r.set_rotation_pid(270, 90);
+        rot_r.set_rotation_pid(270, 90, 3);
     } 
 }
 

@@ -89,7 +89,7 @@ double middle_tpi = 1;
  
 void Eclipse::Odometry::update_odom() {
   double right_pos = getMotorDistanceTraveled();
-  double middle_pos =  getRotationDistanceTraveled();
+  double middle_pos = getRotationDistanceTraveled();
   // double middle_pos =  0;
 
   double delta_right = (right_pos - prev_right_pos) / tpi;
@@ -108,8 +108,8 @@ void Eclipse::Odometry::update_odom() {
   
   if (delta_angle) {
     double i = sin(delta_angle / 2.0) * 2.0;
-    local_x = (delta_right / delta_angle + (-3.79)) * i; // left to right distance
-    local_y = (delta_middle / delta_angle + (6.96)) * i; // middle distance
+    local_x = (delta_right / delta_angle + (-2.5)) * i; // left to right distance
+    local_y = (delta_middle / delta_angle + (6.32)) * i; // middle distance
     // local_x = (delta_right / delta_angle + (-9.54)) * i; // left to right distance
     // local_y = (delta_middle / delta_angle + (0.44)) * i; // middle distance
   } else {

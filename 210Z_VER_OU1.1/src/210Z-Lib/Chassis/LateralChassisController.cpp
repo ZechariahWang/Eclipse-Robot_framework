@@ -388,14 +388,14 @@ void Eclipse::TranslationPID::set_translation_pid(double target, double maxSpeed
  * @param maxSpeed the maxspeed the robot may make the turn in 
  */
 
-void Eclipse::RotationPID::set_rotation_pid(double t_theta,
-                                   double maxSpeed){
+void Eclipse::RotationPID::set_rotation_pid(double t_theta, double maxSpeed, double timeOut){
 
   // utility::restart_all_chassis_motors(false);
   chassis_left_motors.at(0).set_zero_position(0);
   chassis_right_motors.at(0).set_zero_position(0);
   rot_r.reset_r_alterables();
   rot_r.r_maxSpeed = maxSpeed;
+  double local_timer = 0;
   while (true){
     odom.update_odom();
     double currentPos = current_robot_heading();
@@ -410,6 +410,13 @@ void Eclipse::RotationPID::set_rotation_pid(double t_theta,
     }
     if (fabs(rot_r.r_error - rot_r.r_prev_error) < 3) {rot_r.r_failsafe++;}
     if (rot_r.r_failsafe > 100){
+      utility::motor_deactivation();
+      break;
+    }
+    if (timeOut > 0) {
+       local_timer++;
+    }
+    if (local_timer > (timeOut * 100)) { // timeout in seconds
       utility::motor_deactivation();
       break;
     }

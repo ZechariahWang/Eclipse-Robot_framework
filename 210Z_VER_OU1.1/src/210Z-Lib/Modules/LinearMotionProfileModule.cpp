@@ -1,3 +1,11 @@
+/**
+ * @file LinearMotionProfileModule.cpp
+ * @author Zechariah Wang
+ * @brief Linear Motion simple trapezoidal motion profiler
+ * @version 0.1
+ * @date 2023-04-05
+ */
+
 #include "main.h"
 #include <vector>
 

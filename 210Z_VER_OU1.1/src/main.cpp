@@ -37,18 +37,18 @@ AssetConfig config(
 
 
 pros::ADIEncoder vertical_auxiliary_sensor('y', 'z', true); // vertical tracking wheel
-pros::Rotation horizontal_rotation_sensor(19); // horizontal tracking wheel
-pros::Imu imu_sensor(10); // IMU sensor
+pros::Rotation horizontal_rotation_sensor(1); // horizontal tracking wheel
+pros::Imu imu_sensor(2); // IMU sensor
 
 
 pros::Motor intake_motor(19, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS);
 pros::Motor intake_motor_secondary(12, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS);
 pros::ADIDigitalOut primary_climber('e');
 
-pros::ADIDigitalOut left_wing('g');
-pros::ADIDigitalOut right_wing('c');
-pros::ADIDigitalOut left_front_wing('f');
-pros::ADIDigitalOut right_front_wing('b');
+pros::ADIDigitalOut left_wing('c');
+pros::ADIDigitalOut right_wing('b');
+pros::ADIDigitalOut left_front_wing('d');
+pros::ADIDigitalOut right_front_wing('h');
 
 pros::ADIDigitalOut odom_piston('a');
 
@@ -625,21 +625,27 @@ void autonomous(){  // Autonomous function control
 	global_robot_x = 0;
 	global_robot_y = 0;
 	utility::set_chassis_to_brake();
-	odom_piston.set_value(false);
+	odom_piston.set_value(true);
 	slew.set_slew_distance({4, 4});
 	slew.set_slew_min_power({40, 40});
 	mov_t.set_dt_constants(2.75, 0.8, 600); // Parameters are : Wheel diameter, gear ratio, motor cartridge type
 	utility::restart_all_chassis_motors(false);
+	pros::delay(200);
 	// selector.recieve_selector_input(time); // Enabled Auton Selector (STEP 1) ONLY FOR PROTOTYPE USE
 	// select.select_current_auton(); // Enable Auton Selector (STEP 2) 
 
 	// script.global_close_side();
 	// script.global_six_ball();
-	script.local_close_side();
-	// script.local_six_ball();
+	// script.local_close_side();
+	script.local_six_ball();
 	// script.rush_six_ball();
 	// script.rush_disruption_close_side();
 
+    // rot_r.set_r_constants(7, 0, 45);
+    // rot_r.set_rotation_pid(90, 60, 0.2);
+
+    // rot_r.set_r_constants(7, 0, 45);
+    // rot_r.set_rotation_pid(0, 60, 1);
 }
 
 /**

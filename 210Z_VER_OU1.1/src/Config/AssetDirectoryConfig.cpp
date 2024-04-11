@@ -1,3 +1,11 @@
+/**
+ * @file AssetDirectoryConfig.cpp
+ * @author Zechariah Wang
+ * @brief Drivetrain config driver
+ * @version 0.1
+ * @date 2024-04-05
+ */
+
 #include "AssetDirectoryConfig.hpp"
 #include "Globals.hpp"
 
