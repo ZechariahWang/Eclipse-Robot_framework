@@ -1,7 +1,5 @@
 ![newLogo](https://github.com/ZechariahWang/210Z-Over-Under-Worlds/assets/97078224/db011725-d4a7-4acb-8b84-9804be6e7e04)
 
-
-
 # Team 210Z 2023-2024 Library
 
 Code Framework for 210Z during the 2023-2024 Vex Robotics Competition garnered throughout three years of development.
