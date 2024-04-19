@@ -31,7 +31,7 @@ char buffer[100];
 
 // Chassis drivetrain config. If you want to config sensors, and misc subsystems go to globals.cpp
 AssetConfig config(
-	{-13, -14, -15, -11}, // Left Motor Ports (negative value means ports are reversed)
+	{-13, -14, -15, -5}, // Left Motor Ports (negative value means ports are reversed)
 	{17, 20, 16, 21} // Right Motor Ports (negative value means port is reversed)
 ); 
 
@@ -41,8 +41,8 @@ pros::Rotation horizontal_rotation_sensor(1); // horizontal tracking wheel
 pros::Imu imu_sensor(2); // IMU sensor
 
 
-pros::Motor intake_motor(19, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS);
-pros::Motor intake_motor_secondary(12, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS);
+pros::Motor intake_motor(4, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS);
+pros::Motor intake_motor_secondary(8, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS);
 pros::ADIDigitalOut primary_climber('e');
 
 pros::ADIDigitalOut left_wing('c');
@@ -636,8 +636,8 @@ void autonomous(){  // Autonomous function control
 
 	// script.global_close_side();
 	// script.global_six_ball();
-	// script.local_close_side();
-	script.local_six_ball();
+	script.local_close_side();
+	// script.local_six_ball();
 	// script.rush_six_ball();
 	// script.rush_disruption_close_side();
 
