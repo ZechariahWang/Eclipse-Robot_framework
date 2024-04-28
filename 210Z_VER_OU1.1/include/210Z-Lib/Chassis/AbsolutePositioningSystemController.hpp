@@ -18,7 +18,7 @@ namespace Eclipse{
     class Odometry{
         private:
             bool init = true;
-        public:
+        public: 
 
             float global_horizontal_diameter;
             float global_vertical_diameter;

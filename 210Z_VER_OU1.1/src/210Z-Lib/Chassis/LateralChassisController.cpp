@@ -319,8 +319,8 @@ double Eclipse::ArcPID::compute_a(double tx, double ty){
 
 void Eclipse::TranslationPID::set_translation_pid(double target, double maxSpeed, double timeOut, bool slew_enabled){
 
-  chassis_left_motors.at(1).set_zero_position(0);
-  chassis_right_motors.at(1).set_zero_position(0);
+  chassis_left_motors.at(2).set_zero_position(0);
+  chassis_right_motors.at(2).set_zero_position(0);
   mov_t.reset_t_alterables();
   double TARGET_THETA = current_robot_heading(); double POSITION_TARGET = target; bool is_backwards = false; int8_t cd = 0;
   mov_t.t_maxSpeed = maxSpeed;
@@ -360,6 +360,11 @@ void Eclipse::TranslationPID::set_translation_pid(double target, double maxSpeed
 
     utility::engage_left_motors((l_output * (12000.0 / 127)) + headingAssist);
     utility::engage_right_motors((r_output * (12000.0 / 127)) - headingAssist);
+
+    if (distance_sensor.get() < 250 && slew_enabled == true) {
+      utility::motor_deactivation();
+      break;
+    }
     if (fabs(mov_t.t_error) < mov_t.t_error_thresh){ mov_t.t_iterator++; } else { mov_t.t_iterator = 0;}
     if (fabs(mov_t.t_iterator) > mov_t.t_tol){
       utility::motor_deactivation();
@@ -404,7 +409,7 @@ void Eclipse::RotationPID::set_rotation_pid(double t_theta, double maxSpeed, dou
     utility::engage_left_motors(vol * (12000.0 / 127));
     utility::engage_right_motors(-vol * (12000.0 / 127));
     if (fabs(rot_r.r_error) < 3) { rot_r.r_iterator++; } else { rot_r.r_iterator = 0;}
-    if (fabs(rot_r.r_iterator) >= 5){
+    if (fabs(rot_r.r_iterator) >= 3){
       utility::motor_deactivation();
       break;
     }

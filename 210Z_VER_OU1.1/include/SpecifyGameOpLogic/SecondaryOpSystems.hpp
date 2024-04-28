@@ -15,7 +15,7 @@ void extend_odom_piston();
 void controlFlywheel(int targetVelocity);
 void init_sequence();
 void auton_sequence();
-void extend_primary_climber();
+void extend_primary_climber(double competition_start_time);
 void realCataControl();
 void realCataControl();
 

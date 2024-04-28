@@ -41,7 +41,7 @@ void trapezoidal_calculate_initial_kinematic_values(double targetPosition, doubl
     // Calculate the distance to accelerate to the target velocity
     double distanceToTargetVelocity = 0.5 * acceleration * timeToTargetVelocity * timeToTargetVelocity;
 
-    time_to_target_vel = timeToTargetVelocity;
+    time_to_target_vel = timeToTargetVelocity; 
     distance_to_target_vel = distanceToTargetVelocity;
 
     global_distance = distance;

@@ -174,8 +174,8 @@ double Eclipse::utility::get_encoder_position() {
   int left_num = 0; // number of motors
   int right_num = 0; // number of motors
 
-  double left_pos = chassis_left_motors.at(1).get_position();
-  double right_pos = chassis_right_motors.at(1).get_position();
+  double left_pos = chassis_left_motors.at(2).get_position();
+  double right_pos = chassis_right_motors.at(2).get_position();
 
   return (left_pos + right_pos) / 2;
 }

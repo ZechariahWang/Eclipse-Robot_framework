@@ -36,6 +36,7 @@ extern  pros::ADIDigitalOut front_wings;
 extern pros::ADIDigitalOut left_front_wing;
 extern pros::ADIDigitalOut right_front_wing;
 extern pros::ADIDigitalOut primary_climber;
+extern pros::Distance distance_sensor;
 
 extern Eclipse::KalmanFilter kal;
 extern Eclipse::TranslationPID mov_t;

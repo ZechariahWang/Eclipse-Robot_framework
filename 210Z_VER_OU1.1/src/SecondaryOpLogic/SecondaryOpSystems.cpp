@@ -10,6 +10,7 @@
 #include "main.h"
 #include "pros/misc.h"
 #include "pros/motors.h"
+#include "pros/rtos.hpp"
 #include <string>
 
 /**
@@ -51,6 +52,13 @@ int32_t receive_and_validate_input_key(std::string key, bool hold) {
     return hold ? controller.get_digital(digital_key) : controller.get_digital_new_press(digital_key);
 }
 
+bool left_wing_extended = false;
+bool right_wing_extended = false;
+bool both_wings_extended = false;
+
+bool front_left_wing_extended = false;
+bool front_right_wing_extended = false;
+bool front_both_wings_extended = false;
 
 void power_intake(){
     if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){ intake_motor.move_voltage(12000); intake_motor_secondary.move_voltage(-12000); }
@@ -58,9 +66,6 @@ void power_intake(){
     else{ intake_motor.move_voltage(0); intake_motor_secondary.move_voltage(0); }
 }
 
-bool left_wing_extended = false;
-bool right_wing_extended = false;
-bool both_wings_extended = false;
 void extend_wings() {
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
         both_wings_extended = !both_wings_extended;
@@ -78,9 +83,6 @@ void extend_wings() {
     right_wing.set_value(right_wing_extended);
 }
 
-bool front_left_wing_extended = false;
-bool front_right_wing_extended = false;
-bool front_both_wings_extended = false;
 void extend_front_wings() {
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) {
         front_both_wings_extended = !front_both_wings_extended;
@@ -163,8 +165,35 @@ void extend_climber() {
 }
 
 bool primary_climb_extended = false;
-void extend_primary_climber() {
-    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {  primary_climb_extended = !primary_climb_extended; }
+bool can_climb = false;
+double timer_threshold = 500;
+double skills_threshold = 600000;
+double game_threshold = 105000;
+void extend_primary_climber(double competition_start_time) {
+    double current_time = pros::millis();
+    double time_elapsed = current_time - competition_start_time;
+    if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
+        primary_climb_extended = !primary_climb_extended;
+    }
+    // if (fabs(time_elapsed - game_threshold) < timer_threshold  && primary_climb_extended == true){
+    //     left_wing_extended = false;
+    //     right_wing_extended = false;
+    //     both_wings_extended = false;
+
+    //     front_left_wing_extended = false;
+    //     front_right_wing_extended = false;
+    //     front_both_wings_extended = false;
+    //     left_wing.set_value(false);
+    //     right_wing.set_value(false);
+    //     left_front_wing.set_value(false); 
+    //     right_front_wing.set_value(false);
+    //     primary_climb_extended = false;
+    // }
+
+    // if (fabs(time_elapsed - 90000) < timer_threshold){ can_climb = true; }
+    // if (can_climb == false) {
+    //     primary_climb_extended = false;
+    // }
     primary_climber.set_value(primary_climb_extended);
 }
 
@@ -235,7 +264,7 @@ void extend_front_wings_manually() {
     }
 }
 
-bool odom_piston_extended = true;
+bool odom_piston_extended = false;
 void extend_odom_piston() {
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) {
         odom_piston_extended = !odom_piston_extended;

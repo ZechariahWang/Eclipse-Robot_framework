@@ -8,7 +8,7 @@
 
 #include "main.h"
 
-void DRIVER_PHASE() {
+void DRIVER_PHASE(double competition_start_time) {
 	op_mov.exponential_curve_accelerator();
 	odom.update_odom();
 
@@ -16,7 +16,8 @@ void DRIVER_PHASE() {
 	extend_wings();
 	extend_front_wings();
 	extend_odom_piston();
-	extend_primary_climber();
+	extend_climber();
+	extend_primary_climber(competition_start_time);
 	pros::delay(10); // Dont hog CPU ;)
 }
 
