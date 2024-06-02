@@ -13,6 +13,7 @@ Code Framework for 210Z during the 2023-2024 Vex Robotics Competition garnered t
 - 1x Provincial Champion
 - 2x Excellence Award
 - 1x Think Award
+- Western Mechatronics 2024 Excellence in Programming Award
 
 Contains Proportional Integral Derivative (PID) Controllers, Feedback Control MTP and MTRP, Kalman Filters, Bezier Curve Path Planners, Pure Pursuit Path Trackers, PID Constant Tuners, Odometry Position Localization, Holomonic Feedback Control MTP, Linear Motion Profilers with Inverse Kinematics, LVGL Integrated Graphics, Autonomous Selector, Metrics Modular Control
 
