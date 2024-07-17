@@ -31,27 +31,28 @@ char buffer[100];
 
 // Chassis drivetrain config. If you want to config sensors, and misc subsystems go to globals.cpp
 AssetConfig config(
-	{-16, -21, -17, -1}, // Left Motor Ports (negative value means ports are reversed)
-	{19, 20, 18, 7} // Right Motor Ports (negative value means port is reversed)
+	{-20, -9, -19}, // Left Motor Ports (negative value means ports are reversed)
+	{7, 15, 12} // Right Motor Ports (negative value means port is reversed)
 ); 
 
 
 pros::ADIEncoder vertical_auxiliary_sensor('y', 'z', true); // vertical tracking wheel
 pros::Rotation horizontal_rotation_sensor(13); // horizontal tracking wheel
-pros::Imu imu_sensor(12); // IMU sensor
+pros::Imu imu_sensor(16); // IMU sensor
 
 
-pros::Motor intake_motor(3, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS);
-pros::Motor intake_motor_secondary(9, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS);
-pros::ADIDigitalOut primary_climber('h');
+pros::Motor intake_motor(8, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS); 
 
-pros::ADIDigitalOut left_wing('c');
-pros::ADIDigitalOut right_wing('b');
-pros::ADIDigitalOut left_front_wing('d');
-pros::ADIDigitalOut right_front_wing('e');
+pros::Motor intake_motor_secondary(11, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS);
+pros::ADIDigitalOut primary_climber('a');
 
-pros::ADIDigitalOut odom_piston('a');
-pros::Distance distance_sensor(8);
+pros::ADIDigitalOut left_wing('e');
+pros::ADIDigitalOut right_wing('h');
+pros::ADIDigitalOut left_front_wing('f');
+pros::ADIDigitalOut right_front_wing('g');
+
+pros::ADIDigitalOut odom_piston('z');
+pros::Distance distance_sensor(17);
 
 // not used
 pros::ADIDigitalOut blocker('z');
@@ -61,7 +62,7 @@ pros::ADIDigitalOut front_wings('z');
 pros::Motor cata_motor(100, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS); // flywheel
 pros::Motor flywheel_arm(100, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS); 
 pros::Motor cata_motor_secondary(109, pros::E_MOTOR_GEARSET_36, true, pros::E_MOTOR_ENCODER_COUNTS);
-pros::ADIDigitalOut climber('g');
+pros::ADIDigitalOut climber('z');
 pros::ADIDigitalIn cata_sensor('z');
 
 lv_obj_t *sensor_button_home; lv_obj_t *auton_button_home; lv_obj_t *misc_button_home; lv_obj_t *game_button_home; lv_obj_t *welcomeDisplay; lv_obj_t *home_welcome_text; lv_obj_t *home_page = lv_page_create(lv_scr_act(), NULL);
@@ -634,16 +635,10 @@ void autonomous(){  // Autonomous function control
 	// selector.recieve_selector_input(time); // Enabled Auton Selector (STEP 1) ONLY FOR PROTOTYPE USE
 	// select.select_current_auton(); // Enable Auton Selector (STEP 2) 
 
-	// script.local_close_side();
-	script.local_six_ball();
+ 	// script.local_close_side();
+	// script.local_six_ball();
 	// script.rush_six_ball();
 	// script.rush_disruption_close_side();
-
-    // rot_r.set_r_constants(7, 0, 45);
-    // rot_r.set_rotation_pid(90, 60, 0.2);
-
-    // rot_r.set_r_constants(7, 0, 45);
-    // rot_r.set_rotation_pid(0, 60, 1);
 }
 
 /**

@@ -90,7 +90,7 @@ double middle_tpi = 1;
 void Eclipse::Odometry::update_odom() {
   double right_pos = getMotorDistanceTraveled();
   double middle_pos = getRotationDistanceTraveled();
-  // double middle_pos =  0;
+  middle_pos =  0;
 
   double delta_right = (right_pos - prev_right_pos) / tpi;
   double delta_middle = (middle_pos - prev_middle_pos) / middle_tpi;

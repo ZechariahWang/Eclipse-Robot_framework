@@ -20,7 +20,7 @@ void Eclipse::Paths::local_close_side() {
     right_front_wing.set_value(true);
 
     rot_r.set_r_constants(5, 0, 45);
-    rot_r.set_rotation_pid(19, 90, 2);
+    rot_r.set_rotation_pid(19, 90, 0.4);
 
     intake(12000); // intake
     right_front_wing.set_value(false);
@@ -31,51 +31,52 @@ void Eclipse::Paths::local_close_side() {
     pros::delay(200);
 
 	mov_t.set_t_constants(6, 0, 45, 600);
-	mov_t.set_translation_pid(-26, 110, 3, false);
+	mov_t.set_translation_pid(-24, 110, 3, false);
 
     cur_c.set_c_constants(7, 0, 45);
     cur_c.set_curve_pid(90, 90, 0.1, 1, true);
 
 	mov_t.set_t_constants(6, 0, 45, 300);
-	mov_t.set_translation_pid(-38, 50, 1.5, false);
+	mov_t.set_translation_pid(-38, 90, 1, false);
 
     rot_r.set_r_constants(7, 0, 45);
-    rot_r.set_rotation_pid(0, 60, 3);
+    rot_r.set_rotation_pid(0, 90, 3);
 
     cur_c.set_c_constants(7, 0, 45);
-    cur_c.set_curve_pid(-45, 110, 0.18, 2, true);
+    cur_c.set_curve_pid(-45, 110, 0.28, 2, true);
 
     left_wing.set_value(true);
+    pros::delay(200);
 
 	mov_t.set_t_constants(6, 0, 45, 600);
-	mov_t.set_translation_pid(-23, 70, 3, false);
+	mov_t.set_translation_pid(-23, 90, 1, false);
 
     rot_r.set_r_constants(7, 0, 45);
-    rot_r.set_rotation_pid(-90, 60, 3);
+    rot_r.set_rotation_pid(-90, 90, 1);
 
     rot_r.set_r_constants(7, 0, 45);
-    rot_r.set_rotation_pid(-45, 60, 3);
+    rot_r.set_rotation_pid(-45, 90, 1);
 
 	mov_t.set_t_constants(6, 0, 45, 600);
-	mov_t.set_translation_pid(10, 70, 3, false);
+	mov_t.set_translation_pid(10, 70, 1, false);
 
     left_wing.set_value(false);
 
 	mov_t.set_t_constants(6, 0, 45, 600);
-	mov_t.set_translation_pid(-22, 70, 3, false);
+	mov_t.set_translation_pid(-27, 70, 1, false);
 
     rot_r.set_r_constants(7, 0, 45);
-    rot_r.set_rotation_pid(0, 40, 3);
+    rot_r.set_rotation_pid(0, 90, 3);
 
     rot_r.set_r_constants(7, 0, 45);
-    rot_r.set_rotation_pid(90, 40, 3);
+    rot_r.set_rotation_pid(90, 90, 3);
 
     intake_motor.move_voltage(12000);
     intake_motor_secondary.move_voltage(-12000);
     right_front_wing.set_value(true);
 
 	mov_t.set_t_constants(6, 0, 45, 600);
-	mov_t.set_translation_pid(40, 20, 5, true);
+	mov_t.set_translation_pid(40, 30, 5, true);
 
     right_front_wing.set_value(false);
 }
@@ -94,7 +95,7 @@ void Eclipse::Paths::local_six_ball() {
     rot_r.set_rotation_pid(0, 120, 1);
 
 	mov_t.set_t_constants(6, 0, 45, 600);
-	mov_t.set_translation_pid(-31, 120, 3, false);
+	mov_t.set_translation_pid(-33, 120, 3, false);
 
     cur_c.set_c_constants(7, 0, 45);
     cur_c.set_curve_pid(-45, 120, 0.18, 2, true);
@@ -104,10 +105,10 @@ void Eclipse::Paths::local_six_ball() {
 	mov_t.set_t_constants(5, 0, 45, 600);
 	mov_t.set_translation_pid(-24, 120, 3, false);
 
+    left_wing.set_value(false);
+
     rot_r.set_r_constants(7, 0, 45);
     rot_r.set_rotation_pid(-75, 120, 1);
-
-    left_wing.set_value(false);
 
 	mov_t.set_t_constants(5, 0, 45, 600);
 	mov_t.set_translation_pid(-22, 120, 0.7, false);
@@ -147,18 +148,18 @@ void Eclipse::Paths::local_six_ball() {
 	mov_t.set_translation_pid(-12, 120, 2, false);
 
     rot_r.set_r_constants(7, 0, 45);
-    rot_r.set_rotation_pid(140, 120, 3);
+    rot_r.set_rotation_pid(145, 120, 3);
 
     intake(-12000);
     pros::delay(500);
 
     rot_r.set_r_constants(7, 0, 45);
-    rot_r.set_rotation_pid(45, 120, 3);
+    rot_r.set_rotation_pid(54, 120, 3);
 
     intake(12000);
 
 	mov_t.set_t_constants(5, 0, 45, 600);
-	mov_t.set_translation_pid(33, 127, 1, false);
+	mov_t.set_translation_pid(35, 127, 1, false);
 
     rot_r.set_r_constants(7, 0, 45);
     rot_r.set_rotation_pid(180, 120, 3);
@@ -176,17 +177,8 @@ void Eclipse::Paths::local_six_ball() {
     left_front_wing.set_value(false);
     right_front_wing.set_value(false);
 
-	mov_t.set_t_constants(5, 0, 45, 600);
-	mov_t.set_translation_pid(-48, 127, 1, false);
-
-    rot_r.set_r_constants(7, 0, 45);
-    rot_r.set_rotation_pid(-80, 110, 1);
-
-    left_wing.set_value(true);
-
-	mov_t.set_t_constants(5, 0, 45, 600);
-	mov_t.set_translation_pid(50, 127, 1, false);
-
+    cur_c.set_c_constants(7, 0, 45);
+    cur_c.set_curve_pid(90, 110, 0.28, 2, true);
 
 }
 
@@ -455,18 +447,17 @@ void Eclipse::Paths::rush_six_ball() {
 
 
 void Eclipse::Paths::rush_disruption_close_side() {
-    intake(-12000);
     odom_piston.set_value(false);
-    right_front_wing.set_value(true);
 
     rot_r.set_r_constants(5, 0, 45);
     rot_r.set_rotation_pid(19, 90, 2);
 
     intake(12000); // intake
-    right_front_wing.set_value(false);
 
 	mov_t.set_t_constants(8, 0, 45, 600);
-	mov_t.set_translation_pid(45, 127, 3, false);
+	mov_t.set_translation_pid(47, 127, 3, false);
+
+    left_front_wing.set_value(true);
 
     rot_r.set_r_constants(5, 0, 45);
     rot_r.set_rotation_pid(90, 90, 2);
@@ -475,7 +466,9 @@ void Eclipse::Paths::rush_disruption_close_side() {
 	mov_t.set_translation_pid(30, 127, 3, false);
 
 	mov_t.set_t_constants(8, 0, 45, 600);
-	mov_t.set_translation_pid(-25, 127, 3, false);
+	mov_t.set_translation_pid(-30, 127, 3, false);
+
+    left_front_wing.set_value(false);
 
     rot_r.set_r_constants(5, 0, 45);
     rot_r.set_rotation_pid(-50, 90, 2);
@@ -483,31 +476,28 @@ void Eclipse::Paths::rush_disruption_close_side() {
     intake(-12000); 
     pros::delay(500);
 
-	mtp.set_mtp_constants(7, 45, 7, 35, 120, 90);
-	mtp.move_to_point(8, 0, true, false, 2);
+    rot_r.set_r_constants(5, 0, 45);
+    rot_r.set_rotation_pid(0, 90, 2);
 
-    // rot_r.set_r_constants(5, 0, 45);
-    // rot_r.set_rotation_pid(19, 70, 2);
-
-	// mov_t.set_t_constants(6, 0, 45, 600);
-	// mov_t.set_translation_pid(-23, 110, 3, false);
+	mov_t.set_t_constants(6, 0, 45, 600);
+	mov_t.set_translation_pid(-17, 110, 3, false);
 
     cur_c.set_c_constants(7, 0, 45);
     cur_c.set_curve_pid(90, 90, 0.1, 1, true);
 
 	mov_t.set_t_constants(6, 0, 45, 300);
-	mov_t.set_translation_pid(-38, 90, 0.7, false);
+	mov_t.set_translation_pid(-38, 90, 1, false);
 
     rot_r.set_r_constants(7, 0, 45);
     rot_r.set_rotation_pid(0, 90, 3);
 
     cur_c.set_c_constants(7, 0, 45);
-    cur_c.set_curve_pid(-45, 110, 0.18, 2, true);
+    cur_c.set_curve_pid(-45, 110, 0.22, 2, true);
 
     left_wing.set_value(true);
 
 	mov_t.set_t_constants(6, 0, 45, 600);
-	mov_t.set_translation_pid(-23, 90, 3, false);
+	mov_t.set_translation_pid(-20, 90, 1.5, false);
 
     rot_r.set_r_constants(7, 0, 45);
     rot_r.set_rotation_pid(-90, 90, 3);
@@ -537,4 +527,7 @@ void Eclipse::Paths::rush_disruption_close_side() {
 	mov_t.set_translation_pid(60, 40, 3, true);
 
     right_front_wing.set_value(false);
+
+	mov_t.set_t_constants(6, 0, 45, 600);
+	mov_t.set_translation_pid(-22, 90, 3, false);
 }

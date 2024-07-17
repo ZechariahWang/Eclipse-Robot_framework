@@ -2219,6 +2219,142 @@
 // 	mov_t.set_translation_pid(-10, 90, 3, true);
 // }
 
+
+// void StampedeSkills() {
+
+//     cur_c.set_c_constants(7, 0, 45);
+//     cur_c.set_curve_pid(90, 90, 0.17, 1, true);
+
+// 	mov_t.set_t_constants(6, 0, 45, 600);
+// 	mov_t.set_translation_pid(-24, 110, 3, false);
+
+//     cur_c.set_c_constants(7, 0, 45);
+//     cur_c.set_curve_pid(45, 90, 0.27, 1, false);
+
+// 	rot_r.set_r_constants(7, 0, 45);
+//     rot_r.set_rotation_pid(0, 90, 3);
+
+// 	right_wing.set_value(true);
+
+// 	pros::delay(4000);
+			
+// 		right_wing.set_value(false);
+
+// 		rot_r.set_r_constants(7, 0, 45);
+// 		rot_r.set_rotation_pid(45, 90, 3);
+
+// 		cur_c.set_c_constants(7, 0, 45);
+// 		cur_c.set_curve_pid(0, 90, 0.65, 1, false);
+
+// 		mov_t.set_t_constants(6, 0, 45, 600);
+// 		mov_t.set_translation_pid(70, 110, 3, false);
+
+// 		mov_t.set_t_constants(6, 0, 45, 600);
+// 		mov_t.set_translation_pid(-70, 110, 3, false);
+
+// 		cur_c.set_c_constants(7, 0, 45);
+// 		cur_c.set_curve_pid(70, 90, 0.34, 1, true);
+
+// 		mov_t.set_t_constants(6, 0, 45, 600);
+// 		mov_t.set_translation_pid(-4, 110, 3, false);
+
+// 		rot_r.set_r_constants(7, 0, 45);
+// 		rot_r.set_rotation_pid(0, 90, 3);
+
+// 		mov_t.set_t_constants(6, 0, 45, 600);
+// 		mov_t.set_translation_pid(-11, 110, 3, false);
+
+// 		rot_r.set_r_constants(7, 0, 45);
+// 		rot_r.set_rotation_pid(0, 90, 3);
+
+// 		right_wing.set_value(true);
+
+// 		pros::delay(4000);
+
+// 		right_wing.set_value(false);
+
+// 		rot_r.set_r_constants(7, 0, 45);
+// 		rot_r.set_rotation_pid(45, 90, 3);
+
+// 		cur_c.set_c_constants(7, 0, 45);
+// 		cur_c.set_curve_pid(0, 90, 0.65, 1, false);
+
+// 		mov_t.set_t_constants(6, 0, 45, 600);
+// 		mov_t.set_translation_pid(70, 110, 3, false);
+
+// 		mov_t.set_t_constants(6, 0, 45, 600);
+// 		mov_t.set_translation_pid(-70, 110, 3, false);
+
+// 		cur_c.set_c_constants(7, 0, 45);
+// 		cur_c.set_curve_pid(70, 90, 0.34, 1, true);
+
+// 		mov_t.set_t_constants(6, 0, 45, 600);
+// 		mov_t.set_translation_pid(-4, 110, 3, false);
+
+// 		rot_r.set_r_constants(7, 0, 45);
+// 		rot_r.set_rotation_pid(0, 90, 3);
+
+// 		mov_t.set_t_constants(6, 0, 45, 600);
+// 		mov_t.set_translation_pid(-11, 110, 3, false);
+
+// 		rot_r.set_r_constants(7, 0, 45);
+// 		rot_r.set_rotation_pid(0, 90, 3);
+
+// 		right_wing.set_value(true);
+
+// 		pros::delay(4000);
+
+// 	right_wing.set_value(false);
+
+// 	rot_r.set_r_constants(7, 0, 45);
+// 	rot_r.set_rotation_pid(45, 90, 3);
+
+// 	cur_c.set_c_constants(7, 0, 45);
+// 	cur_c.set_curve_pid(0, 90, 0.65, 1, false);
+
+// 	mov_t.set_t_constants(6, 0, 45, 600);
+// 	mov_t.set_translation_pid(70, 110, 3, false);
+
+// 	cur_c.set_c_constants(7, 0, 45);
+// 	cur_c.set_curve_pid(-90, 90, 0.34, 1, false);
+
+// 	mov_t.set_t_constants(6, 0, 45, 600);
+// 	mov_t.set_translation_pid(48, 110, 1, false);
+
+// 	mov_t.set_t_constants(6, 0, 45, 600);
+// 	mov_t.set_translation_pid(-24, 110, 1, false);
+	
+
+// }
+
+// void StampedePath(){
+// 	double end_point_tolerance = 10;
+//     std::vector<CurvePoint> Path;
+// 	bool reverse = false;
+
+// 	double end_pose_x = 40; double end_pose_y = 60;
+
+//     CurvePoint StartPos(utility::get_x(), utility::get_y(), 4, 2, 20, 5, 1);
+//     CurvePoint newPoint0(20, 20, 1, 2, 40, 5, 1);
+//     CurvePoint newPoint1(20, 40, 1, 2, 40, 5, 1);
+//     CurvePoint newPoint4(end_pose_x, end_pose_y, 2, 1, 20, 5, 1);
+//     Path.push_back(StartPos); Path.push_back(newPoint0); Path.push_back(newPoint4); 
+
+// 	bool downOnce = false;
+
+//     while (true){ 
+// 		odom.update_odom();
+// 		if(fabs(sqrt(pow(end_pose_x - utility::get_x(), 2) + pow(end_pose_y - utility::get_y(), 2))) <= fabs(end_point_tolerance)){
+// 			mtp.set_mtp_constants(8, 0, 6, 35, 120, 90);
+// 			mtp.move_to_point(end_pose_x, end_pose_y, reverse, false, 2);
+// 			utility::motor_deactivation();
+// 			break;
+// 		}
+// 		FollowCurve(Path, 7, 12, 60, reverse); // circle size, linear kp, linear max speed
+// 		pros::delay(10);
+// 	}
+// }
+
 // void AutonSelectorPrimary(const u_int16_t autonType){
 //     switch (autonType){
 //     case 0: auton1();                           break;
