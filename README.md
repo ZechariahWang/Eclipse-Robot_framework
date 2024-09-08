@@ -19,7 +19,7 @@ Code Framework developed by 210Z during the 2023-2024 Vex Robotics Competition g
 Contains Proportional Integral Derivative (PID) Controllers, Feedback Control MTP and MTRP, Kalman Filters, Bezier Curve Path Planners, Pure Pursuit Path Trackers, PID Constant Tuners, Odometry Position Localization, Holomonic Feedback Control MTP, Linear Motion Profilers with Inverse Kinematics, LVGL Integrated Graphics, Autonomous Selector, Metrics Modular Control.
 
 ## Project Usage
-1: Install the package from this repository using ```git clone https://github.com/ZechariahWang/210Z-Over-Under-Worlds.git```
+1: Install the package from this repository using ```git clone https://github.com/ZechariahWang/Eclipse-Robot_framework.git```
 
 2: For autonomous control, there are three main components: PID Controller, Odometry Logic, and Algorithm Logic. These are all divided into their own seperate components within the project. Note that certain pieces of logic may require external module and utility functions.
 
