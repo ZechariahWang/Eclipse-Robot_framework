@@ -1,4 +1,4 @@
-![210ZThing](https://github.com/user-attachments/assets/62349d70-26c8-48dd-a537-2e661858eee2)
+![210ZLogo](https://github.com/user-attachments/assets/55f1d4ad-ac78-4a7d-ac7d-db3658863015)
 
 # Eclipse 2023-2024 Library
 
