@@ -1,4 +1,4 @@
-![newLogo](https://github.com/ZechariahWang/210Z-Over-Under-Worlds/assets/97078224/db011725-d4a7-4acb-8b84-9804be6e7e04)
+![210ZThing](https://github.com/user-attachments/assets/62349d70-26c8-48dd-a537-2e661858eee2)
 
 # Eclipse 2023-2024 Library
 
