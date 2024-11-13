@@ -157,7 +157,7 @@ void raw_cata(){
         }
     }
 }
-//nigger
+
 bool climb_extended = false;
 void extend_climber() {
     if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT)) {  climb_extended = !climb_extended; }
